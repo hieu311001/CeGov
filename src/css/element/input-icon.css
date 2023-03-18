@@ -1,0 +1,37 @@
+.ms-input {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+}
+
+.input-search {
+    min-height: 36px;
+    padding: 9px 12px;
+    box-sizing: border-box;
+    width: 100%;
+    border-radius: 3.5px;
+    border: 1px solid #e0e0e0 ;
+    outline: none;
+}
+
+/* .input-search:hover{
+    outline: 1px solid #1a73e8;
+} */
+
+.input-search:focus-within{
+    outline: 1px solid #1a73e8 ;
+}
+
+.input-search__icon{
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    position: absolute;
+    left: auto;
+    top: 6px;
+    right: 8px;
+    cursor: pointer;
+    background: url('../../assets/sprite_cegov.svg') no-repeat -289px -24px;
+}

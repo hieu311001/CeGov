@@ -1,0 +1,92 @@
+.icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    cursor: pointer;
+    display: block;
+}
+
+.icon-option{
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -192px 0;
+}
+
+.icon-logo{
+    background: url('../../assets/icon/logo_cegov.svg') no-repeat;
+}
+
+.icon-notify{
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -24px -48px;
+}
+
+.icon-help{
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -48px -48px;
+}
+
+.icon-document{
+    background: url('../../assets/icon/icon_document_cegov.svg') no-repeat;
+}
+
+.icon-settings{
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -264px -168px;
+}
+
+.icon-tq{
+    background: url('../../assets/icon/tongquan_cegov.svg') no-repeat;
+}
+
+.icon-td{
+    background: url('../../assets/icon/thidua_cegov.svg') no-repeat;
+}
+
+.icon-kt{
+    background: url('../../assets/icon/khenthuong_cegov.svg') no-repeat;
+}
+
+.icon-qd{
+    background: url('../../assets/icon/quyetdinh_cegov.svg') no-repeat;
+}
+
+.icon-hs{
+    background: url('../../assets/icon/hoso_cegov.svg') no-repeat;
+}
+
+.icon-tc{
+    background: url('../../assets/icon/tracuu_cegov.svg') no-repeat;
+}
+
+.icon-bc{
+    background: url('../../assets/icon/baocao_cegov.svg') no-repeat;
+}
+
+.icon-dm{
+    background: url('../../assets/icon/danhmuc_cegov.svg') no-repeat;
+}
+
+.icon-tl{
+    background: url('../../assets/icon/thietlap_cegov.svg') no-repeat;
+}
+
+.icon-hd{
+    background: url('../../assets/icon/huongdan_cegov.svg') no-repeat;
+}
+
+.icon-arrowRight{
+    background: url('../../assets/icon/arror_black_right.svg') no-repeat;
+}
+
+.icon-toggle{
+    background: url('../../assets/icon/toggle.svg') no-repeat;
+}
+
+.icon-filter{
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -96px -48px;
+}
+
+.icon-add{
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -192px -96px;
+}
+
+.icon-exit {
+    background: transparent url('@/assets/sprite_cegov.svg') no-repeat -242px -26px;
+}

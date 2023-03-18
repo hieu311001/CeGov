@@ -1,0 +1,59 @@
+.m-button {
+    border-radius: 4px;
+    background: #fff;
+    height: 36px;
+    padding: 6px 16px;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all .2s ease;
+    border: 1px solid #e0e0e0;
+    font-size: 14px ;
+    min-width: 80px;
+}
+
+.ms-button {
+    border-radius: 4px;
+    background: #fff;
+    height: 36px;
+    padding: 6px 16px;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all .2s ease;
+    border: 1px solid #e0e0e0;
+    font-size: 14px ;
+    display: flex;
+    align-items: center;
+    min-width: 80px;
+}
+
+.add-icon{
+    margin: 0 5px 0 -4px;
+}
+
+.btn-white{
+    background: #fff;
+}
+
+.btn-white:hover{
+    background: #f4f5f8;
+}
+
+.btn-white:focus{
+    background: #ebebeb;
+}
+
+.btn-blue{
+    background: #2979ff;
+    color: #fff;
+}
+
+.btn-blue:hover{
+    background: #1a73e8;
+}
+
+.btn-blue:focus{
+    background: #0062cc;
+}
+
