@@ -9,9 +9,9 @@
 </template>
 
 <script>
-import TheMenu from './components/layout/TheMenu.vue';
-import TheContent from './components/layout/TheContent.vue';
-import TheHeader from './components/layout/TheHeader.vue';
+import TheMenu from '@/layout/TheMenu.vue';
+import TheContent from '@/layout/TheContent.vue';
+import TheHeader from '@/layout/TheHeader.vue';
 
 export default {
   name: 'App',
@@ -24,5 +24,5 @@ export default {
 </script>
 
 <style>
-@import url(./css/main.css);
+@import url(./assets/css/main.css);
 </style>

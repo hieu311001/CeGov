@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import EmulationPage from '@/components/layout/Emulation/EmulationPage.vue';
-import HomePage from '@/components/layout/Home/HomePage.vue';
+import EmulationPage from '@/view/Emulation/EmulationPage.vue';
+import HomePage from '@/view/Home/HomePage.vue';
 
 const routes = [
   {

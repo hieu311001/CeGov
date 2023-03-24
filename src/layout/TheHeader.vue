@@ -27,7 +27,7 @@
                 </div>
                 <div class="nav-right__avatar">
                     <div class="nav-right__image">
-                        <img src="../../assets/img/getavatar.png" alt="" class="avatar">
+                        <img src="@/assets/img/getavatar.png" alt="" class="avatar">
                     </div>
                 </div>
             </div>

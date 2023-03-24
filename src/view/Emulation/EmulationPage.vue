@@ -151,12 +151,12 @@
 </template>
 
 <script>
-import BaseButtonIcon from '../../base/Button/BaseButtonIcon.vue';
-import BaseButton from '../../base/Button/BaseButton.vue';
-import FormEmulation from '../../view/FormEmulation.vue';
+import BaseButtonIcon from '@/components/base/Button/BaseButtonIcon.vue';
+import BaseButton from '@/components/base/Button/BaseButton.vue';
+import FormEmulation from '@/view/FormEmulation.vue';
 import { getAllEmulation } from '@/common/API/emulationAPI';
 import { defineComponent , ref, reactive, inject, onMounted } from 'vue';
-import { getValueEnum } from '../../../common/Common.js';
+import { getValueEnum } from '@/common/Common.js';
 import * as Resource from '@/common/Resource/Resource';
 
 export default defineComponent({

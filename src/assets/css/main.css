@@ -76,15 +76,15 @@ strong{
 
 @font-face {
     font-family: GoogleSans;
-    src: url("../assets/fonts/GoogleSans-Regular.otf");
+    src: url("../fonts/GoogleSans-Regular.otf");
 }
 
 @font-face {
     font-family: GoogleSans Italic;
-    src: url("../assets/fonts/GoogleSans-Italic.otf");
+    src: url("../fonts/GoogleSans-Italic.otf");
 }
 
 @font-face {
     font-family: GoogleSans Bold;
-    src: url("../assets/fonts/GoogleSans-Bold.otf");
+    src: url("../fonts/GoogleSans-Bold.otf");
 }

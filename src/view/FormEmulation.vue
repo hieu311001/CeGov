@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import BaseButton from '../base/Button/BaseButton.vue';
+import BaseButton from '@//components/base/Button/BaseButton.vue';
 // import BaseCombobox from '../base/Combobox/BaseCombobox.vue';
 import { defineComponent , ref, inject, onMounted } from 'vue';
 import { getByID } from '@/common/API/emulationAPI';
@@ -151,10 +151,12 @@ export default defineComponent ({
          * Thực hiện reset form sau khi đóng form
          */
         const resetForm = () => {
+            // Xóa text input
             form.value.querySelectorAll('input[type="text"]').forEach(element => {
                 element.value = "";
             })
 
+            // Đặt checkbox về mặc định
             form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
                 if (element.value == 1) {
                     element.checked = true;
@@ -163,7 +165,13 @@ export default defineComponent ({
                 }
             })
 
+            // Xóa text area
             form.value.querySelector('textarea').value = "";
+
+            // Xóa thông báo lỗi
+            form.value.querySelectorAll(".label-error").forEach(element => {
+                element.style.display = "none";
+            })
         }
 
         /**

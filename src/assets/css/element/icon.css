@@ -1,0 +1,92 @@
+.icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    cursor: pointer;
+    display: block;
+}
+
+.icon-option{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -192px 0;
+}
+
+.icon-logo{
+    background: url('../../icon/logo_cegov.svg') no-repeat;
+}
+
+.icon-notify{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -24px -48px;
+}
+
+.icon-help{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -48px -48px;
+}
+
+.icon-document{
+    background: url('../../icon/icon_document_cegov.svg') no-repeat;
+}
+
+.icon-settings{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -264px -168px;
+}
+
+.icon-tq{
+    background: url('../../icon/tongquan_cegov.svg') no-repeat;
+}
+
+.icon-td{
+    background: url('../../icon/thidua_cegov.svg') no-repeat;
+}
+
+.icon-kt{
+    background: url('../../icon/khenthuong_cegov.svg') no-repeat;
+}
+
+.icon-qd{
+    background: url('../../icon/quyetdinh_cegov.svg') no-repeat;
+}
+
+.icon-hs{
+    background: url('../../icon/hoso_cegov.svg') no-repeat;
+}
+
+.icon-tc{
+    background: url('../../icon/tracuu_cegov.svg') no-repeat;
+}
+
+.icon-bc{
+    background: url('../../icon/baocao_cegov.svg') no-repeat;
+}
+
+.icon-dm{
+    background: url('../../icon/danhmuc_cegov.svg') no-repeat;
+}
+
+.icon-tl{
+    background: url('../../icon/thietlap_cegov.svg') no-repeat;
+}
+
+.icon-hd{
+    background: url('../../icon/huongdan_cegov.svg') no-repeat;
+}
+
+.icon-arrowRight{
+    background: url('../../icon/arror_black_right.svg') no-repeat;
+}
+
+.icon-toggle{
+    background: url('../../icon/toggle.svg') no-repeat;
+}
+
+.icon-filter{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -96px -48px;
+}
+
+.icon-add{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -192px -96px;
+}
+
+.icon-exit {
+    background: transparent url('../../sprite_cegov.svg') no-repeat -242px -26px;
+}
