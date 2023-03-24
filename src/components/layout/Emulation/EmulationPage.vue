@@ -10,7 +10,9 @@
                     <div class="toolbar-left">
                         <div class="ms-input filter-input">
                             <input id="input-search" type="text" placeholder="Nhập mã hoặc tên danh hiệu..." class="input-search">
-                            <div class="input-search__icon"></div>
+                            <div class="input-search__icon">
+                                <icon class="icon icon-search"></icon>
+                            </div>
                         </div>
                         <div class="filter">
                             <BaseButtonIcon class="ms-button btn-white" text="Bộ lọc" @click="handleToggleFilter">
@@ -95,214 +97,19 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr @click="selectedRows">
+                                    <tr v-for="emp in emulation.value" :key="emp.EmulationID" @click="selectedRows" @dblclick="handleEdit(emp.EmulationID)">
                                         <td class="checkbox">
                                             <div class="ip-checkbox">
                                                 <input type="checkbox" class="input__checkbox" id="checkboxAll">
                                             </div>
                                         </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
+                                        <td>{{ emp.EmulationName }}</td>
+                                        <td>{{ emp.EmulationCode }}</td>
+                                        <td>{{ getValueEnum(emp.RewardObject, Resource.PropName.RewardObject) }}</td>
+                                        <td>{{ emp.RewardLevelName }}</td>
+                                        <td>{{ getValueEnum(emp.TypeMovement, Resource.PropName.TypeMovement) }}</td>
+                                        <td>{{ getValueEnum(emp.Status, Resource.PropName.Status) }}</td>
                                     </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <!-- <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="checkbox">
-                                            <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
-                                            </div>
-                                        </td>
-                                        <td>Lao động tiên tiến</td>
-                                        <td>LĐTTCX</td>
-                                        <td>Cá nhân</td>
-                                        <td>Cấp xã/tương đương</td>
-                                        <td>Thường xuyên</td>
-                                        <td>Sử dụng</td>
-                                    </tr> -->
                                 </tbody>
                             </table>
                         </div>
@@ -347,43 +154,81 @@
 import BaseButtonIcon from '../../base/Button/BaseButtonIcon.vue';
 import BaseButton from '../../base/Button/BaseButton.vue';
 import FormEmulation from '../../view/FormEmulation.vue';
+import { getAllEmulation } from '@/common/API/emulationAPI';
+import { defineComponent , ref, reactive, inject, onMounted } from 'vue';
+import { getValueEnum } from '../../../common/Common.js';
+import * as Resource from '@/common/Resource/Resource';
 
-export default {
-    name: 'TheContent',
-    props: {
-
-    },
+export default defineComponent({
     components: {
-        BaseButtonIcon,
-        FormEmulation,
-        BaseButton     
+         BaseButtonIcon,
+         FormEmulation,
+         BaseButton     
     },
-    data() {
-        return {
-            showOver: false,        // Hiệu ứng tối màn hình
-            showFormFilter: false, //Ẩn hiện form lọc dữ liệu
+    setup() {
+        var showOver = ref(false);
+        var showFormFilter = ref(false);
+        const emulation = reactive([]);
+
+        const emitter = inject('emitter');
+
+        /**
+         * Mở form thêm danh hiệu
+         */
+        const handleOpenForm = () => {  
+            showOver.value = true;
+            emitter.emit('openAddForm');
         }
-    },
-    methods: {
-        // Thực hiện mở form thêm danh hiệu
-        handleOpenForm() {
-            this.showOver = true;
-            this.emitter.emit("openAddForm");
-        },
-        // Toggle form filter
-        handleToggleFilter() {
-            this.showFormFilter = !this.showFormFilter;
-        },
-        selectedRows() {
-            
+
+        /**
+         * Toggle form Filter
+         */
+        const handleToggleFilter = () => {
+            showFormFilter.value = !showFormFilter.value;
         }
-    },
-    mounted() {
-        this.emitter.on("closeAddForm", () => {
-            this.showOver = false;
+
+        /**
+         * Call API lấy dữ liệu danh hiệu thi đua
+         */
+        const getAll = async () => {
+            emulation.value = await getAllEmulation();
+        }
+
+        /**
+         * Gửi sự kiện mở form xem thông tin và sửa danh mục thi đua
+         */
+        const handleEdit =  (id) => {
+            showOver.value = true;
+            emitter.emit('openEditForm', id);
+        }
+
+        onMounted(() => {
+            //Thực hiện lấy dữ liệu
+            try{
+                getAll();
+            } catch(ex){
+                console.error(ex);
+            }
+
+            // Bắt sự kiện đóng form thêm danh hiệu
+            emitter.on('closeForm', () => {
+                showOver.value = false;
+            })
         })
+
+        return {
+            showOver,
+            showFormFilter,
+            handleToggleFilter,
+            handleOpenForm,
+            emulation,
+            getAll,
+            handleEdit,
+            getValueEnum,
+            Resource
+        }
     }
-}
+})
 </script>
 
 <style scoped>
@@ -441,9 +286,15 @@ export default {
     width: 265px;
     margin-right: 10px;
     border-radius: 3.5px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
 }
 
 .filter-input:hover{
+    outline: 1px solid #1a73e8 ;
+}
+
+.filter-input:focus-within{
     outline: 1px solid #1a73e8 ;
 }
 

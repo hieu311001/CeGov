@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import store from './store'
 import router from './router'
 
 import mitt from 'mitt';
@@ -10,8 +9,7 @@ const app = createApp(App);
 
 app.config.globalProperties.emitter = emitter;
 
-
-app.use(store);
+app.provide('emitter', emitter);
 app.use(router);
 
 app.mount('#app');

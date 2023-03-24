@@ -1,5 +1,5 @@
 .m-input{
-    font-size: 13px;
+    font-size: 14px;
     min-height: 36px;
     color: inherit;
     position: relative;
@@ -10,6 +10,7 @@
     width: 100%;
     padding: 9px 12px;
     outline: none;
+    font-family: GoogleSans;
 }
 
 /* .m-input:hover{

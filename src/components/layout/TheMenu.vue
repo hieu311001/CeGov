@@ -3,7 +3,7 @@
         <div class="menu-container">
             <div class="left-container">
                 <div class="menu-item-container">
-                    <router-link to="/">
+                    <router-link to="/" class="menu-focus">
                         <div class="menu-item">
                             <div class="menu-item__icon">
                                 <icon class="icon icon-tq"></icon>
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                     <div class="menu-line"></div>
-                    <router-link to="/emulation">
+                    <router-link to="/emulation" class="menu-focus">
                         <div class="menu-item">
                             <div class="menu-item__icon">
                                 <icon class="icon icon-dm"></icon>
@@ -167,6 +167,16 @@ export default {
     padding: 12px 0 12px 52px;
     margin: 8px 8px;
     cursor: pointer;
+}
+
+.menu-item:hover {
+    color: #ff6d00;
+    background: #fbe9e7;
+}
+
+.menu-focus:focus>div{
+    color: #ff6d00;
+    background: #fbe9e7;
 }
 
 .menu-item__icon icon{

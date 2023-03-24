@@ -1,5 +1,5 @@
 <template>
-    <div class="form-detail" v-if="showForm">
+    <div class="form-detail" v-show="showForm">
         <div class="form-container">
             <div class="form-header">
                 <div class="header-text">
@@ -14,15 +14,17 @@
                     </div>
                 </div>
             </div>
-            <div class="form-content">
+            <div class="form-content" ref="form">
                 <div class="form-name">
                     <label for="" class="name-text m-label">
                         Tên danh hiệu thi đua
                         <span class="asterik">*</span>
                     </label>
-                    <div class="form-input name-input">
-                        <input type="text" class="m-input" placeholder="Nhập tên danh hiệu thi đua">
+                    <div class="form-input name-input" Required="true">
+                        <input type="text" class="m-input" ref="name" placeholder="Nhập tên danh hiệu thi đua" >
+                        <div class="label-error name-error">Tên danh hiệu thi đua không được để trống.</div>
                     </div>
+                    
                 </div>
                 <div class="form-code">
                     <div class="code-title">
@@ -30,25 +32,31 @@
                             Mã danh hiệu
                             <span class="asterik">*</span>
                         </label>
-                        <div class="form-input code-input">
-                            <input type="text" class="m-input" placeholder="Nhập mã danh hiệu">
+                        <div class="form-input code-input" Required="true">
+                            <input type="text" class="m-input" ref="code" placeholder="Nhập mã danh hiệu">
+                            <div class="label-error name-error">Mã danh hiệu không được để trống.</div>
                         </div>
                     </div>
-                    <div class="code-object">
+                    <div class="code-object" RequiredCheckbox="true">
                         <label for="" class="name-text m-label">
                             Đối tượng khen thưởng
                             <span class="asterik">*</span>
                         </label>
-                        <div class="checkbox-input">
+                        <div class="checkbox-input" ref="object">
                             <div>
-                                <input type="checkbox">
+                                <input type="checkbox" checked="true" value="1">
                                 <label for="" class="checkbox-label">Cá nhân</label>
                             </div>
                             <div>
-                                <input type="checkbox">
+                                <input type="checkbox" value="2">
                                 <label for="" class="checkbox-label">Tập thể</label>
                             </div>
+                            <div>
+                                <input type="checkbox" value="4">
+                                <label for="" class="checkbox-label">Hộ gia đình</label>
+                            </div>
                         </div>
+                        <div class="label-error name-error">Đối tượng khen thưởng không được để trống.</div>
                     </div>
                 </div>
                 <div class="form-level">
@@ -57,25 +65,27 @@
                             Cấp khen thưởng
                             <span class="asterik">*</span>
                         </label>
-                        <div class="form-input level-input">
-                            <input type="text" class="m-input" placeholder="Chọn hiện vật khen thưởng">
+                        <div class="form-input level-input" Required="true">
+                            <input type="text" class="m-input" placeholder="Chọn hiện vật khen thưởng" ref="level">
+                            <div class="label-error name-error">Cấp khen thưởng không được để trống.</div>
                         </div>
                     </div>
-                    <div class="level-type">
+                    <div class="level-type" RequiredCheckbox="true">
                         <label for="" class="type-text m-label">
                             Loại phong trào áp dụng
                             <span class="asterik">*</span>
                         </label>
-                        <div class="checkbox-input">
+                        <div class="checkbox-input" ref="type">
                             <div>
-                                <input type="checkbox">
+                                <input type="checkbox" checked="true" value="1">
                                 <label for="" class="checkbox-label">Thường xuyên</label>
                             </div>
                             <div>
-                                <input type="checkbox">
+                                <input type="checkbox" value="2">
                                 <label for="" class="checkbox-label">Theo đợt</label>
                             </div>
                         </div>
+                        <div class="label-error name-error">Loại phong trào không được để trống.</div>
                     </div>
                 </div>
                 <div class="form-note">
@@ -84,7 +94,7 @@
                             Ghi chú
                         </label>
                         <div class="note-input">
-                            <textarea class="note-area" placeholder="Nhập ghi chú"></textarea>
+                            <textarea class="note-area" placeholder="Nhập ghi chú" ref="note"></textarea>
                         </div>
                     </div>
                 </div>
@@ -97,7 +107,7 @@
                     <BaseButton class="m-button" text="Lưu & thêm mới"></BaseButton>
                 </div>
                 <div class="btn-save">
-                    <BaseButton class="m-button btn-blue" text="Lưu"></BaseButton>
+                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave"></BaseButton>
                 </div>
             </div>
         </div>
@@ -107,33 +117,188 @@
 <script>
 import BaseButton from '../base/Button/BaseButton.vue';
 // import BaseCombobox from '../base/Combobox/BaseCombobox.vue';
+import { defineComponent , ref, inject, onMounted } from 'vue';
+import { getByID } from '@/common/API/emulationAPI';
 
-export default {
-    props: {
-
-    },
+export default defineComponent ({
     components: {
-        BaseButton,
-        //BaseCombobox
+        BaseButton
     },
-    data() {
+    setup() {
+        const emitter = inject('emitter');
+        const form = ref(null);
+
+        var showForm = ref(false);
+        const name = ref("name");
+        const code = ref("code");
+        const object = ref("object");
+        const level = ref("level");
+        const type = ref("type");
+        const note = ref("note");
+
+
+        /**
+         * Đóng form thêm mới danh hiệu
+         * CreatedBy: VMHieu 21/03/2023
+         */
+        const handleCloseForm = () => {
+            showForm.value = false;
+            emitter.emit("closeForm");
+            resetForm();
+        }
+
+        /**
+         * Thực hiện reset form sau khi đóng form
+         */
+        const resetForm = () => {
+            form.value.querySelectorAll('input[type="text"]').forEach(element => {
+                element.value = "";
+            })
+
+            form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
+                if (element.value == 1) {
+                    element.checked = true;
+                } else {
+                    element.checked = false;
+                }
+            })
+
+            form.value.querySelector('textarea').value = "";
+        }
+
+        /**
+         * 1. Validate dữ liệu trước khi gửi lên server
+         * CreatedBy VMHieu 21/03/2023
+         */
+        const validateForm = () => {
+            // validate trường bắt buộc nhập
+            let isValid = true;
+            // Validate các ô input text
+            form.value.querySelectorAll('[Required]').forEach(element => {
+                let input = element.querySelector('input');
+                let error = element.querySelector('.label-error');
+
+                if (input.value == "") {
+                    isValid = false;
+                    error.style.display = "block";
+                } else {
+                    error.style.display = "none";
+                }
+            });
+            // Validate các ô input checkbox
+            form.value.querySelectorAll('[RequiredCheckbox]').forEach(element => {
+                let input = element.querySelectorAll('input[type="checkbox"]');
+                let error = element.querySelector('.label-error');
+                let len = input.length;
+                let k = 0;
+                for (let i = 0; i < len; i++) {
+                    if (input[i].checked == false){
+                        k++;
+                    }
+                }
+
+                if (k == len) {
+                    isValid = false;
+                    error.style.display = "block";
+                } else {
+                    error.style.display = "none";
+                }
+            })
+            return isValid;
+        }
+
+        /**
+         * 2. Lấy dữ liệu của emudation đã nhập từ form
+         * CreatedBy VMHieu 21/03/2023
+         */
+
+         /**
+         * 3.1 Lưu dữ liệu
+         * CreatedBy VMHieu 21/03/2023
+         */
+        const handleSave = () => {
+            if (validateForm() == true) {
+                showForm.value = false;
+            }
+        }
+        /**
+         * 3.2 Lưu và thêm mới dữ liệu
+         * CreatedBy VMHieu 21/03/2023
+         */
+
+        /**
+         * Thực hiện biding data ra form sửa
+         */
+        const bidingData = (data) => {
+            name.value.value = data.EmulationName;
+            code.value.value = data.EmulationCode;
+            level.value.value = data.RewardLevelName;
+            note.value.value = data.Note;
+
+            object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
+                if (element.value == data.RewardObject && data.RewardObject != 3) {
+                    element.checked = true;
+                } else if (data.RewardObject == 3) {
+                    if (element.value == 1 || element.value == 2) {
+                        element.checked = true;
+                    } else {
+                        element.checked = false;
+                    }
+                } 
+                else {
+                    element.checked = false;
+                }
+            })
+
+            type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
+                if (element.value == data.TypeMovement) {
+                    element.checked = true;
+                } 
+                else {
+                    element.checked = false;
+                }
+            })
+            
+            showForm.value = true;
+        }
+
+        onMounted(() => {
+            /**
+             * Mở form thêm mới danh hiệu
+             * CreatedBy: VMHieu 21/03/2023
+             */
+            emitter.on('openAddForm', () => {
+                showForm.value = true;
+            })
+
+            /**
+             * Mở form sửa danh hiệu thi đua
+             * CreatedBy: VMHieu 24/03/2023
+             */
+            emitter.on('openEditForm', async (id) => {
+                let emulation = await getByID(id);
+                // Thực hiện biding dữ liệu vào form
+                bidingData(emulation);
+            })
+        });
+
         return {
-            showForm: false,       // Ẩn hiện popup
+            form,
+            showForm,
+            name,
+            code,
+            level,
+            object,
+            type,
+            note,
+            handleCloseForm,
+            validateForm,
+            handleSave,
+            bidingData,
+            resetForm
         }
-    },
-    methods: {
-        // Hàm đóng form
-        handleCloseForm() {
-            this.showForm = false;
-            this.emitter.emit("closeAddForm");
-        }
-    },
-    mounted() {
-        this.emitter.on("openAddForm", () => {
-            this.showForm = true;
-        })
     }
-}
+})
 </script>
 
 <style scoped>
@@ -207,16 +372,16 @@ export default {
     margin-bottom: 16px;
 } */
 
-.form-input{
+.form-input>input{
     border-radius: 3.5px;
 }
-.form-input:hover{
+.form-input>input:hover{
     outline: 1px solid #1a73e8 ;
 }
 
 .form-code, .form-level{
     display: flex;
-    align-items: center;
+
     justify-content: center;
 }
 
@@ -262,6 +427,8 @@ export default {
     width: 100%;
     height: 76px;
     border-radius: 3.5px;
+    font-family: GoogleSans;
+    font-size: 14px;
 }
 
 .note-area:hover{
@@ -297,6 +464,12 @@ export default {
 .btn-saveadd>button:focus{
     background: #0062cc;
     color: #fff!important;
+}
+
+.label-error{
+    color: #ef5350;
+    margin-top: 6px;
+    display: none;
 }
 
 </style>
