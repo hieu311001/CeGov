@@ -25,6 +25,7 @@ input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
+    accent-color: #2979ff;
 }
 
 input[type="radio"] {

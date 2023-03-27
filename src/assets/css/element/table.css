@@ -21,8 +21,16 @@ th, td{
 th{
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 6;
 }
+
+/* tr{
+    position: relative;
+} */
+
+/* tr:hover > .option{
+    display: block;
+} */
 
 td{
     height: 40px;
@@ -62,4 +70,45 @@ td{
 
 .selector-tr{
     background: #e0ebff;
+}
+
+.option{
+    position: absolute;
+    height: 40px;
+    background: #fbe9e7;
+    white-space: nowrap;
+    padding-right: 10px;
+    display: flex;
+    z-index: 5;
+    display:none;
+}
+
+.option-edit{
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    margin-left: 4px;
+}
+
+.option-delete{
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    margin-left: 4px;
 }

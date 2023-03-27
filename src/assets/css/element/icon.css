@@ -90,3 +90,11 @@
 .icon-exit {
     background: transparent url('../../sprite_cegov.svg') no-repeat -242px -26px;
 }
+
+.icon-edit{
+    background: transparent url('../../sprite_cegov.svg') no-repeat 0px -72px;
+}
+
+.icon-bonus{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -168px -48px;
+}

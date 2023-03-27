@@ -2,7 +2,7 @@
 <div>
     <div class="content">
         <div class="content-container">
-            <div class="form-list">
+            <div class="form-list" ref="page">
                 <div class="form-title">
                     <div class="form-title__text">Danh hiệu thi đua</div>
                 </div>
@@ -15,11 +15,11 @@
                             </div>
                         </div>
                         <div class="filter">
-                            <BaseButtonIcon class="ms-button btn-white" text="Bộ lọc" @click="handleToggleFilter">
+                            <BaseButton class="ms-button btn-white" text="Bộ lọc" @click="handleToggleFilter">
                                 <div class="add-icon">
                                     <icon class="icon icon-filter"></icon>
                                 </div>
-                            </BaseButtonIcon>
+                            </BaseButton>
                             <div class="form-filter" v-if="showFormFilter">
                                 <span class="filter-arrow"></span>
                                 <div class="filter-container">
@@ -70,17 +70,17 @@
                         </div>
                     </div>
                     <div class="toolbar-right">
-                        <BaseButtonIcon class="ms-button btn-blue" text="Thêm danh hiệu" @click="handleOpenForm">
+                        <BaseButton class="ms-button btn-blue" text="Thêm danh hiệu" @click="handleOpenForm">
                             <div class="add-icon">
                                 <icon class="icon icon-add"></icon>
                             </div>
-                        </BaseButtonIcon>
+                        </BaseButton>
                     </div>
                 </div>
                 <div class="form-content">
                     <div class="form-content__container">
                         <div class="content-table">
-                            <table id="emulation-table">
+                            <table id="emulation-table" ref="row">
                                 <thead>
                                     <tr>
                                         <th class="checkbox checkboxAll">
@@ -97,7 +97,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="emp in emulation.value" :key="emp.EmulationID" @click="selectedRows" @dblclick="handleEdit(emp.EmulationID)">
+                                    <tr 
+                                        v-for="emp in emulation.value" 
+                                        :key="emp.EmulationID" 
+                                        @click="selectedRows" 
+                                        @dblclick="handleEdit(emp.EmulationID)"
+                                        @mouseover="overRow"
+                                        @mouseout="outRow"
+                                        class="table-row"
+                                    >
                                         <td class="checkbox">
                                             <div class="ip-checkbox">
                                                 <input type="checkbox" class="input__checkbox" id="checkboxAll">
@@ -109,6 +117,14 @@
                                         <td>{{ emp.RewardLevelName }}</td>
                                         <td>{{ getValueEnum(emp.TypeMovement, Resource.PropName.TypeMovement) }}</td>
                                         <td>{{ getValueEnum(emp.Status, Resource.PropName.Status) }}</td>
+                                        <div class="option">
+                                            <div class="option-edit" @click="handleEdit(emp.EmulationID)" title="Sửa">
+                                                <icon class="icon icon-edit"></icon>
+                                            </div>
+                                            <div class="option-delete" title="Thêm nữa...">
+                                                <icon class="icon icon-bonus"></icon>
+                                            </div>
+                                        </div>
                                     </tr>
                                 </tbody>
                             </table>
@@ -150,85 +166,95 @@
 </div>
 </template>
 
-<script>
-import BaseButtonIcon from '@/components/base/Button/BaseButtonIcon.vue';
+<script setup>
+
 import BaseButton from '@/components/base/Button/BaseButton.vue';
 import FormEmulation from '@/view/FormEmulation.vue';
 import { getAllEmulation } from '@/common/API/emulationAPI';
-import { defineComponent , ref, reactive, inject, onMounted } from 'vue';
+import { ref, reactive, inject, onMounted } from 'vue';
 import { getValueEnum } from '@/common/Common.js';
 import * as Resource from '@/common/Resource/Resource';
 
-export default defineComponent({
-    components: {
-         BaseButtonIcon,
-         FormEmulation,
-         BaseButton     
-    },
-    setup() {
-        var showOver = ref(false);
-        var showFormFilter = ref(false);
-        const emulation = reactive([]);
+var showOver = ref(false);
+var showFormFilter = ref(false);
+const emulation = reactive([]);
+const row = ref('row');
+const page = ref('page');
 
-        const emitter = inject('emitter');
+const emitter = inject('emitter');
 
-        /**
-         * Mở form thêm danh hiệu
-         */
-        const handleOpenForm = () => {  
-            showOver.value = true;
-            emitter.emit('openAddForm');
-        }
+/**
+ * Mở form thêm danh hiệu
+ */
+const handleOpenForm = () => {  
+    showOver.value = true;
+    emitter.emit('openAddForm');
+}
 
-        /**
-         * Toggle form Filter
-         */
-        const handleToggleFilter = () => {
-            showFormFilter.value = !showFormFilter.value;
-        }
+/**
+ * Toggle form Filter
+ */
+const handleToggleFilter = () => {
+    showFormFilter.value = !showFormFilter.value;
+}
 
-        /**
-         * Call API lấy dữ liệu danh hiệu thi đua
-         */
-        const getAll = async () => {
-            emulation.value = await getAllEmulation();
-        }
-
-        /**
-         * Gửi sự kiện mở form xem thông tin và sửa danh mục thi đua
-         */
-        const handleEdit =  (id) => {
-            showOver.value = true;
-            emitter.emit('openEditForm', id);
-        }
-
-        onMounted(() => {
-            //Thực hiện lấy dữ liệu
-            try{
-                getAll();
-            } catch(ex){
-                console.error(ex);
-            }
-
-            // Bắt sự kiện đóng form thêm danh hiệu
-            emitter.on('closeForm', () => {
-                showOver.value = false;
-            })
-        })
-
-        return {
-            showOver,
-            showFormFilter,
-            handleToggleFilter,
-            handleOpenForm,
-            emulation,
-            getAll,
-            handleEdit,
-            getValueEnum,
-            Resource
-        }
+/**
+ * Call API lấy dữ liệu danh hiệu thi đua
+ */
+const getAll = async () => {
+    try {
+        emulation.value = await getAllEmulation();
+    } catch (ex) {
+        console.log(ex);
     }
+    
+}
+
+/**
+ * Gửi sự kiện mở form xem thông tin và sửa danh mục thi đua
+ */
+const handleEdit =  (id) => {
+    showOver.value = true;
+    emitter.emit('openEditForm', id);
+}
+/**
+ * Lấy các kích thước liên quan để hiển thị cố định 2 nút option 
+ * Hiển thị nút option khi mouseover
+ */
+const overRow = (event) => {
+    // Độ rộng phần tử form-list
+    let width = page.value.getBoundingClientRect().width;
+    // Tọa độ left của table
+    let left = row.value.getBoundingClientRect().left;
+    // Nút option
+    let option = event.currentTarget.querySelector('.option');
+
+    // Đặt tọa độ nút option và hiển thị khi hover tr
+    option.style.left = `${width + 100 - left}px`;
+    option.style.display = 'block';
+}
+/**
+ * Ẩn nút option khi mouseout
+ */
+const outRow = (event) => {
+    let option = event.currentTarget.querySelector('.option');
+    option.style.display = 'none';
+}
+
+onMounted(() => {
+    //Thực hiện lấy dữ liệu
+    try{
+        getAll();
+    } catch(ex){
+        console.error(ex);
+    }
+
+    // Bắt sự kiện đóng form thêm danh hiệu
+    emitter.on('closeForm', () => {
+        showOver.value = false;
+    })
 })
+
 </script>
 
 <style scoped>

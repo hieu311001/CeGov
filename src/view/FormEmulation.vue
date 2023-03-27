@@ -44,16 +44,16 @@
                         </label>
                         <div class="checkbox-input" ref="object">
                             <div>
-                                <input type="checkbox" checked="true" value="1">
-                                <label for="" class="checkbox-label">Cá nhân</label>
+                                <input type="checkbox" checked="true" value="1" id="object1">
+                                <label for="object1" class="checkbox-label">Cá nhân</label>
                             </div>
                             <div>
-                                <input type="checkbox" value="2">
-                                <label for="" class="checkbox-label">Tập thể</label>
+                                <input type="checkbox" value="2" id="object2">
+                                <label for="object2" class="checkbox-label">Tập thể</label>
                             </div>
                             <div>
-                                <input type="checkbox" value="4">
-                                <label for="" class="checkbox-label">Hộ gia đình</label>
+                                <input type="checkbox" value="4" id="object3">
+                                <label for="object3" class="checkbox-label">Hộ gia đình</label>
                             </div>
                         </div>
                         <div class="label-error name-error">Đối tượng khen thưởng không được để trống.</div>
@@ -77,12 +77,12 @@
                         </label>
                         <div class="checkbox-input" ref="type">
                             <div>
-                                <input type="checkbox" checked="true" value="1">
-                                <label for="" class="checkbox-label">Thường xuyên</label>
+                                <input type="checkbox" checked="true" value="1" id="type1">
+                                <label for="type1" class="checkbox-label">Thường xuyên</label>
                             </div>
                             <div>
-                                <input type="checkbox" value="2">
-                                <label for="" class="checkbox-label">Theo đợt</label>
+                                <input type="checkbox" value="2" id="type2">
+                                <label for="type2" class="checkbox-label">Theo đợt</label>
                             </div>
                         </div>
                         <div class="label-error name-error">Loại phong trào không được để trống.</div>
@@ -114,199 +114,185 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import BaseButton from '@//components/base/Button/BaseButton.vue';
 // import BaseCombobox from '../base/Combobox/BaseCombobox.vue';
-import { defineComponent , ref, inject, onMounted } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import { getByID } from '@/common/API/emulationAPI';
 
-export default defineComponent ({
-    components: {
-        BaseButton
-    },
-    setup() {
-        const emitter = inject('emitter');
-        const form = ref(null);
 
-        var showForm = ref(false);
-        const name = ref("name");
-        const code = ref("code");
-        const object = ref("object");
-        const level = ref("level");
-        const type = ref("type");
-        const note = ref("note");
+const emitter = inject('emitter');
+const form = ref(null);
+
+var showForm = ref(false);
+const name = ref("name");
+const code = ref("code");
+const object = ref("object");
+const level = ref("level");
+const type = ref("type");
+const note = ref("note");
 
 
-        /**
-         * Đóng form thêm mới danh hiệu
-         * CreatedBy: VMHieu 21/03/2023
-         */
-        const handleCloseForm = () => {
-            showForm.value = false;
-            emitter.emit("closeForm");
-            resetForm();
+/**
+ * Đóng form thêm mới danh hiệu
+ * CreatedBy: VMHieu 21/03/2023
+ */
+const handleCloseForm = () => {
+    showForm.value = false;
+    emitter.emit("closeForm");
+    resetForm();
+}
+
+/**
+ * Thực hiện reset form sau khi đóng form
+ */
+const resetForm = () => {
+    // Xóa text input
+    form.value.querySelectorAll('input[type="text"]').forEach(element => {
+        element.value = "";
+    })
+
+    // Đặt checkbox về mặc định
+    form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
+        if (element.value == 1) {
+            element.checked = true;
+        } else {
+            element.checked = false;
         }
+    })
 
-        /**
-         * Thực hiện reset form sau khi đóng form
-         */
-        const resetForm = () => {
-            // Xóa text input
-            form.value.querySelectorAll('input[type="text"]').forEach(element => {
-                element.value = "";
-            })
+    // Xóa text area
+    form.value.querySelector('textarea').value = "";
 
-            // Đặt checkbox về mặc định
-            form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-                if (element.value == 1) {
-                    element.checked = true;
-                } else {
-                    element.checked = false;
-                }
-            })
+    // Xóa thông báo lỗi
+    form.value.querySelectorAll(".label-error").forEach(element => {
+        element.style.display = "none";
+    })
+}
 
-            // Xóa text area
-            form.value.querySelector('textarea').value = "";
+/**
+ * 1. Validate dữ liệu trước khi gửi lên server
+ * CreatedBy VMHieu 21/03/2023
+ */
+const validateForm = () => {
+    // validate trường bắt buộc nhập
+    let isValid = true;
+    // Validate các ô input text
+    form.value.querySelectorAll('[Required]').forEach(element => {
+        let input = element.querySelector('input');
+        let error = element.querySelector('.label-error');
 
-            // Xóa thông báo lỗi
-            form.value.querySelectorAll(".label-error").forEach(element => {
-                element.style.display = "none";
-            })
+        if (!input.value) {
+            isValid = false;
+            error.style.display = "block";
+        } else {
+            error.style.display = "none";
         }
-
-        /**
-         * 1. Validate dữ liệu trước khi gửi lên server
-         * CreatedBy VMHieu 21/03/2023
-         */
-        const validateForm = () => {
-            // validate trường bắt buộc nhập
-            let isValid = true;
-            // Validate các ô input text
-            form.value.querySelectorAll('[Required]').forEach(element => {
-                let input = element.querySelector('input');
-                let error = element.querySelector('.label-error');
-
-                if (input.value == "") {
-                    isValid = false;
-                    error.style.display = "block";
-                } else {
-                    error.style.display = "none";
-                }
-            });
-            // Validate các ô input checkbox
-            form.value.querySelectorAll('[RequiredCheckbox]').forEach(element => {
-                let input = element.querySelectorAll('input[type="checkbox"]');
-                let error = element.querySelector('.label-error');
-                let len = input.length;
-                let k = 0;
-                for (let i = 0; i < len; i++) {
-                    if (input[i].checked == false){
-                        k++;
-                    }
-                }
-
-                if (k == len) {
-                    isValid = false;
-                    error.style.display = "block";
-                } else {
-                    error.style.display = "none";
-                }
-            })
-            return isValid;
-        }
-
-        /**
-         * 2. Lấy dữ liệu của emudation đã nhập từ form
-         * CreatedBy VMHieu 21/03/2023
-         */
-
-         /**
-         * 3.1 Lưu dữ liệu
-         * CreatedBy VMHieu 21/03/2023
-         */
-        const handleSave = () => {
-            if (validateForm() == true) {
-                showForm.value = false;
+    });
+    // Validate các ô input checkbox
+    form.value.querySelectorAll('[RequiredCheckbox]').forEach(element => {
+        let input = element.querySelectorAll('input[type="checkbox"]');
+        let error = element.querySelector('.label-error');
+        let len = input.length;
+        let k = 0;
+        for (let i = 0; i < len; i++) {
+            if (!input[i].checked){
+                k++;
             }
         }
-        /**
-         * 3.2 Lưu và thêm mới dữ liệu
-         * CreatedBy VMHieu 21/03/2023
-         */
 
-        /**
-         * Thực hiện biding data ra form sửa
-         */
-        const bidingData = (data) => {
-            name.value.value = data.EmulationName;
-            code.value.value = data.EmulationCode;
-            level.value.value = data.RewardLevelName;
-            note.value.value = data.Note;
-
-            object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-                if (element.value == data.RewardObject && data.RewardObject != 3) {
-                    element.checked = true;
-                } else if (data.RewardObject == 3) {
-                    if (element.value == 1 || element.value == 2) {
-                        element.checked = true;
-                    } else {
-                        element.checked = false;
-                    }
-                } 
-                else {
-                    element.checked = false;
-                }
-            })
-
-            type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-                if (element.value == data.TypeMovement) {
-                    element.checked = true;
-                } 
-                else {
-                    element.checked = false;
-                }
-            })
-            
-            showForm.value = true;
+        if (k == len) {
+            isValid = false;
+            error.style.display = "block";
+        } else {
+            error.style.display = "none";
         }
+    })
+    return isValid;
+}
 
-        onMounted(() => {
-            /**
-             * Mở form thêm mới danh hiệu
-             * CreatedBy: VMHieu 21/03/2023
-             */
-            emitter.on('openAddForm', () => {
-                showForm.value = true;
-            })
+/**
+ * 2. Lấy dữ liệu của emudation đã nhập từ form
+ * CreatedBy VMHieu 21/03/2023
+ */
 
-            /**
-             * Mở form sửa danh hiệu thi đua
-             * CreatedBy: VMHieu 24/03/2023
-             */
-            emitter.on('openEditForm', async (id) => {
-                let emulation = await getByID(id);
-                // Thực hiện biding dữ liệu vào form
-                bidingData(emulation);
-            })
-        });
-
-        return {
-            form,
-            showForm,
-            name,
-            code,
-            level,
-            object,
-            type,
-            note,
-            handleCloseForm,
-            validateForm,
-            handleSave,
-            bidingData,
-            resetForm
-        }
+    /**
+ * 3.1 Lưu dữ liệu
+ * CreatedBy VMHieu 21/03/2023
+ */
+const handleSave = () => {
+    if (validateForm() == true) {
+        showForm.value = false;
     }
-})
+}
+/**
+ * 3.2 Lưu và thêm mới dữ liệu
+ * CreatedBy VMHieu 21/03/2023
+ */
+
+/**
+ * Thực hiện biding data ra form sửa
+ */
+const bidingData = (data) => {
+    // biding các ô input text
+    name.value.value = data.EmulationName;
+    code.value.value = data.EmulationCode;
+    level.value.value = data.RewardLevelName;
+    note.value.value = data.Note;
+
+    // biding các ô input checkbox
+    object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
+        if (element.value == data.RewardObject && data.RewardObject != 3) {
+            element.checked = true;
+        } else if (data.RewardObject == 3) {
+            if (element.value == 1 || element.value == 2) {
+                element.checked = true;
+            } else {
+                element.checked = false;
+            }
+        } 
+        else {
+            element.checked = false;
+        }
+    })
+
+    type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
+        if (element.value == data.TypeMovement) {
+            element.checked = true;
+        } 
+        else {
+            element.checked = false;
+        }
+    })
+    
+    showForm.value = true;
+}
+
+onMounted(() => {
+    /**
+     * Mở form thêm mới danh hiệu
+     * CreatedBy: VMHieu 21/03/2023
+     */
+    emitter.on('openAddForm', () => {
+        showForm.value = true;
+    })
+
+    /**
+     * Mở form sửa danh hiệu thi đua
+     * CreatedBy: VMHieu 24/03/2023
+     */
+    emitter.on('openEditForm', async (id) => {
+        try {
+            let emulation = await getByID(id);
+            // Thực hiện biding dữ liệu vào form
+            bidingData(emulation);
+        } catch(ex) {
+            console.log(ex);
+        }
+
+    })
+});
+
 </script>
 
 <style scoped>
@@ -413,6 +399,7 @@ export default defineComponent ({
 .checkbox-label{
     padding-left: 4px;
     display: inline-block;
+    cursor: pointer;
 }
 
 

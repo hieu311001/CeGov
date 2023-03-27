@@ -1,5 +1,6 @@
 <template>
     <button :class="str">
+        <slot></slot>
         <div class="btn-text">
             {{ text }}
         </div>
