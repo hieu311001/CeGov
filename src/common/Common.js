@@ -1,5 +1,5 @@
-import * as Enumeration from "./Enum/Enum";
-import * as Resource from "./Resource/Resource";
+import * as Enumeration from "./Enum/enum";
+import * as Resource from "./Resource/resource";
 // Các hàm dùng chung toàn chương trình
 
 // Lấy giá trị của một enum
@@ -27,7 +27,7 @@ export function getValueEnumBack (data, resourceName)  {
             data = enumeration[prop];
         }
     }
-
+    
     return data;
 }
 

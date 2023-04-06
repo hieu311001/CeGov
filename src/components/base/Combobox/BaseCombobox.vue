@@ -1,12 +1,16 @@
 <template>
-    <div class="combobox" >
+    <div class="combobox" v-clickOutside="hideListData">
       <input
+        :id="id"
         type="text"
         class="input combobox__input"
         v-model="textInput"
         @input="inputOnChange"
+        @keyup="handleChange"
         @keydown="selecItemUpDown"
-        tabindex="3"
+        :tabindex="tabidx"
+        :placeholder="placeholder"
+        :ref="refInput"
       />
       <button
         class="button combobox__button"
@@ -14,21 +18,18 @@
         @keydown="selecItemUpDown"
         tabindex="-1"
       >
-        <!-- <i class="fa-solid fa-chevron-down"></i>
-        <img
-          :src="require('@/assets/icon/down.png')"
-          alt=""
-          srcset=""
-          width="24"
-          height="24"
-        /> -->
-        <div class="icon icon-department__arrow"></div>
+        <div class="icon-combobox">
+          <icon class="icon-dropdown"></icon>
+        </div>
       </button>
+      <div class="combobox-error" v-show="showError">{{ errorMsg }}</div>
       <div
         v-if="isShowListData"
         class="combobox__data"
+        :class="{
+          'combobox-top': isPositionTop
+        }"
         ref="combobox__data"
-        v-clickoutside="hideListData"
       >
         <a
           class="combobox__item"
@@ -37,92 +38,59 @@
             'combobox__item--focus': index == indexItemFocus,
             'combobox__item--selected': index == indexItemSelected,
           }"
-          :key="item[this.propValue]"
+          :key="item"
           :ref="'toFocus_' + index"
-          :value="item[this.propValue]"
+          :value="item"
           @click="itemOnSelect(item, index)"
           @focus="saveItemFocus(index)"
           @keydown="selecItemUpDown(index)"
           @keyup="selecItemUpDown(index)"
           tabindex="1"
         >
-          <div class="combobox__item-icon">
-            <img
-              v-show="index == indexItemSelected"
-              :src="require('@/assets/icon/check.png')"
-              alt=""
-              srcset=""
-              width="14"
-              height="11"
-            />
+          <span>{{ item }}</span>
+          <div class="check-selected">
+            <icon class="icon icon-check"></icon>
           </div>
-          <span>{{ item[this.propText] }}</span>
         </a>
       </div>
     </div>
   </template>
   <script>
   /* eslint-disable */
-  /**
-   * Gán sự kiện nhấn click chuột ra ngoài combobox data (ẩn data list đi)
-   * NVMANH (31/07/2022)
-   */
-  const clickoutside = {
-    mounted(el, binding, vnode, prevVnode) {
-      el.clickOutsideEvent = (event) => {
-        // Nếu element hiện tại không phải là element đang click vào
-        // Hoặc element đang click vào không phải là button trong combobox hiện tại thì ẩn đi.
-        if (
-          !(
-            (
-              el === event.target || // click phạm vi của combobox__data
-              el.contains(event.target) || //click vào element con của combobox__data
-              el.previousElementSibling.contains(event.target)
-            ) //click vào element button trước combobox data (nhấn vào button thì hiển thị)
-          )
-        ) {
-          // Thực hiện sự kiện tùy chỉnh:
-          binding.value(event, el);
-          // vnode.context[binding.expression](event); // vue 2
-        }
-      };
-      document.body.addEventListener("click", el.clickOutsideEvent);
-    },
-    beforeUnmount: (el) => {
-      document.body.removeEventListener("click", el.clickOutsideEvent);
-    },
-  };
   
   function removeVietnameseTones(str) {
-    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
-    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
-    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
-    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
-    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
-    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
-    str = str.replace(/đ/g, "d");
-    str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
-    str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
-    str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
-    str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
-    str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
-    str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
-    str = str.replace(/Đ/g, "D");
-    // Some system encode vietnamese combining accent as individual utf-8 characters
-    // Một vài bộ encode coi các dấu mũ, dấu chữ như một kí tự riêng biệt nên thêm hai dòng này
-    str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // ̀ ́ ̃ ̉ ̣  huyền, sắc, ngã, hỏi, nặng
-    str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // ˆ ̆ ̛  Â, Ê, Ă, Ơ, Ư
-    // Remove extra spaces
-    // Bỏ các khoảng trắng liền nhau
-    str = str.replace(/ + /g, " ");
-    str = str.trim();
-    // Remove punctuations
-    // Bỏ dấu câu, kí tự đặc biệt
-    str = str.replace(
-      /!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g,
-      " "
-    );
-    return str;
+    if(str && typeof(str) == "string") {
+      str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+      str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+      str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+      str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+      str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+      str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+      str = str.replace(/đ/g, "d");
+      str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+      str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+      str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+      str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+      str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+      str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+      str = str.replace(/Đ/g, "D");
+      // Some system encode vietnamese combining accent as individual utf-8 characters
+      // Một vài bộ encode coi các dấu mũ, dấu chữ như một kí tự riêng biệt nên thêm hai dòng này
+      str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, ""); // ̀ ́ ̃ ̉ ̣  huyền, sắc, ngã, hỏi, nặng
+      str = str.replace(/\u02C6|\u0306|\u031B/g, ""); // ˆ ̆ ̛  Â, Ê, Ă, Ơ, Ư
+      // Remove extra spaces
+      // Bỏ các khoảng trắng liền nhau
+      str = str.replace(/ + /g, " ");
+      str = str.trim();
+      // Remove punctuations
+      // Bỏ dấu câu, kí tự đặc biệt
+      str = str.replace(
+        /!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g,
+        " "
+      );
+      return str;
+    }
+    
   }
   
   const keyCode = {
@@ -134,9 +102,6 @@
   
   export default {
     name: "MSCombobox",
-    directives: {
-      clickoutside,
-    },
     props: {
       value: null,
       url: String,
@@ -146,6 +111,35 @@
         type: Boolean,
         default: true,
       },
+      placeholder: {
+        type: String,
+        default: ""
+      },
+      data: [],
+      refInput: {
+        type: String,
+        default: ""
+      },
+      isPositionTop: {
+        type: Boolean,
+        default: false
+      },
+      errorMsg: {
+        type: String,
+        default: ""
+      },
+      timer: {
+        type: Number,
+        default: 300
+      },
+      id: {
+        type: String,
+        default: ""
+      },
+      tabidx: {
+        type: Number,
+        default: -1
+      }
     },
     methods: {
       /**
@@ -178,14 +172,41 @@
        * NVMANH (31/07/2022)
        */
       itemOnSelect(item, index) {
-        const text = item[this.propText];
-        const value = item[this.propValue];
+        const text = item;
+        const value = item;
         this.textInput = text; // Hiển thị text lên input.
         this.indexItemSelected = index;
         this.isShowListData = false;
+        this.showError = false;
+      },
+      /**
+       * Hàm check input để in ra lỗi
+       * CreatedBy VMHieu 31/03/2023
+       */
+      handleChange() {
+        let arrs = this.data;
+        let flag = 0;
+        if (this.data && this.textInput && typeof(this.textInput) == "string") {
+          for (const arr in arrs) {
+            let str1 = removeVietnameseTones(arrs[arr]).toLowerCase().replace(" ", "");
+            let str2 = removeVietnameseTones(this.textInput).toLowerCase().replace(" ", "");;
+            if (str1.includes(str2)){
+              flag++;
+            }
+          }
+
+          if (flag == 0) {
+            this.showError = true;
+            this.isShowListData = false;
+          } else {
+            this.showError = false;
+          }
+        }
+
+        if (this.textInput == "") {
+          this.dataFilter = this.data;
+        }
         
-        let data = [value, text, this.propValue];
-        this.emitter.emit("getValue", data);
       },
   
       /**
@@ -196,23 +217,24 @@
         var me = this;
         // Thực hiện lọc các phần tử phù hợp trong data:
         this.dataFilter = this.data.filter((e) => {
-          let text = removeVietnameseTones(me.textInput)
-            .toLowerCase()
-            .replace(" ", "");
-          let textOfItem = removeVietnameseTones(e[me.propText])
-            .toLowerCase()
-            .replace(" ", "");
-          return textOfItem.includes(text);
+          if(me.textInput) {
+            let text = removeVietnameseTones(me.textInput)
+              .toLowerCase()
+              .replace(" ", "");
+            let textOfItem = removeVietnameseTones(e)
+              .toLowerCase()
+              .replace(" ", "");
+            return textOfItem.includes(text);
+          }
         });
         this.isShowListData = true;
-      
       },
   
       /**
        * Lựa chọn item bằng cách nhấn các phím lên, xuống trên bàn phím
        * NVMANH (31/07/2022)
        */
-      selecItemUpDown() {
+      selecItemUpDown(event) {
         var me = this;
         var keyCodePress = event.keyCode;
         var elToFocus = null;
@@ -222,6 +244,9 @@
             break;
           case keyCode.ArrowDown:
             this.isShowListData = true;
+            if (!this.textInput || this.textInput.length == 0){
+              this.dataFilter = this.data;
+            }
             elToFocus = this.$refs[`toFocus_${me.indexItemFocus + 1}`];
             if (
               this.indexItemFocus == null ||
@@ -235,6 +260,9 @@
             break;
           case keyCode.ArrowUp:
             this.isShowListData = true;
+            if (this.textInput.length == 0){
+              this.dataFilter = this.data;
+            }
             elToFocus = this.$refs[`toFocus_${me.indexItemFocus - 1}`];
             if (
               this.indexItemFocus == null ||
@@ -256,43 +284,19 @@
           default:
             break;
         }
-        
-        // scroll combobox theo item đang được focus
-        if (this.indexItemFocus == 0){
-          this.$refs.combobox__data.scroll(0, 0);
-        } else {
-          this.$refs.combobox__data.scroll(0, this.indexItemFocus*32);
-        }
-      },
-    },
-  
-    created() {
-      // Thực hiện lấy dữ liệu từ api:
-      if (this.url) {
-        fetch(this.url)
-          .then((res) => res.json())
-          .then((res) => {
-            this.data = res;
-            this.dataFilter = res;
-          })
-          .catch((res) => {
-            console.log(res);
-          });
       }
     },
+
     mounted() {
-        this.emitter.on("closeAddForm", () => {
-          this.indexItemSelected = null;
-          this.indexItemFocus = null;
-        })
+      // setTimeout(() => {
+      //   this.textInput = this.data.slice(0,1);
+      // }, 1);
     },
-    destroyed() {
+    beforeDestroy() {
       this.textInput = "";
-      
     },
     data() {
       return {
-        data: [], // data gốc
         textInput: null,
         dataFilter: [], // data đã được filter
         isShowListData: false, // Hiển thị list data hay không
@@ -302,6 +306,7 @@
           type: Number,
           default: 0
         },
+        showError: false,
       };
     },
   };
@@ -317,20 +322,24 @@
   .combobox__input,
   select {
     width: 100%;
-    height: 32px;
+    min-height: 36px;
     flex: 1;
-    padding-right: 56px !important;
-    padding-left: 10px;
-    border-radius: 2px;
+    padding-right: 36px !important;
+    padding-left: 12px;
+    border-radius: 4px;
     outline: none;
     border: 1px solid #bbbbbb;
     box-sizing: border-box;
     z-index: 10;
+    font-family: GoogleSans;
+    font-size: 14px ;
   }
   
-  .combobox__input:focus,
-  .combobox__input:focus ~ .combobox__button {
-    border-color: #019160;
+  .combobox__input:hover{
+    outline: 1px solid #1a73e8;
+  }
+  .combobox__input:focus {
+    outline: 1px solid #1a73e8;
   }
   
   .combobox__button {
@@ -344,8 +353,9 @@
     top: 0px;
     border: 1px solid #bbbbbb;
     border-left: unset;
-    height: 32px;
-    width: 32px;
+    box-sizing: border-box;
+    height: 36px;
+    width: 36px;
     border-radius: 0 4px 4px 0px;
     background-color: #fff;
     cursor: pointer;
@@ -354,38 +364,44 @@
     box-sizing: border-box;
   }
   
-  .combobox__button:hover,
+  /* .combobox__button:hover,
   .combobox__button:focus {
     background-color: #bbbbbb;
     color: #000;
-  }
+  } */
   
   .combobox__data {
     display: flex;
     flex-direction: column;
-    padding: 4px 0px;
+    padding: 8px;
     position: absolute;
-    width: 100%;
     top: 100%;
     left: 0;
     border-radius: 4px;
     background-color: #fff;
-    box-shadow: 0px 3px 6px #00000016;
+    box-shadow: 0 0 16px rgba(23,27,42,.24);
     z-index: 999;
-    max-height: 128px;
+    max-height: 198px;
     overflow: auto;
+    width: -webkit-fill-available;
+  }
+
+  .combobox-top{
+    top: -450%;
   }
   
   .combobox__item {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    line-height: 32px;
-    padding-left: 10px;
-    height: 32px;
+    justify-content: space-between;
+    line-height: 36px;
+    padding: 0 8px;
+    height: 36px;
     cursor: pointer;
     /* border: 1px solid #ccc; */
     outline: none;
+    width: -webkit-fill-available;
+    min-height: 36px;
   }
   
   .combobox__item-icon {
@@ -407,13 +423,26 @@
   .combobox__item:focus,
   .combobox__item--focus,
   .combobox__item--hover {
-    background-color: #e9ebee;
+    background-color: #dfebff;
     color: #000;
   }
   
   .combobox__item--selected {
     pointer-events: none;
-    background-color: #019160;
-    color: #fff;
+    background-color: #dfebff;
+    color: #000;
   }
+
+  .combobox__item--selected>div{
+    display: block;
+  }
+
+  .check-selected {
+    display: none;
+  }
+
+  .combobox-error{
+    color: #ef5350;
+    margin-top: 6px;
+}
   </style>

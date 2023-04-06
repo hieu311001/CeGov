@@ -9,7 +9,14 @@
                 <div class="form-toolbar">
                     <div class="toolbar-left">
                         <div class="ms-input filter-input">
-                            <input id="input-search" type="text" placeholder="Nhập mã hoặc tên danh hiệu..." class="input-search">
+                            <input 
+                                id="input-search" 
+                                type="text" 
+                                placeholder="Nhập mã hoặc tên danh hiệu..." 
+                                class="input-search"
+                                ref="filter"
+                                @keyup.enter="handleFilter"
+                            >
                             <div class="input-search__icon">
                                 <icon class="icon icon-search"></icon>
                             </div>
@@ -20,7 +27,8 @@
                                     <icon class="icon icon-filter"></icon>
                                 </div>
                             </BaseButton>
-                            <div class="form-filter" v-if="showFormFilter">
+                            <BaseButton class="ms-button btn-unfilter" text="Bỏ lọc" @click="handleUnFilter" v-show="UnFilter"></BaseButton>
+                            <div class="form-filter" v-show="showFormFilter">
                                 <span class="filter-arrow"></span>
                                 <div class="filter-container">
                                     <div class="filter-header">
@@ -35,34 +43,61 @@
                                         <div class="filter-object">
                                             <label class="m-label">Đối tượng khen thưởng</label>
                                             <div class="filter-object__input">
-                                                <input type="text" class="m-input">
+                                                <BaseCombobox 
+                                                    id="rewardobject" 
+                                                    class="combobox" 
+                                                    placeholder="Chọn hiện vật khen thưởng"  
+                                                    :data=Resource.DataRewardObject
+                                                    :errorMsg=Resource.ErrorCombobox.ErrorRewardObject
+                                                />
                                             </div>
                                         </div>
                                         <div class="filter-level">
                                             <label class="m-label">Cấp khen thưởng</label>
                                             <div class="filter-level__input">
-                                                <input type="text" class="m-input">
+                                                <BaseCombobox 
+                                                    id="rewardlevel" 
+                                                    class="combobox" 
+                                                    placeholder="Chọn hiện vật khen thưởng"  
+                                                    :data=Resource.DataRewardLevel
+                                                    refInput="level"
+                                                    :errorMsg=Resource.ErrorCombobox.RewardLevel
+                                                />
                                             </div>
                                         </div>
                                         <div class="filter-type">
                                             <label class="m-label">Loại phong trào</label>
                                             <div class="filter-type__input">
-                                                <input type="text" class="m-input">
+                                                <BaseCombobox 
+                                                    id="typemovement" 
+                                                    class="combobox" 
+                                                    placeholder="Chọn hiện vật khen thưởng"  
+                                                    :data=Resource.DataTypeMovement
+                                                    refInput="level"
+                                                    :errorMsg=Resource.ErrorCombobox.TypeMovement
+                                                />
                                             </div>
                                         </div>
                                         <div class="filter-status">
                                             <label class="m-label">Trạng thái</label>
                                             <div class="filter-status__input">
-                                                <input type="text" class="m-input">
+                                                <BaseCombobox 
+                                                    id="status" 
+                                                    class="combobox" 
+                                                    placeholder="Chọn hiện vật khen thưởng"  
+                                                    :data=Resource.DataStatus
+                                                    refInput="level"
+                                                    :errorMsg=Resource.ErrorCombobox.Status
+                                                />
                                             </div>
                                         </div>
                                     </div>
                                     <div class="filter-footer">
                                         <div class="filter-btn__close">
-                                            <BaseButton class="m-button btn-white" text="Hủy"></BaseButton>
+                                            <BaseButton class="m-button btn-white" text="Hủy" @click="handleToggleFilter"></BaseButton>
                                         </div>
                                         <div class="filter-btn__save">
-                                            <BaseButton class="m-button btn-blue" text="Áp dụng"></BaseButton>
+                                            <BaseButton class="m-button btn-blue" text="Áp dụng" @click="handleFilter"></BaseButton>
                                         </div>
                                     </div>
                                 </div>  
@@ -70,22 +105,36 @@
                         </div>
                     </div>
                     <div class="toolbar-right">
-                        <BaseButton class="ms-button btn-blue" text="Thêm danh hiệu" @click="handleOpenForm">
-                            <div class="add-icon">
-                                <icon class="icon icon-add"></icon>
-                            </div>
-                        </BaseButton>
+                        <div class="nocheck" v-show="!showOperation">
+                            <BaseButton class="ms-button btn-blue" text="Thêm danh hiệu" @click="handleOpenForm">
+                                <div class="add-icon">
+                                    <icon class="icon icon-add"></icon>
+                                </div>
+                            </BaseButton>
+                        </div>
+                        <div class="check" v-show="showOperation">
+                            <div class="check-number">Đã chọn <strong class="number-check">{{ sumCheckbox }}</strong> </div>
+                            <div class="check-remove" @click="uncheckbox">Bỏ chọn</div>
+                            <BaseButton class="ms-button btn-whiteblue" text="Sử dụng"></BaseButton>
+                            <BaseButton class="ms-button " text="Ngừng sử dụng"></BaseButton>
+                            <BaseButton class="ms-button btn-whitered" text="Xóa" @click="handleDeleteMultiple"></BaseButton>
+                        </div>
                     </div>
                 </div>
                 <div class="form-content">
                     <div class="form-content__container">
-                        <div class="content-table">
+                        <div class="content-table" @scroll="onScroll">
                             <table id="emulation-table" ref="row">
                                 <thead>
                                     <tr>
                                         <th class="checkbox checkboxAll">
                                             <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
+                                                <input 
+                                                    type="checkbox" 
+                                                    class="input__checkbox" 
+                                                    id="checkboxAll" 
+                                                    @click="handleCheckboxAll"
+                                                >
                                             </div>
                                         </th>
                                         <th style="min-width: 280px;">Tên danh hiệu thi đua</th>
@@ -98,17 +147,20 @@
                                 </thead>
                                 <tbody>
                                     <tr 
-                                        v-for="emp in emulation.value" 
+                                        v-for="emp in emulations" 
                                         :key="emp.EmulationID" 
                                         @click="selectedRows" 
                                         @dblclick="handleEdit(emp.EmulationID)"
-                                        @mouseover="overRow"
-                                        @mouseout="outRow"
                                         class="table-row"
                                     >
-                                        <td class="checkbox">
+                                        <td class="checkbox" @dblclick.stop="handle">
                                             <div class="ip-checkbox">
-                                                <input type="checkbox" class="input__checkbox" id="checkboxAll">
+                                                <input 
+                                                type="checkbox" 
+                                                class="input__checkbox" 
+                                                @click="handleCheckbox"
+                                                name="selectedRecord"
+                                                >
                                             </div>
                                         </td>
                                         <td>{{ emp.EmulationName }}</td>
@@ -117,13 +169,25 @@
                                         <td>{{ emp.RewardLevelName }}</td>
                                         <td>{{ getValueEnum(emp.TypeMovement, Resource.PropName.TypeMovement) }}</td>
                                         <td>{{ getValueEnum(emp.Status, Resource.PropName.Status) }}</td>
-                                        <div class="option">
+                                        <div class="option" @dblclick.stop="" ref="option" @mouseleave="hoverOutside" :style="{left: `${position}px`}">
                                             <div class="option-edit" @click="handleEdit(emp.EmulationID)" title="Sửa">
                                                 <icon class="icon icon-edit"></icon>
                                             </div>
-                                            <div class="option-delete" title="Thêm nữa...">
+                                            <div class="option-delete" title="Thêm nữa..." @click="handleOpenOption">
                                                 <icon class="icon icon-bonus"></icon>
                                             </div>
+                                            <ul class="option-menu">
+                                                <li>
+                                                    <div class="option-item item-use">Sử dụng</div>
+                                                </li>
+                                                <li>
+                                                    <div class="option-item item-stop">Ngừng sử dụng</div>
+                                                </li>
+                                                <li @click="handleDelete(emp.EmulationID, emp.EmulationCode)">
+                                                    <div class="option-item item-delete" 
+                                                    >Xóa</div>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </tr>
                                 </tbody>
@@ -134,26 +198,37 @@
                     <div class="content-page">
                         <div class="page-left">
                             <div class="page-left__content">
-                                Tổng số: <strong>11</strong> bản ghi
+                                Tổng số: <strong>{{ totalRecord }}</strong> bản ghi
                             </div>
                         </div>
                         <div class="page-right">
                             <span>Số bản ghi/trang:</span>
                             <div class="page-size">
                                 <div class="combobox-pagesize">
-                                    <select name="" id="">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                    </select>
+                                    <div>
+                                        <input type="text" class="m-input" ref="psize" disabled defaultValue="10">
+                                    </div>
+                                    <div class="icon-pagesize" @click="openPageSize">
+                                        <icon class="icon icon-arrow"></icon>
+                                    </div>
+                                </div>
+                                <div class="paging-list" v-show="showPageSize">
+                                    <div class="paging-list__list paging-list_10 paging-selected" @click="handlePagingList" value="10">10</div>
+                                    <div class="paging-list__list paging-list_20" @click="handlePagingList" value="20">20</div>
+                                    <div class="paging-list__list paging-list_50" @click="handlePagingList" value="50">50</div>
+                                    <div class="paging-list__list paging-list_100" @click="handlePagingList" value="100">100</div>
                                 </div>
                             </div>
                             <div class="page-fromto">
-                                <strong>1</strong> - <strong>11</strong> bản ghi
+                                <strong>{{ pageFrom }}</strong> - <strong>{{ pageTo }}</strong> bản ghi
                             </div>
                             <div class="page-move">
-                                <div class="move-prev"></div>
-                                <div class="move-next"></div>
+                                <div class="move-prev" @click="movePrev">
+                                    <icon class="icon icon-prev"></icon>
+                                </div>
+                                <div class="move-next" @click="moveNext">
+                                    <icon class="icon icon-next"></icon>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -162,6 +237,8 @@
         </div>
     </div>
     <FormEmulation />
+    <ToastMessage />
+    <PopupMessage :data="dataPopup"/>
     <div id="over" v-show="showOver"></div>
 </div>
 </template>
@@ -169,30 +246,95 @@
 <script setup>
 
 import BaseButton from '@/components/base/Button/BaseButton.vue';
+import BaseCombobox from '@/components/base/Combobox/BaseCombobox.vue';
 import FormEmulation from '@/view/FormEmulation.vue';
-import { getAllEmulation } from '@/common/API/emulationAPI';
-import { ref, reactive, inject, onMounted } from 'vue';
-import { getValueEnum } from '@/common/Common.js';
-import * as Resource from '@/common/Resource/Resource';
+import ToastMessage from '@/view/ToastMessage';
+import PopupMessage from '@/view/PopupMessage';
+// import { getAllEmulation } from '@/common/API/emulationAPI';
+import { ref, onMounted,  computed, watch, reactive, onBeforeMount } from 'vue';
+import { useStore } from 'vuex'
+import { getValueEnum, getValueEnumBack } from '@/common/common';
+import * as Resource from '@/common/Resource/resource';
+import * as Enum from '@/common/Enum/enum';
 
-var showOver = ref(false);
+// var showOver = ref(false);
 var showFormFilter = ref(false);
-const emulation = reactive([]);
-const row = ref('row');
-const page = ref('page');
+var UnFilter = ref(false);
+const showOperation = ref(false);
+const showPageSize = ref(false);
 
-const emitter = inject('emitter');
+const sumCheckbox = ref(0);
+const filterData = reactive(
+    {
+        keyword: "",
+        RewardObject: "",
+        TypeMovement: "",
+        Status: "",
+        RewardLevel: ""
+    }
+);
+var pagesize = ref(10);
+var pagenumber = ref(1);
+var numberOfPage = ref(0);
+var dataPopup = [];        // Mảng chứa thông tin của bản ghi cần xóa
+
+var width, left;
+var position = 0;
+
+const row = ref('row');  // Đại diện cho table
+const page = ref('page'); // Đại diện cho class form-list
+const option = ref('option'); // Đại diện cho ô option ở cuối row table
+const filter = ref('filter');
+const psize = ref('psize');
+
+const store = useStore();
+
+const emulations = computed(() => store.state.emulation.emulations)
+const showOver = computed(() => store.state.emulation.showOver)
+const refresh = computed(() => store.state.emulation.refresh);
+const showPopup = computed(() => store.state.app.showPopup);
+
+// Tổng số bản ghi
+const totalRecord = computed(() => store.state.emulation.totalRecord);
+// Từ bản ghi thứ 
+const pageFrom = computed(() => {
+    return (store.state.emulation.pageNumber-1)*store.state.emulation.pageSize + 1;
+})
+// Đến bản ghi thứ
+const pageTo = computed(() => {
+    return store.state.emulation.pageNumber*store.state.emulation.pageSize;
+})
+
 
 /**
+ * Gán sự kiện scroll table để điều chỉnh nút option
+ * CreatedBy VMHieu 28/03/2023
+ */
+const onScroll = () => {
+    // Độ rộng phần tử form-list
+    width = page.value.getBoundingClientRect().width;
+    // Tọa độ left của table
+    left = row.value.getBoundingClientRect().left;
+
+    // // Nút option
+    // let option = row.value.querySelector('.option');
+
+    // option.style.left = `${width + 100 - left}px`;
+    position = width + 100 - left;
+}
+/**
  * Mở form thêm danh hiệu
+ * CreatedBy VMHieu 28/03/2023
  */
 const handleOpenForm = () => {  
-    showOver.value = true;
-    emitter.emit('openAddForm');
+    store.dispatch('showOver');
+    store.dispatch('updateFormMode', Enum.FormMode.Add);
+    store.dispatch('showForm');
 }
 
 /**
  * Toggle form Filter
+ * CreatedBy VMHieu 28/03/2023
  */
 const handleToggleFilter = () => {
     showFormFilter.value = !showFormFilter.value;
@@ -200,60 +342,400 @@ const handleToggleFilter = () => {
 
 /**
  * Call API lấy dữ liệu danh hiệu thi đua
+ * CreatedBy VMHieu 28/03/2023
  */
 const getAll = async () => {
     try {
-        emulation.value = await getAllEmulation();
+        await store.dispatch('getPaging');
     } catch (ex) {
         console.log(ex);
-    }
-    
+    } 
+
+    numberOfPage.value = totalRecord.value/pagesize.value;
 }
 
 /**
  * Gửi sự kiện mở form xem thông tin và sửa danh mục thi đua
+ * CreatedBy VMHieu 28/03/2023
  */
 const handleEdit =  (id) => {
-    showOver.value = true;
-    emitter.emit('openEditForm', id);
+    store.dispatch('showOver');
+    store.dispatch('updateFormMode', Enum.FormMode.Edit);
+    store.dispatch('showForm');
+    store.dispatch('getByID', id);
 }
 /**
- * Lấy các kích thước liên quan để hiển thị cố định 2 nút option 
- * Hiển thị nút option khi mouseover
+ * Gửi sự kiện xóa
+ * @param {*} id 
+ * CreatedBy VMHieu 06/04/2023
  */
-const overRow = (event) => {
-    // Độ rộng phần tử form-list
-    let width = page.value.getBoundingClientRect().width;
-    // Tọa độ left của table
-    let left = row.value.getBoundingClientRect().left;
-    // Nút option
-    let option = event.currentTarget.querySelector('.option');
+const handleDelete = (id, code) => {
+    store.dispatch("showPopup", true);
+    store.dispatch("updateFormMode", Enum.FormMode.Delete);
 
-    // Đặt tọa độ nút option và hiển thị khi hover tr
-    option.style.left = `${width + 100 - left}px`;
-    option.style.display = 'block';
+    let arr = Resource.PopupMessage.Delete.trim().split(" ");
+    for(let i = 0; i < arr.length; i++) {
+        if (arr[i] == Resource.PopupMessage.Breakpoint) {
+            arr[i] = code;
+        }
+    }
+    dataPopup.ID = id;
+    dataPopup.Msg =  arr.join(" ");
+} 
+/**
+ * Gửi sự kiện xóa nhiều
+ * @param {*} id 
+ * CreatedBy VMHieu 06/04/2023
+ */
+ const handleDeleteMultiple = () => {
+    store.dispatch("showPopup", true);
+    store.dispatch("updateFormMode", Enum.FormMode.DeleteMultiple);
+
+    let data = [];
+    // Lấy id của các bản ghi được select
+    row.value.querySelectorAll(".selected-row").forEach((select) => {
+        data.push(select.__vnode.key);
+    })
+    dataPopup.ID = data.join("/");
+
+    let arr = Resource.PopupMessage.DeleteMultiple.trim().split(" ");
+    for(let i = 0; i < arr.length; i++) {
+        if (arr[i] == Resource.PopupMessage.Breakpoint) {
+            arr[i] = sumCheckbox.value;
+        }
+    }
+    dataPopup.Msg = arr.join(" ");
+} 
+/**
+ * Lấy giá trị của các trường cần lọc
+ * CreatedBy VMHieu 04/04/2023
+ */
+const getDataFilter = () => {
+    filterData.keyword = filter.value.value;
+    filterData.RewardObject = getValueEnumBack(document.getElementById('rewardobject').value, "RewardObject");
+    filterData.TypeMovement = getValueEnumBack(document.getElementById('typemovement').value, "TypeMovement");
+    filterData.RewardLevel = getValueEnumBack(document.getElementById('rewardlevel').value, "RewardLevel");
+    filterData.Status = getValueEnumBack(document.getElementById('status').value, "Status");
 }
 /**
- * Ẩn nút option khi mouseout
+ * Thực hiện lọc 
+ * CreatedBy VMHieu 04/04/2023
  */
-const outRow = (event) => {
-    let option = event.currentTarget.querySelector('.option');
-    option.style.display = 'none';
+const handleFilter = () => {
+    showFormFilter.value = false;
+    pagenumber.value = 1;
+    getDataFilter();
+    getAll();
+
+    if (filterData.RewardLevel || filterData.RewardObject || filterData.TypeMovement || filterData.Status) {
+        UnFilter.value = true;
+    }
 }
+/**
+ * Thực hiện bỏ lọc
+ * CreatedBy VMHieu 04/04/2023
+ */
+const handleUnFilter = () => {
+    filterData.RewardObject = "";
+    filterData.TypeMovement = "";
+    filterData.RewardLevel = "";
+    filterData.Status = "";
+
+    document.getElementById('rewardobject').value = "";
+    document.getElementById('rewardlevel').value = "";
+    document.getElementById('typemovement').value = "";
+    document.getElementById('status').value = "";
+
+    UnFilter.value = false;
+    getAll();
+}
+/**
+ * Event lùi trang
+ * CreatedBy VMHieu 04/04/2023
+ */
+const movePrev = (event) => {
+    let btn = event.currentTarget;
+    if (pagenumber.value == 1) {
+        btn.style.opacity = "0.4";
+        event.preventDefault()
+    } else {
+        pagenumber.value--;
+        btn.style.opacity = "1";
+    }
+
+    if (pagenumber.value < Math.round(numberOfPage.value)){
+        document.querySelector('.move-next').style.opacity = "1";
+    }
+}
+/**
+ * Event tiến trang
+ * @param {*} event 
+ * CreatedBy VMHieu 04/04/2023
+ */
+const moveNext = (event) => {
+    let btn = event.currentTarget;
+    if (pagenumber.value >= Math.round(numberOfPage.value)) {
+        btn.style.opacity = "0.4";
+        event.preventDefault()
+    } else {
+        pagenumber.value++;
+        btn.style.opacity = "1";
+    }
+
+    if (pagenumber.value != 1) {
+        document.querySelector('.move-prev').style.opacity = "1";
+    }
+}
+
+/**
+ * Xử lý sự kiện checkboxAll
+ * @param {} event 
+ * CreatedBy VMHieu 30/03/2023
+ */
+const handleCheckboxAll = (event) => {
+    let sumFlag = 0;
+    // Xét tbody của bảng:
+    let tbody = event.target.closest("table").childNodes[1];
+
+    // Xét tất cả các checkbox trừ checkAll:
+    let records = tbody.querySelectorAll("[name='selectedRecord']");
+
+    // Chọn tất cả các bản ghi, hiển thị nút xóa hàng loạt
+    if (event.target.checked) {
+        showOperation.value = true;
+        records.forEach((record) => {
+            record.checked = event.target.checked;
+            record.closest("tr").classList.add("selected-row");
+            sumFlag++;
+        })
+    }
+    // Bỏ chọn tất cả các bản ghi, ẩn nút xóa hàng loạt
+    else {
+        showOperation.value = false;
+        records.forEach((record) => {
+            record.checked = event.target.checked;
+            record.closest("tr").classList.remove("selected-row");
+        })
+    }
+
+    sumCheckbox.value = sumFlag;
+}
+/**
+ * Xử lý sự kiện checkbox
+ * @param {} event 
+ * CreatedBy VMHieu 30/03/2023
+ */
+const handleCheckbox = (event) => {
+    // Ngăn sự kiện lan lên parent:
+    event.stopPropagation();
+
+    // Xét bảng hiện tại:
+    let table = event.target.closest("table");
+    let flag = 0;
+
+    // Xét tất cả các checkbox:
+    let records = table.querySelectorAll("[name='selectedRecord']");
+
+    if (event.target.checked) {
+        showOperation.value = true;
+        // Đánh dấu bản ghi:
+        event.target.closest("tr").classList.add("selected-row");
+
+        // Đặt checkAll bằng true:
+        table.querySelector("#checkboxAll").checked = true;
+
+        // Bỏ checkAll nếu có một checkbox chưa check:
+        for (var record of records) {
+            if (!record.checked) {
+                table.querySelector("#checkboxAll").checked = false;
+                break;
+            }
+        }
+    } else {
+        // Bỏ đánh dấu bản ghi:
+        event.target.closest("tr").classList.remove("selected-row");
+
+        // Đặt checkAll bằng false:
+        table.querySelector("#checkboxAll").checked = false;
+    }
+
+    let sumFlag = 0;
+    // Duyệt tất cả checkbox để kiểm tra có checkbox nào đang được tick hay không
+    for (var idx of records) {
+        if (idx.checked) {
+            flag = 1;
+            sumFlag++;
+        }
+    }
+
+    // Biến đếm tổng checkbox
+    sumCheckbox.value = sumFlag;
+
+    // Nếu có checkbox = true thì hiện nút xóa hàng loạt
+    if (flag == 1) {
+        showOperation.value = true;
+    } else {
+        showOperation.value = false;
+    }
+}
+/**
+ * Ấn nút bỏ chọn tất cả checkbox
+ * CreatedBy VMHieu 31/03/2023
+ */
+const uncheckbox = (event) => {
+    // Xét tất cả các checkbox:
+    let records = row.value.querySelectorAll("[name='selectedRecord']");
+    let checkboxAll = row.value.querySelector("#checkboxAll");
+
+    checkboxAll.checked = false;
+
+    // uncheck
+    for (var record of records) {
+        record.checked = false;
+    }
+
+    sumCheckbox.value = 0;
+    showOperation.value = false;
+}
+/**
+ * Mở option menu
+ * CreatedBy VMHieu 31/03/2023
+ */
+const handleOpenOption = (event) => {
+    let me = event.currentTarget.parentNode,
+        item = me.querySelector('.option-menu');
+
+    option.value.forEach((element) => {
+        element.querySelector('.option-menu').style.display = 'none';
+    })
+
+    item.classList.toggle('toggle-option');
+}
+/**
+ * Ẩn hiện combobox chọn page number
+ * CreatedBy VMHieu 04/04/2023
+ */
+const openPageSize = () => {
+    showPageSize.value = !showPageSize.value;
+}
+
+/**
+ * Click chọn số bản ghi / trang
+ * CreatedBy VMHIEU 04/04/2023
+ */
+const handlePagingList = (event) => {
+    let menu = document.querySelectorAll(".paging-list__list"),
+        item = event.currentTarget;
+
+    if (menu) {
+        menu.forEach(function (items) {
+            items.classList.remove("paging-selected");
+        })
+
+        // Style cho số bản ghi được chọn
+        item.classList.add('paging-selected');
+        psize.value.value = item.innerHTML;
+
+        pagesize.value = item.getAttribute("value");
+    }
+
+    showPageSize.value = false;
+}
+
+/**
+ * Ẩn option menu khi hover ra ngoài
+ * CreatedBy VMHieu 31/03/2023
+ */
+const hoverOutside = () => {
+    option.value.forEach((element) => {
+        element.querySelector('.option-menu').classList.remove('toggle-option')
+    })
+}
+/**
+ * Kiểm tra sự thay đổi của data lọc để cập nhật state
+ * CreatedBy VMHieu 03/04/2023
+ */
+watch((filterData), () => {
+    store.dispatch("updateFilter", filterData);
+})
+/**
+ * Kiểm tra sự thay đổi của 2 tham số để cập nhật lại danh sách
+ */
+watch([pagesize, pagenumber], () => {
+    store.dispatch("updatePageSize", pagesize.value);
+    store.dispatch("updatePageNumber", pagenumber.value);
+    numberOfPage.value = totalRecord.value/pagesize.value;
+    getAll();
+})
+/**
+ * Quan sát việc refresh để tải lại trang
+ * CreatedBy VMHieu 06/04/2023
+ */
+watch((refresh), () => {
+    sumCheckbox.value = 0;
+    uncheckbox();
+    showOperation.value = false;
+    try {
+        getAll();
+    } catch (e) {
+        console.log(e);
+    }
+
+})
+
+watch((showPopup), () => {
+    store.dispatch('showOver');
+})
 
 onMounted(() => {
-    //Thực hiện lấy dữ liệu
+    /**
+     * Thực hiện lấy dữ liệu
+     * CreatedBy VMHieu 22/03/2023
+     */
     try{
+        store.dispatch("updateFilter", filterData);
+        store.dispatch("updatePageSize", pagesize.value);
+        store.dispatch("updatePageNumber", pagenumber.value);
         getAll();
     } catch(ex){
         console.error(ex);
     }
 
-    // Bắt sự kiện đóng form thêm danh hiệu
-    emitter.on('closeForm', () => {
-        showOver.value = false;
-    })
+    /**
+     * Gán sự kiện resize màn hình để điều chỉnh nút option
+     * CreatedBy VMHieu 28/03/2023
+     */
+    window.addEventListener('resize', function(event) {
+        onScroll(event)
+    }, true);
+
+    /**
+     * Xác định tọa độ ban đầu của nút option khi chưa xảy ra scroll
+     * CreatedBy VMHieu 28/03/2023
+     */
+    // row.value.querySelectorAll('tr').forEach((element) => {
+    //     element.addEventListener('mouseover', function() {
+    //         // Độ rộng phần tử form-list
+    //         width = page.value.getBoundingClientRect().width;
+    //         // Tọa độ left của table
+    //         left = row.value.getBoundingClientRect().left;
+
+    //         // Nút option
+    //         let option = row.value.querySelector('.option');
+
+    //         option.style.left = `${width + 100 - left}px`;
+    //     })
+    // })
+
+    // Độ rộng phần tử form-list
+    width = page.value.getBoundingClientRect().width;
+    // Tọa độ left của table
+    left = row.value.getBoundingClientRect().left;
+    position = width + 100 - left;
+    console.log(position);
 })
+
+
 
 </script>
 
@@ -304,8 +786,10 @@ onMounted(() => {
 }
 
 .toolbar-left{
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    margin-left: 0;
+    margin-right: auto;
 }
 
 .filter-input{
@@ -384,10 +868,29 @@ onMounted(() => {
     width: 85px;
     margin: 4px 16px;
     line-height: 32px;
+    position: relative;
 }
 
 .filter{
     position: relative;
+    display: flex;
+}
+
+.filter button{
+    margin-right: 10px;
+}
+
+.btn-unfilter{
+    border: none;
+    background: none;
+    color: #2979ff;
+    padding: 0;
+    margin: 0 4px;
+    min-width: none;
+}
+
+.btn-unfilter:hover{
+    text-decoration: underline;
 }
 
 .form-filter{
@@ -474,5 +977,159 @@ onMounted(() => {
 
 .filter-btn__close{
     margin-right: 10px;
+}
+
+.page-move{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.move-prev{
+    opacity: 0.4;
+    transform: rotate(-180deg);
+    padding-left: 8px;
+}
+
+.move-prev, .move-next{
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.move-prev:hover, .move-next:hover{
+    cursor: pointer;
+    background-color: #f3f3f3;
+    border-radius: 3.5px;
+}
+
+.page-fromto{
+    margin-right: 24px;
+}
+.nocheck{
+    
+}
+.check{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.check > .ms-button{
+    margin-left: 9px;
+}
+
+.number-check{
+    padding: 0 !important;
+}
+.check-remove{
+    margin: 0 10px 0 20px;
+    cursor: pointer;
+    color: #2979ff!important;
+}
+
+.option-menu{
+    background: #fff;
+    background-clip: padding-box;
+    border-radius: 4px;
+    box-shadow: 0 0 16px rgba(23,27,42,.24);
+    display: none;
+    margin: 0;
+    padding: 4px 0;
+    z-index: 100000;
+    position: absolute;
+    list-style: none;
+    box-sizing: border-box;
+    min-width: 200px;
+    left: -100px;
+}
+
+.option-menu > li {
+    margin: 0;
+    position: relative;
+    max-height: 36px;
+    display: flex;
+    align-items: center;
+}
+
+.option-menu > li:hover {
+    background: #e0ebff;
+    cursor: pointer;
+}
+.option-item{
+    display: flex;
+    align-items: center;
+    padding: 12px 4px 12px 24px;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    margin: 0;
+    border-radius: 0;
+    min-width: 80px;
+    min-height: 35px;
+    height: 35px;
+    position: relative;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.item-delete{
+    color: #e54848;
+}
+
+.toggle-option{
+    display: block !important;
+}
+
+.paging-list {
+    position: absolute;
+    top: -350%;
+    left: 0;
+    background-color: #fff;
+    z-index: 1000;
+    width: inherit;
+}
+
+.paging-list__list {
+    flex: 1;
+    padding: 0 14px 0 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.paging-list__list:hover {
+    background-color: #ebedf0;
+}
+
+.paging-selected {
+    background-color: #e0ebff !important;
+    color: #000 !important;
+}
+
+.combobox-pagesize{
+    position: relative;
+    border-radius: 4px;
+}
+
+.icon-pagesize{
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
 }
 </style>

@@ -25,6 +25,7 @@
     font-size: 14px ;
     display: flex;
     align-items: center;
+    justify-content: center;
     min-width: 80px;
 }
 
@@ -36,7 +37,7 @@
     background: #fff;
 }
 
-.btn-white:hover{
+.btn-white:hover, .btn-whiteblue:hover, .btn-red:hover, .ms-button:hover{
     background: #f4f5f8;
 }
 
@@ -55,5 +56,26 @@
 
 .btn-blue:focus{
     background: #0062cc;
+}
+
+.btn-whiteblue{
+    background: #fff;
+    color: #2979ff;
+    border-color: #2979ff;
+}
+
+.btn-whitered{
+    background: #fff;
+    color: #ef5350;
+    border-color: #ef5350;
+}
+
+.btn-red{
+    background: #ef5350;
+    color: #fff;
+}
+
+.btn-red:hover{
+    background: #ef4340;
 }
 

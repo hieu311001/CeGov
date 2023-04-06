@@ -3,7 +3,7 @@
         <div class="form-container">
             <div class="form-header">
                 <div class="header-text">
-                    Thêm danh hiệu thi đua
+                    {{ TitleForm }}
                 </div>
                 <div class="header-option">
                     <div class="option-help">
@@ -17,97 +17,112 @@
             <div class="form-content" ref="form">
                 <div class="form-name">
                     <label for="" class="name-text m-label">
-                        Tên danh hiệu thi đua
+                        {{  Resource.LabelForm.EmulationName }}
                         <span class="asterik">*</span>
                     </label>
                     <div class="form-input name-input" Required="true">
-                        <input type="text" class="m-input" ref="name" placeholder="Nhập tên danh hiệu thi đua" >
-                        <div class="label-error name-error">Tên danh hiệu thi đua không được để trống.</div>
+                        <input 
+                            type="text" 
+                            class="m-input" 
+                            ref="name" 
+                            @keyup="autoCode"
+                            name="reset" 
+                            placeholder="Nhập tên danh hiệu thi đua" 
+                            tabindex="1">
+                        <div class="label-error name-error">{{ Resource.ValidateError.ErrorName }}</div>
                     </div>
                     
                 </div>
                 <div class="form-code">
                     <div class="code-title">
                         <label for="" class="name-text m-label">
-                            Mã danh hiệu
+                            {{ Resource.LabelForm.EmulationCode }}
                             <span class="asterik">*</span>
                         </label>
                         <div class="form-input code-input" Required="true">
-                            <input type="text" class="m-input" ref="code" placeholder="Nhập mã danh hiệu">
-                            <div class="label-error name-error">Mã danh hiệu không được để trống.</div>
+                            <input type="text" class="m-input" ref="code" name="reset" placeholder="Nhập mã danh hiệu" tabindex="2">
+                            <div class="label-error name-error">{{ Resource.ValidateError.ErrorCode }}</div>
                         </div>
                     </div>
                     <div class="code-object" RequiredCheckbox="true">
                         <label for="" class="name-text m-label">
-                            Đối tượng khen thưởng
+                            {{ Resource.LabelForm.RewardObject }}
                             <span class="asterik">*</span>
                         </label>
                         <div class="checkbox-input" ref="object">
                             <div>
-                                <input type="checkbox" checked="true" value="1" id="object1">
+                                <input type="checkbox" checked="true" value="1" id="object1" tabindex="3">
                                 <label for="object1" class="checkbox-label">Cá nhân</label>
                             </div>
                             <div>
-                                <input type="checkbox" value="2" id="object2">
+                                <input type="checkbox" value="2" id="object2" tabindex="4">
                                 <label for="object2" class="checkbox-label">Tập thể</label>
                             </div>
-                            <div>
-                                <input type="checkbox" value="4" id="object3">
+                            <!-- <div>
+                                <input type="checkbox" value="4" id="object3" tabindex="5">
                                 <label for="object3" class="checkbox-label">Hộ gia đình</label>
-                            </div>
+                            </div> -->
                         </div>
-                        <div class="label-error name-error">Đối tượng khen thưởng không được để trống.</div>
+                        <div class="label-error name-error">{{ Resource.ValidateError.ErrorObject }}</div>
                     </div>
                 </div>
                 <div class="form-level">
                     <div class="level-title">
                         <label for="" class="level-text m-label">
-                            Cấp khen thưởng
+                            {{ Resource.LabelForm.RewardLevelName }}
                             <span class="asterik">*</span>
                         </label>
-                        <div class="form-input level-input" Required="true">
-                            <input type="text" class="m-input" placeholder="Chọn hiện vật khen thưởng" ref="level">
-                            <div class="label-error name-error">Cấp khen thưởng không được để trống.</div>
+                        <div class="form-input level-input" ref="combobox" Required="true">
+                            <BaseCombobox 
+                                id="rewardlevel" 
+                                class="combobox" 
+                                placeholder="Chọn cấp khen thưởng"  
+                                :data=data
+                                refInput="level"
+                                :errorMsg=Resource.ErrorCombobox.ErrorRewardLevel
+                                :tabidx="6"
+                            />
+                            <div class="label-error name-error">{{ Resource.ValidateError.ErrorRewardLevel }}</div>
                         </div>
                     </div>
                     <div class="level-type" RequiredCheckbox="true">
                         <label for="" class="type-text m-label">
-                            Loại phong trào áp dụng
+                            {{ Resource.LabelForm.TypeMovement }}
                             <span class="asterik">*</span>
                         </label>
                         <div class="checkbox-input" ref="type">
                             <div>
-                                <input type="checkbox" checked="true" value="1" id="type1">
+                                <input type="checkbox" checked="true" value="1" id="type1" tabindex="7">
                                 <label for="type1" class="checkbox-label">Thường xuyên</label>
                             </div>
                             <div>
-                                <input type="checkbox" value="2" id="type2">
+                                <input type="checkbox" value="2" id="type2" tabindex="8">
                                 <label for="type2" class="checkbox-label">Theo đợt</label>
                             </div>
                         </div>
-                        <div class="label-error name-error">Loại phong trào không được để trống.</div>
+                        <div class="label-error name-error">{{ Resource.ValidateError.ErrorTypeMovement }}</div>
                     </div>
                 </div>
                 <div class="form-note">
                     <div class="note-title">
                         <label for="" class="note-text m-label">
-                            Ghi chú
+                            {{ Resource.LabelForm.Note }}
                         </label>
                         <div class="note-input">
-                            <textarea class="note-area" placeholder="Nhập ghi chú" ref="note"></textarea>
+                            <textarea class="note-area" placeholder="Nhập ghi chú" ref="note" tabindex="9"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="form-footer">
                 <div class="btn-close">
-                    <BaseButton class="m-button btn-white" text="Hủy"></BaseButton>
+                    <BaseButton class="m-button btn-white" text="Hủy" tabindex="10" @click="handleCloseForm"></BaseButton>
                 </div>
                 <div class="btn-saveadd">
-                    <BaseButton class="m-button" text="Lưu & thêm mới"></BaseButton>
+                    <BaseButton class="m-button" text="Lưu & thêm mới" tabindex="11" @click="handleSaveAdd"></BaseButton>
                 </div>
                 <div class="btn-save">
-                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave"></BaseButton>
+                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave" tabindex="12"></BaseButton>
                 </div>
             </div>
         </div>
@@ -116,39 +131,48 @@
 
 <script setup>
 import BaseButton from '@//components/base/Button/BaseButton.vue';
-// import BaseCombobox from '../base/Combobox/BaseCombobox.vue';
-import { ref, inject, onMounted } from 'vue';
-import { getByID } from '@/common/API/emulationAPI';
+import BaseCombobox from '@//components/base/Combobox/BaseCombobox';
+import { ref, inject, onMounted, computed, watch, reactive, watchEffect } from 'vue';
+import { useStore } from 'vuex';
+import { constants } from "@/config";
+import * as Resource from '@/common/Resource/resource';
+import * as Enum from '@/common/Enum/enum';
+import { getValueEnum, getValueEnumBack } from '@/common/common';
 
+const store = useStore();
+const form = ref(null); 
+var data = [];
+const TitleForm = ref("");
 
-const emitter = inject('emitter');
-const form = ref(null);
-
-var showForm = ref(false);
 const name = ref("name");
 const code = ref("code");
 const object = ref("object");
-const level = ref("level");
 const type = ref("type");
 const note = ref("note");
+const combobox = ref("combobox");
 
+const showForm = computed(() => store.state.emulation.showForm);
+const emulation = computed(() => store.state.emulation.emulation);
+const rewardlevels = computed(() => store.state.rewardlevel.rewardlevels);
+const formMode = computed(() => store.state.emulation.formMode);
 
 /**
  * Đóng form thêm mới danh hiệu
  * CreatedBy: VMHieu 21/03/2023
  */
 const handleCloseForm = () => {
-    showForm.value = false;
-    emitter.emit("closeForm");
+    store.dispatch('showForm');
+    store.dispatch('showOver');
     resetForm();
 }
 
 /**
  * Thực hiện reset form sau khi đóng form
+ * CreatedBy: VMHieu 21/03/2023
  */
 const resetForm = () => {
     // Xóa text input
-    form.value.querySelectorAll('input[type="text"]').forEach(element => {
+    form.value.querySelectorAll('input[name="reset"]').forEach(element => {
         element.value = "";
     })
 
@@ -208,6 +232,12 @@ const validateForm = () => {
             error.style.display = "none";
         }
     })
+
+    let err = form.value.querySelector(".combobox-error").style.display == 'none';
+    if (!err) {
+        isValid = false;
+    }
+
     return isValid;
 }
 
@@ -215,36 +245,109 @@ const validateForm = () => {
  * 2. Lấy dữ liệu của emudation đã nhập từ form
  * CreatedBy VMHieu 21/03/2023
  */
+const getFormData = () => {
+    let emulation = {};
 
+    emulation.EmulationName = name.value.value;
+    emulation.EmulationCode = code.value.value;
+    emulation.Note = note.value.value;
+    emulation.Status = Enum.Status.Use;
+    emulation.RewardLevelCode = getValueEnumBack(combobox.value.querySelector('input').value, "RewardLevel");
+    
+    let obj = object.value.querySelectorAll('input[type="checkbox"]');
+
+    if (obj[0].checked && obj[1].checked) {
+        emulation.RewardObject = Enum.RewardObject.PersonalGroup;
+    }
+    else {
+        obj.forEach((element) => {
+            if (element.checked) {
+                emulation.RewardObject = Number(element.getAttribute("value"));
+            }
+        })
+    }
+
+    let mov = type.value.querySelectorAll('input[type="checkbox"]');
+
+    if (mov[0].checked && mov[1].checked) {
+        emulation.TypeMovement = Enum.TypeMovement.PersonalGroup;
+    }
+    else {
+        mov.forEach((element) => {
+            if (element.checked) {
+                emulation.TypeMovement = Number(element.getAttribute("value"));
+            }
+        })
+    }
+
+    return emulation;
+}
     /**
  * 3.1 Lưu dữ liệu
  * CreatedBy VMHieu 21/03/2023
  */
 const handleSave = () => {
+    let data = getFormData();
+
     if (validateForm() == true) {
-        showForm.value = false;
+        if (formMode.value == Enum.FormMode.Add) {
+            store.dispatch('postEmulation', data);
+        } else if (formMode.value == Enum.FormMode.Edit) {
+            data.EmulationID = emulation.value.EmulationID;
+            store.dispatch('putEmulation', data);
+        }
+        store.dispatch('showToast', true);
+        setTimeout(() => {
+            store.dispatch('showToast', false);
+        }, 2000);
+        store.dispatch('showForm');
+        store.dispatch('showOver');
+        resetForm();
     }
 }
 /**
  * 3.2 Lưu và thêm mới dữ liệu
  * CreatedBy VMHieu 21/03/2023
  */
+ const handleSaveAdd = () => {
+    let data = getFormData();
 
+    if (validateForm() == true) {
+        if (formMode.value == Enum.FormMode.Add) {
+            store.dispatch('postEmulation', data);
+        } else if (formMode.value == Enum.FormMode.Edit) {
+            data.EmulationID = emulation.value.EmulationID;
+            store.dispatch('putEmulation', data);
+        }
+        store.dispatch('showToast', true);
+        setTimeout(() => {
+            store.dispatch('showToast', false);
+        }, 2000);
+        // Thực hiện xong thì chuyển mode về add
+        store.dispatch('updateFormMode', Enum.FormMode.Add);
+        resetForm();
+        name.value.focus();
+    }
+
+    
+}
 /**
  * Thực hiện biding data ra form sửa
+ * CreatedBy: VMHieu 21/03/2023
  */
-const bidingData = (data) => {
+const bidingData = () => {
+    let level = combobox.value.querySelector('input');
     // biding các ô input text
-    name.value.value = data.EmulationName;
-    code.value.value = data.EmulationCode;
-    level.value.value = data.RewardLevelName;
-    note.value.value = data.Note;
+    name.value.value = emulation.value.EmulationName;
+    code.value.value = emulation.value.EmulationCode;
+    level.value = emulation.value.RewardLevelName;
+    note.value.value = emulation.value.Note;
 
     // biding các ô input checkbox
     object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (element.value == data.RewardObject && data.RewardObject != 3) {
+        if (element.value == emulation.value.RewardObject && emulation.value.RewardObject != 3) {
             element.checked = true;
-        } else if (data.RewardObject == 3) {
+        } else if (emulation.value.RewardObject == 3) {
             if (element.value == 1 || element.value == 2) {
                 element.checked = true;
             } else {
@@ -257,41 +360,104 @@ const bidingData = (data) => {
     })
 
     type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (element.value == data.TypeMovement) {
+        if (element.value == emulation.value.TypeMovement) {
             element.checked = true;
-        } 
+        } else if (emulation.value.TypeMovement == 3) {
+            if (element.value == 1 || element.value == 2) {
+                element.checked = true;
+            } else {
+                element.checked = false;
+            }
+        }
         else {
             element.checked = false;
         }
     })
-    
-    showForm.value = true;
 }
+/**
+ * Tự động sinh mã danh hiệu thi đua
+ * @param {} event 
+ * CreatedBy VMHieu 04/04/2023
+ */
+const autoCode = (event) => {
+    if (formMode.value == Enum.FormMode.Edit) {
+        event.preventDefault();
+        return;
+    }
+    let value = event.currentTarget.value;
+    let arr = value.trim().split(' ');
+    let str = "";
 
-onMounted(() => {
-    /**
-     * Mở form thêm mới danh hiệu
-     * CreatedBy: VMHieu 21/03/2023
-     */
-    emitter.on('openAddForm', () => {
-        showForm.value = true;
-    })
-
-    /**
-     * Mở form sửa danh hiệu thi đua
-     * CreatedBy: VMHieu 24/03/2023
-     */
-    emitter.on('openEditForm', async (id) => {
-        try {
-            let emulation = await getByID(id);
-            // Thực hiện biding dữ liệu vào form
-            bidingData(emulation);
-        } catch(ex) {
-            console.log(ex);
+    if(value) {
+        for (let i = 0; i < arr.length; i++) {
+            str = str + arr[i][0];
         }
 
+        code.value.value = str.toUpperCase();
+    } else {
+        code.value.value = "";
+    }
+}
+
+/**
+ * Theo dõi sự thay đổi của emulation để biding dữ liệu form sửa
+ * CreatedBy: VMHieu 28/03/2023
+ */
+watch(
+    emulation, () => {
+        bidingData();
+    }
+)
+/**
+ * Theo dõi sự kiện mở form để đặt focus vào ô input đầu tiên 
+ * CreatedBy VMHieu 30/03/2023
+ */
+watch(
+    showForm, () => {
+        setTimeout(() => {
+            name.value.focus();
+        }, 10);
+    }
+)
+/**
+ * Theo dõi formMode để thay đổi tiêu đề 
+ * CreatedBy VMHieu 30/03/2023
+ */
+watch((formMode), () => {
+    if (formMode.value == Enum.FormMode.Edit) {
+        TitleForm.value = Resource.LabelForm.TitleEdit;
+    } else {
+        TitleForm.value = Resource.LabelForm.TitleAdd;
+    }
+})
+
+onMounted(async () => {
+    /**
+     * Lấy dữ liệu các cấp khen thưởng và biding ra combobox
+     * CreatedBy VMHieu 29/03/2023
+     */
+    try {
+        await store.dispatch('getAllRewardLevel');
+        rewardlevels.value.forEach((element) => {
+            data.push(element.RewardLevelName);
+        })
+    } catch (e) {
+        console.log(e);
+    }    
+
+    /**
+     * Gán sự kiện ấn enter để chọn checkbox
+     * CreatedBy VMHieu 30/03/2023
+     */
+    form.value.querySelectorAll('input[type="checkbox"]').forEach((element) => {
+        element.addEventListener('keypress', function(event) {
+            if (event.which === 13) {
+            this.checked = !this.checked;
+            }
+        })
     })
-});
+
+})
 
 </script>
 

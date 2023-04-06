@@ -3,7 +3,7 @@
         <div class="menu-container">
             <div class="left-container">
                 <div class="menu-item-container">
-                    <router-link to="/" class="menu-focus">
+                    <router-link to="/" class="menu-focus" active-class="active">
                         <div class="menu-item">
                             <div class="menu-item__icon">
                                 <icon class="icon icon-tq"></icon>
@@ -75,7 +75,7 @@
                         </div>
                     </div>
                     <div class="menu-line"></div>
-                    <router-link to="/emulation" class="menu-focus">
+                    <router-link to="/emulation" class="menu-focus" active-class="active">
                         <div class="menu-item">
                             <div class="menu-item__icon">
                                 <icon class="icon icon-dm"></icon>
@@ -174,10 +174,10 @@ export default {
     background: #fbe9e7;
 }
 
-.menu-focus:focus>div{
+/* .menu-focus:focus>div{
     color: #ff6d00;
     background: #fbe9e7;
-}
+} */
 
 .menu-item__icon icon{
     display: block;
@@ -231,5 +231,10 @@ export default {
     position: absolute;
     left: 40px;
     bottom: 0px;
+}
+
+.router-link-exact-active .menu-item{
+    color: #ff6d00 !important;
+    background: #fbe9e7;
 }
 </style>

@@ -24,13 +24,17 @@ th{
     z-index: 6;
 }
 
-/* tr{
+tr{
     position: relative;
-} */
+}
 
-/* tr:hover > .option{
+tr:hover > .option{
     display: block;
-} */
+}
+
+tr:focus{
+    background: #000;
+}
 
 td{
     height: 40px;
@@ -70,6 +74,10 @@ td{
 
 .selector-tr{
     background: #e0ebff;
+}
+
+tr:nth-last-child(-n + 3) .option-menu{
+    top: -115px;
 }
 
 .option{

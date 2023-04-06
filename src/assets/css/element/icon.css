@@ -98,3 +98,45 @@
 .icon-bonus{
     background: transparent url('../../sprite_cegov.svg') no-repeat -168px -48px;
 }
+
+.icon-dropdown{
+    background: url(../../icon/dropdown.svg) no-repeat;
+    content: "";
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    top: 15px;
+    left: 12px;
+    display: inline-block;
+}
+
+.icon-check{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -192px -24px;
+}
+
+.icon-prev{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -240px 0;
+}
+
+.icon-next{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -240px 0;
+}
+
+.icon-success{
+    background: url('../../icon/toast-success.svg') no-repeat;
+}
+
+.icon-fail{
+    background: url('../../icon/check.png') no-repeat;
+}
+
+.icon-arrow{
+    background: url('../../icon/icon_arrow.svg') no-repeat;
+    position: absolute;
+    top: 15px;
+    left: 12px;
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    min-height: 10px;
+}
