@@ -1,9 +1,9 @@
 const state = {
-    showPopup: 0,
+    showPopup: false,
     showToast: false,
     toastMsg: "",
     popupMsg: "",
-    popupStatus: 1
+    popupStatus: 0
 }
 
 const mutations = {
@@ -35,15 +35,6 @@ const mutations = {
         state.toastMsg = payload;
     },
     /**
-     * Update nội dung popup
-     * @param {*} state 
-     * @param {*} payload 
-     * CreatedBy VMHieu 05/04/2023 
-     */
-    updatePopupMsg(state, payload) {
-        state.popupMsg = payload;
-    },
-    /**
      * Update trạng thái popup
      * @param {*} state 
      * @param {*} payload 
@@ -51,6 +42,15 @@ const mutations = {
      */
     updatePopupStatus(state, payload) {
         state.popupStatus = payload;
+    },
+    /**
+     * Update msg popup
+     * @param {*} state 
+     * @param {*} payload 
+     * CreatedBy VMHieu 05/04/2023 
+     */
+    updatePopupMsg(state, payload) {
+        state.popupMsg = payload;
     }
 }
 
@@ -83,15 +83,6 @@ const actions = {
         context.commit('updateToastMsg', data);
     },
     /**
-     * Update nội dung popup
-     * @param {*} context 
-     * @param {*} data 
-     * CreatedBy VMHieu 05/04/2023 
-     */
-    updatePopupMsg(context, data) {
-        context.commit('updatePopupMsg', data);
-    },
-    /**
      * Update trạng thái popup
      * @param {*} context 
      * @param {*} data 
@@ -99,6 +90,16 @@ const actions = {
      */
     updatePopupStatus(context, data) {
         context.commit('updatePopupStatus', data);
+    },
+
+    /**
+     * Update msg popup
+     * @param {*} context 
+     * @param {*} data 
+     * CreatedBy VMHieu 05/04/2023 
+     */
+    updatePopupMsg(context, data) {
+        context.commit('updatePopupMsg', data);
     }
 
 }

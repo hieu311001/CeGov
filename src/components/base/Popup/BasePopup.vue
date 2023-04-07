@@ -6,7 +6,7 @@
                     <div class="popup-text" >
                         <slot name="slotTitle"></slot>
                     </div>
-                    <div class="popup-icon" @click="handleClosePopup">
+                    <div class="popup-icon" @click="handleClosePopup" title="Đóng">
                         <icon class="icon icon-exit"></icon>
                     </div>
                 </div>
@@ -28,9 +28,13 @@ import { useStore } from 'vuex';
 const store = useStore();
 
 const showPopup = computed(() => store.state.app.showPopup);
+const popupStatus = computed(() => store.state.app.popupStatus);
 
 const handleClosePopup = () => {
     store.dispatch('showPopup', false);
+    if (popupStatus.value == 1) {
+        store.dispatch('showOver');
+    }
 }
 </script>
 

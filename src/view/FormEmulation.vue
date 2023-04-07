@@ -1,15 +1,15 @@
 <template>
-    <div class="form-detail" v-show="showForm">
+    <div class="form-detail" v-show="showForm" @keyup.esc="handleCloseForm">
         <div class="form-container">
             <div class="form-header">
                 <div class="header-text">
                     {{ TitleForm }}
                 </div>
                 <div class="header-option">
-                    <div class="option-help">
+                    <div class="option-help" title="Trợ giúp">
                         <icon class="icon icon-help"></icon>
                     </div>
-                    <div class="option-exit form-exit" @click="handleCloseForm">
+                    <div class="option-exit form-exit" @click="handleCloseForm" title="Đóng">
                         <icon class="icon icon-exit"></icon>
                     </div>
                 </div>
@@ -132,16 +132,16 @@
 <script setup>
 import BaseButton from '@//components/base/Button/BaseButton.vue';
 import BaseCombobox from '@//components/base/Combobox/BaseCombobox';
+import PopupMessage from './PopupMessage.vue';
 import { ref, inject, onMounted, computed, watch, reactive, watchEffect } from 'vue';
 import { useStore } from 'vuex';
-import { constants } from "@/config";
 import * as Resource from '@/common/Resource/resource';
 import * as Enum from '@/common/Enum/enum';
 import { getValueEnum, getValueEnumBack } from '@/common/common';
-
 const store = useStore();
 const form = ref(null); 
 var data = [];
+var dataPopup = [];
 const TitleForm = ref("");
 
 const name = ref("name");
@@ -149,13 +149,15 @@ const code = ref("code");
 const object = ref("object");
 const type = ref("type");
 const note = ref("note");
-const combobox = ref("combobox");
 
+const combobox = ref("combobox");
 const showForm = computed(() => store.state.emulation.showForm);
+const showPopup = computed(() => store.state.app.showPopup);
 const emulation = computed(() => store.state.emulation.emulation);
 const rewardlevels = computed(() => store.state.rewardlevel.rewardlevels);
 const formMode = computed(() => store.state.emulation.formMode);
-
+const errorMsg = computed(() => store.state.emulation.errorMsg);
+const refresh = computed(() => store.state.emulation.refresh);
 /**
  * Đóng form thêm mới danh hiệu
  * CreatedBy: VMHieu 21/03/2023
@@ -165,7 +167,6 @@ const handleCloseForm = () => {
     store.dispatch('showOver');
     resetForm();
 }
-
 /**
  * Thực hiện reset form sau khi đóng form
  * CreatedBy: VMHieu 21/03/2023
@@ -175,7 +176,6 @@ const resetForm = () => {
     form.value.querySelectorAll('input[name="reset"]').forEach(element => {
         element.value = "";
     })
-
     // Đặt checkbox về mặc định
     form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
         if (element.value == 1) {
@@ -184,16 +184,13 @@ const resetForm = () => {
             element.checked = false;
         }
     })
-
     // Xóa text area
     form.value.querySelector('textarea').value = "";
-
     // Xóa thông báo lỗi
     form.value.querySelectorAll(".label-error").forEach(element => {
         element.style.display = "none";
     })
 }
-
 /**
  * 1. Validate dữ liệu trước khi gửi lên server
  * CreatedBy VMHieu 21/03/2023
@@ -205,7 +202,6 @@ const validateForm = () => {
     form.value.querySelectorAll('[Required]').forEach(element => {
         let input = element.querySelector('input');
         let error = element.querySelector('.label-error');
-
         if (!input.value) {
             isValid = false;
             error.style.display = "block";
@@ -224,7 +220,6 @@ const validateForm = () => {
                 k++;
             }
         }
-
         if (k == len) {
             isValid = false;
             error.style.display = "block";
@@ -232,22 +227,18 @@ const validateForm = () => {
             error.style.display = "none";
         }
     })
-
     let err = form.value.querySelector(".combobox-error").style.display == 'none';
     if (!err) {
         isValid = false;
     }
-
     return isValid;
 }
-
 /**
  * 2. Lấy dữ liệu của emudation đã nhập từ form
  * CreatedBy VMHieu 21/03/2023
  */
 const getFormData = () => {
     let emulation = {};
-
     emulation.EmulationName = name.value.value;
     emulation.EmulationCode = code.value.value;
     emulation.Note = note.value.value;
@@ -255,7 +246,6 @@ const getFormData = () => {
     emulation.RewardLevelCode = getValueEnumBack(combobox.value.querySelector('input').value, "RewardLevel");
     
     let obj = object.value.querySelectorAll('input[type="checkbox"]');
-
     if (obj[0].checked && obj[1].checked) {
         emulation.RewardObject = Enum.RewardObject.PersonalGroup;
     }
@@ -266,11 +256,9 @@ const getFormData = () => {
             }
         })
     }
-
     let mov = type.value.querySelectorAll('input[type="checkbox"]');
-
     if (mov[0].checked && mov[1].checked) {
-        emulation.TypeMovement = Enum.TypeMovement.PersonalGroup;
+        emulation.TypeMovement = Enum.TypeMovement.UsuallyBatched;
     }
     else {
         mov.forEach((element) => {
@@ -279,7 +267,6 @@ const getFormData = () => {
             }
         })
     }
-
     return emulation;
 }
     /**
@@ -288,21 +275,17 @@ const getFormData = () => {
  */
 const handleSave = () => {
     let data = getFormData();
-
     if (validateForm() == true) {
-        if (formMode.value == Enum.FormMode.Add) {
+        if (formMode.value == Enum.FormMode.Add || formMode.value == Enum.FormMode.AddSave) {
             store.dispatch('postEmulation', data);
         } else if (formMode.value == Enum.FormMode.Edit) {
             data.EmulationID = emulation.value.EmulationID;
             store.dispatch('putEmulation', data);
         }
-        store.dispatch('showToast', true);
-        setTimeout(() => {
-            store.dispatch('showToast', false);
-        }, 2000);
-        store.dispatch('showForm');
-        store.dispatch('showOver');
-        resetForm();
+        // store.dispatch('showToast', true);
+        // setTimeout(() => {
+        //     store.dispatch('showToast', false);
+        // }, 2000);
     }
 }
 /**
@@ -311,24 +294,18 @@ const handleSave = () => {
  */
  const handleSaveAdd = () => {
     let data = getFormData();
-
     if (validateForm() == true) {
-        if (formMode.value == Enum.FormMode.Add) {
+        if (formMode.value == Enum.FormMode.Add || formMode.value == Enum.FormMode.AddSave) {
             store.dispatch('postEmulation', data);
         } else if (formMode.value == Enum.FormMode.Edit) {
             data.EmulationID = emulation.value.EmulationID;
             store.dispatch('putEmulation', data);
         }
-        store.dispatch('showToast', true);
-        setTimeout(() => {
-            store.dispatch('showToast', false);
-        }, 2000);
         // Thực hiện xong thì chuyển mode về add
-        store.dispatch('updateFormMode', Enum.FormMode.Add);
-        resetForm();
+        store.dispatch('updateFormMode', Enum.FormMode.AddSave);
+
         name.value.focus();
     }
-
     
 }
 /**
@@ -342,7 +319,6 @@ const bidingData = () => {
     code.value.value = emulation.value.EmulationCode;
     level.value = emulation.value.RewardLevelName;
     note.value.value = emulation.value.Note;
-
     // biding các ô input checkbox
     object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
         if (element.value == emulation.value.RewardObject && emulation.value.RewardObject != 3) {
@@ -358,7 +334,6 @@ const bidingData = () => {
             element.checked = false;
         }
     })
-
     type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
         if (element.value == emulation.value.TypeMovement) {
             element.checked = true;
@@ -387,18 +362,15 @@ const autoCode = (event) => {
     let value = event.currentTarget.value;
     let arr = value.trim().split(' ');
     let str = "";
-
     if(value) {
         for (let i = 0; i < arr.length; i++) {
             str = str + arr[i][0];
         }
-
         code.value.value = str.toUpperCase();
     } else {
         code.value.value = "";
     }
 }
-
 /**
  * Theo dõi sự thay đổi của emulation để biding dữ liệu form sửa
  * CreatedBy: VMHieu 28/03/2023
@@ -431,6 +403,23 @@ watch((formMode), () => {
     }
 })
 
+/**
+ * Quan sát errorMsg để hiển thị popup cảnh báo
+ * CreatedBy VMHieu 06/04/2023
+ */
+watch((errorMsg), () => {
+    store.dispatch("showPopup", true);
+    dataPopup.Msg = errorMsg.value;
+})
+
+/**
+ * Quan sát state refresh để resetForm
+ * CreatedBy VMHieu 06/04/2023
+ */
+watch((refresh), () => {
+    resetForm();
+})
+
 onMounted(async () => {
     /**
      * Lấy dữ liệu các cấp khen thưởng và biding ra combobox
@@ -444,7 +433,6 @@ onMounted(async () => {
     } catch (e) {
         console.log(e);
     }    
-
     /**
      * Gán sự kiện ấn enter để chọn checkbox
      * CreatedBy VMHieu 30/03/2023
@@ -456,9 +444,7 @@ onMounted(async () => {
             }
         })
     })
-
 })
-
 </script>
 
 <style scoped>
@@ -475,111 +461,90 @@ onMounted(async () => {
     border-radius: 4px;
     transition: all 1s;
 }
-
 .form-container{
     position: relative;
     height: 100%;
 }
-
 .form-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 24px 24px 6px 24px;
 }
-
 .header-text{
     font-size: 20px;
     font-weight: 700;
     min-height: 24px;
 }
-
 .header-option{
     display: flex;
     align-items: center;
 }
-
 .option-help{
     cursor: pointer;
     padding: 0 8px;
 }
-
 .option-exit{
     padding: 0 0 0 8px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
 .option-exit icon{
     min-height: 20px;
     min-width: 20px;
     height: 20px;
     width: 20px;
 }
-
 .form-content{
     padding: 24px 24px 0;
     display: flex;
     flex-direction: column ;
 }
-
 .form-content>div{
     margin-bottom: 16px;
 }
-
 /* .form-name{
     margin-bottom: 16px;
 } */
-
 .form-input>input{
     border-radius: 3.5px;
 }
 .form-input>input:hover{
     outline: 1px solid #1a73e8 ;
 }
-
 .form-code, .form-level{
     display: flex;
-
     justify-content: center;
 }
-
 .form-code>div, .form-level>div{
     flex: 1;
     margin-right: 10px;
 }
-
 .checkbox-input{
     display: flex;
     align-items: center;
     min-height: 36px;
 }
-
 .checkbox-input>div{
     flex: 1;
     display: flex;
     align-items: center;
 }
-
 .checkbox-label{
     padding-left: 4px;
     display: inline-block;
     cursor: pointer;
 }
-
-
 .form-note{
     margin-bottom: 20px;
 }
-
 .note-input{
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 3.5px;
     display: flex;
 }
-
 .note-area{
     border: none;
     padding: 6px 12px;
@@ -591,15 +556,12 @@ onMounted(async () => {
     font-family: GoogleSans;
     font-size: 14px;
 }
-
 .note-area:hover{
     outline: 1px solid #1a73e8 ;
 }
-
 .note-area:focus-within{
     outline: 1px solid #1a73e8 ;
 }
-
 .form-footer{
     display: flex;
     align-items: center;
@@ -607,30 +569,24 @@ onMounted(async () => {
     padding: 12px 24px;
     border-top: 1px solid #e0e0e0;
 }
-
 .btn-close, .btn-saveadd{
     margin-right: 10px;
 }
-
 .btn-saveadd>button{
     border: 1px solid #2979ff;
     color: #2979ff;
 }
-
 .btn-saveadd>button:hover{
     background: #f4f5f8;
     color: #2979ff;
 }
-
 .btn-saveadd>button:focus{
     background: #0062cc;
     color: #fff!important;
 }
-
 .label-error{
     color: #ef5350;
     margin-top: 6px;
     display: none;
 }
-
 </style>

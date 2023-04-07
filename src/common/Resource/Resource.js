@@ -90,6 +90,7 @@ export const ToastFail = {
 export const PopupMessage = {
     Delete: "Bạn có chắc chắn muốn xóa Danh hiệu thi đua * đã chọn không?",
     DeleteMultiple: "Xóa * danh hiệu đã chọn?",
+    DuplicateCode: "Mã danh hiệu * đã tồn tại trong hệ thống. Xin vui lòng kiểm tra lại.",
     Breakpoint: "*", // Kí tự ngắt dòng để thay thế 
 }
 
@@ -166,6 +167,14 @@ export const LabelForm = {
     RewardLevelName: "Cấp khen thưởng",
     TypeMovement: "Loại phong trào áp dụng",
     Note: "Ghi chú"
+}
+/**
+ * Các msg lỗi nhận được từ server
+ * CreatedBy VMHieu 07/04/2023
+ */
+export const ErrorMsg = {
+    ErrorDuplicateCode: "Mã danh hiệu đã tồn tại trong hệ thống",
+    ErrorSystem: "Đã có lỗi xảy ra. Vui lòng liên hệ MISA để được hỗ trợ",
 }
 
 export default Resource;

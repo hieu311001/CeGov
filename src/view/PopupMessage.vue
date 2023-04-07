@@ -1,5 +1,5 @@
 <template>
-    <BasePopup v-show="showPopup == 1">
+    <BasePopup v-if="popupStatus == 1 && showPopup">
         <template v-slot:slotTitle>Xóa Danh hiệu thi đua</template>
         <template v-slot:slotContent>
             <div class="content">{{ data.Msg }}</div>
@@ -11,10 +11,10 @@
             </div>
         </template>
     </BasePopup>
-    <BasePopup v-show="showPopup == 2">
+    <BasePopup v-if="popupStatus == 2 && showPopup">
         <template v-slot:slotTitle>MISA CeGov</template>
         <template v-slot:slotContent>
-            <div class="content">{{ data.Msg }}</div>
+            <div class="content">{{ popupMsg }}</div>
         </template>
         <template v-slot:slotButton>
             <div class="btn btn-warning">
@@ -27,19 +27,21 @@
 <script setup>
 import BasePopup from "@/components/base/Popup/BasePopup.vue";
 import BaseButton from "@/components/base/Button/BaseButton.vue";
-import { computed, defineProps, ref } from "vue";
+import { computed, defineProps, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import * as Resource from '@/common/Resource/resource';
 import * as Enum from '@/common/Enum/enum';
 
 const props = defineProps({
-    data: []
+    data: [],
 })
 
 const store = useStore();
 
 const showPopup = computed(() => store.state.app.showPopup);
 const formMode = computed(() => store.state.emulation.formMode);
+const popupStatus = computed(() => store.state.app.popupStatus);
+const popupMsg = computed(() => store.state.app.popupMsg);
 /**
  * Xác nhận xóa các bản ghi đã chọn
  * CreatedBy VMHieu 06/04/2023
@@ -52,12 +54,21 @@ const handleSaveDelete = () => {
     }
 
     store.dispatch('showPopup', false);
-    // Hiển thị toast thông báo kết quả
-    store.dispatch('showToast', true);
-    setTimeout(() => {
-        store.dispatch('showToast', false);
-    }, 2000);
 }
+/**
+ * Đóng popup
+ * CreatedBy VMHieu 06/04/2023
+ */
+const handleClose = () => {
+    store.dispatch('showPopup', false);
+    if (popupStatus.value == 1) {
+        store.dispatch('showOver');
+    }
+}
+
+// watch((popupMsg), () => {
+//     props.data.Msg = popupMsg.value;
+// })
 </script>
 
 <style scoped>

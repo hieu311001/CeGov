@@ -23,7 +23,7 @@ const actions = {
      * CreatedBy VMHieu 28/03/2023
      */
     async getAllRewardLevel(context) {
-        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/rewardlevel`)
+        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/rewardlevels`)
         if (res.data) {
             context.commit('getAllRewardLevel', res.data);
         }

@@ -52,5 +52,13 @@ export const Status = {
     Use: 1, // Đang sử dụng
     StopUsing: 2, // Ngừng sử dụng
 }
+/**
+ * Các giá trị của trạng thái popup
+ * CreatedBy VMHieu 31/03/2023
+ */ 
+export const PopupStatus = {
+    Delete: 1,   // Cảnh báo trước khi xóa
+    Error: 2, // Cảnh báo lỗi
+}
 
 export default Enumeration;

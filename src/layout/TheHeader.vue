@@ -13,17 +13,17 @@
                 </div>
             </div>
             <div class="nav-right">
-                <div class="nav-right__icon">
+                <div class="nav-right__icon" title="Thông báo">
                     <icon class="icon icon-notify"></icon>
                 </div>
-                <div class="nav-right__icon">
+                <div class="nav-right__icon" title="Trợ giúp">
                     <icon class="icon icon-help"></icon>
                 </div>
-                <div class="nav-right__icon">
+                <div class="nav-right__icon" title="Tài liệu">
                     <icon class="icon icon-document"></icon>
                 </div>
                 <div class="nav-right__icon">
-                    <icon class="icon icon-settings"></icon>
+                    <icon class="icon icon-settings" title="Cài đặt"></icon>
                 </div>
                 <div class="nav-right__avatar">
                     <div class="nav-right__image">

@@ -43,7 +43,7 @@ const handleCloseToast = () => {
     left: 50%;
     transform: translateX(-50%);
     margin-top: 8px;
-    z-index: 5;
+    z-index: 1000;
     border-radius: 4px;
     box-shadow: 0 0 16px rgba(23,27,42,.24);
 }

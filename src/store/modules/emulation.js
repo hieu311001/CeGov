@@ -2,6 +2,7 @@ import axios from "axios";
 import { constants } from "@/config";
 import * as Enum from '@/common/Enum/enum';
 import * as Resource from '@/common/Resource/resource';
+import { handleError } from "@/common/common";
  
 const state = {
     showOver: false, // Hiệu ứng over
@@ -14,6 +15,7 @@ const state = {
     totalRecord: 0,
     formMode: 0,
     refresh: false,
+    errorMsg: [],
 }
 
 const mutations = {
@@ -55,6 +57,14 @@ const mutations = {
     postEmulation(state) {
         state.refresh = !state.refresh;
         state.totalRecord++;
+
+        if (state.formMode == Enum.FormMode.AddSave) {
+            state.showForm = true;
+            state.showOver = true;
+        } else {
+            state.showForm = false;
+            state.showOver = false;
+        }
     },
     /**
      * Cập nhật mới danh hiệu thi đua
@@ -64,6 +74,14 @@ const mutations = {
      */
     putEmulation(state) {
         state.refresh = !state.refresh;
+
+        if (state.formMode == Enum.FormMode.AddSave) {
+            state.showForm = true;
+            state.showOver = true;
+        } else {
+            state.showForm = false;
+            state.showOver = false;
+        }
     },
     /**
      * Xóa danh hiệu thi đua
@@ -74,6 +92,7 @@ const mutations = {
     deleteEmulation(state) {
         state.refresh = !state.refresh;
         state.totalRecord--;
+        state.showOver = false;
     },
 
     /**
@@ -84,6 +103,7 @@ const mutations = {
      */
     deleteMultipleEmulation(state) {
         state.refresh = !state.refresh;
+        state.showOver = false;
     },
 
     /**
@@ -104,6 +124,14 @@ const mutations = {
      */
     updateFormMode(state, payload) {
         state.formMode = payload;
+    },
+    /**
+     * Cập nhật giá trị của errorMsg
+     * @param {} state 
+     * @param {*} payload 
+     */
+    updateErrorMsg(state, payload) {
+        state.errorMsg = payload;
     },
     
     /**
@@ -149,7 +177,7 @@ const actions = {
      * CreatedBy VMHieu 28/03/2023
      */
     async getAllEmulation(context) {
-        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulation`)
+        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulations`)
         if(res.data) {
             context.commit("getAll", res.data)
         }
@@ -161,7 +189,7 @@ const actions = {
      * CreatedBy VMHieu 28/03/2023
      */
     async getByID(context, id) {
-        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulation/${id}`)
+        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/${id}`)
         if (res.data) {
             context.commit("getByID", res.data)
         }
@@ -172,7 +200,7 @@ const actions = {
      * CreatedBy VMHieu 03/04/2023
      */
     async getPaging(context) {
-        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulation/` + 
+        const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/` + 
             `paging?keyword=${state.filterDatas.keyword}&RewardObject=${state.filterDatas.RewardObject}&TypeMovement=${state.filterDatas.TypeMovement}&` +
             `Status=${state.filterDatas.Status}&RewardLevel=${state.filterDatas.RewardLevel}&pageSize=${state.pageSize}&pageNumber=${state.pageNumber}`);
         if (res.data) {
@@ -186,11 +214,16 @@ const actions = {
      * CreatedBy VMHieu 05/04/2023
      */
     async postEmulation(context, data) {
-        await axios.post(`${constants.API_URL}/api/${constants.API_VERSION}/emulation`, data)
+        await axios.post(`${constants.API_URL}/api/${constants.API_VERSION}/emulations`, data)
         .then(function (res) {
             context.commit('postEmulation', res.data);
             // Hiện toast thành công
             context.commit('updateToastMsg', Resource.ToastSuccess.AddSuccess);
+
+            context.commit('showToast', true);
+            setTimeout(() => {
+                context.commit('showToast', false);
+            }, 2000);
         })
         .catch(function (error) {
             // hiện toast thất bại
@@ -204,15 +237,22 @@ const actions = {
      * CreatedBy VMHieu 05/04/2023
      */
     async putEmulation(context, data) {
-        await axios.put(`${constants.API_URL}/api/${constants.API_VERSION}/emulation/${data.EmulationID}`, data)
+        await axios.put(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/${data.EmulationID}`, data)
         .then(function (res) {
             context.commit('putEmulation', res.data)
             // Hiện toast thành công
             context.commit('updateToastMsg', Resource.ToastSuccess.EditSuccess);
+
+            context.commit('showToast', true);
+            setTimeout(() => {
+                context.commit('showToast', false);
+            }, 2000);
         })
         .catch(function (error) {
-            // hiện toast thất bại
-            context.commit('updateToastMsg', Resource.ToastFail.EditFail);
+            // // hiện toast thất bại
+            // context.commit('updateToastMsg', Resource.ToastFail.EditFail);
+            handleError(context, error.response.data.errorMsg, data.EmulationCode);
+            context.commit('updatePopupStatus', Enum.PopupStatus.Error);
         })
     },
     /**
@@ -222,11 +262,16 @@ const actions = {
      * CreatedBy VMHieu 05/04/2023
      */
     async deleteEmulation(context, id) {
-        await axios.delete(`${constants.API_URL}/api/${constants.API_VERSION}/emulation/${id}`,)
+        await axios.delete(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/${id}`,)
         .then(function (res) {
             context.commit('deleteEmulation', res.data);
             // Hiện toast thành công
             context.commit('updateToastMsg', Resource.ToastSuccess.DeleteSuccess);
+
+            context.commit('showToast', true);
+            setTimeout(() => {
+                context.commit('showToast', false);
+            }, 2000);
         })
         .catch(function (error) {
             // hiện toast thất bại
@@ -240,11 +285,16 @@ const actions = {
      * CreatedBy VMHieu 05/04/2023
      */
     async deleteMultipleEmulation(context, id) {
-        await axios.delete(`${constants.API_URL}/api/${constants.API_VERSION}/emulation/deleteMultiple?ids=${id}`,)
+        await axios.delete(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/multiple?ids=${id}`,)
         .then(function (res) {
             context.commit('deleteMultipleEmulation', res.data);
             // Hiện toast thành công
             context.commit('updateToastMsg', Resource.ToastSuccess.DeleteSuccess);
+
+            context.commit('showToast', true);
+            setTimeout(() => {
+                context.commit('showToast', false);
+            }, 2000);
         })
         .catch(function (error) {
             // hiện toast thất bại

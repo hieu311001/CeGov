@@ -17,18 +17,18 @@
                                 ref="filter"
                                 @keyup.enter="handleFilter"
                             >
-                            <div class="input-search__icon">
+                            <div class="input-search__icon" title="Tìm kiếm">
                                 <icon class="icon icon-search"></icon>
                             </div>
                         </div>
-                        <div class="filter">
+                        <div class="filter" v-clickOutside="handleCloseFilter" @keyup.esc="handleCloseFilter">
                             <BaseButton class="ms-button btn-white" text="Bộ lọc" @click="handleToggleFilter">
                                 <div class="add-icon">
                                     <icon class="icon icon-filter"></icon>
                                 </div>
                             </BaseButton>
                             <BaseButton class="ms-button btn-unfilter" text="Bỏ lọc" @click="handleUnFilter" v-show="UnFilter"></BaseButton>
-                            <div class="form-filter" v-show="showFormFilter">
+                            <div class="form-filter" v-show="showFormFilter" >
                                 <span class="filter-arrow"></span>
                                 <div class="filter-container">
                                     <div class="filter-header">
@@ -36,7 +36,7 @@
                                             Lọc danh hiệu
                                         </div>
                                         <div class="filter-header__icon">
-                                            <icon class="icon icon-exit" @click="handleToggleFilter"></icon>
+                                            <icon class="icon icon-exit" @click="handleCloseFilter"></icon>
                                         </div>
                                     </div>
                                     <div class="filter-main">
@@ -94,7 +94,7 @@
                                     </div>
                                     <div class="filter-footer">
                                         <div class="filter-btn__close">
-                                            <BaseButton class="m-button btn-white" text="Hủy" @click="handleToggleFilter"></BaseButton>
+                                            <BaseButton class="m-button btn-white" text="Hủy" @click="handleCloseFilter"></BaseButton>
                                         </div>
                                         <div class="filter-btn__save">
                                             <BaseButton class="m-button btn-blue" text="Áp dụng" @click="handleFilter"></BaseButton>
@@ -279,7 +279,7 @@ var numberOfPage = ref(0);
 var dataPopup = [];        // Mảng chứa thông tin của bản ghi cần xóa
 
 var width, left;
-var position = 0;
+var position = ref(0);
 
 const row = ref('row');  // Đại diện cho table
 const page = ref('page'); // Đại diện cho class form-list
@@ -291,8 +291,9 @@ const store = useStore();
 
 const emulations = computed(() => store.state.emulation.emulations)
 const showOver = computed(() => store.state.emulation.showOver)
+const showPopup = computed(() => store.state.app.showPopup)
 const refresh = computed(() => store.state.emulation.refresh);
-const showPopup = computed(() => store.state.app.showPopup);
+const errorMsg = computed(() => store.state.emulation.errorMsg)
 
 // Tổng số bản ghi
 const totalRecord = computed(() => store.state.emulation.totalRecord);
@@ -320,7 +321,7 @@ const onScroll = () => {
     // let option = row.value.querySelector('.option');
 
     // option.style.left = `${width + 100 - left}px`;
-    position = width + 100 - left;
+    position.value = width + 105 - left;
 }
 /**
  * Mở form thêm danh hiệu
@@ -338,6 +339,13 @@ const handleOpenForm = () => {
  */
 const handleToggleFilter = () => {
     showFormFilter.value = !showFormFilter.value;
+}
+/**
+ * Close form Filter
+ * CreatedBy VMHieu 28/03/2023
+ */
+const handleCloseFilter = () => {
+    showFormFilter.value = false;
 }
 
 /**
@@ -370,7 +378,9 @@ const handleEdit =  (id) => {
  * CreatedBy VMHieu 06/04/2023
  */
 const handleDelete = (id, code) => {
+    store.dispatch("updatePopupStatus", Enum.PopupStatus.Delete);
     store.dispatch("showPopup", true);
+    store.dispatch('showOver');
     store.dispatch("updateFormMode", Enum.FormMode.Delete);
 
     let arr = Resource.PopupMessage.Delete.trim().split(" ");
@@ -388,7 +398,9 @@ const handleDelete = (id, code) => {
  * CreatedBy VMHieu 06/04/2023
  */
  const handleDeleteMultiple = () => {
+    store.dispatch("updatePopupStatus", Enum.PopupStatus.Delete);
     store.dispatch("showPopup", true);
+    store.dispatch('showOver');
     store.dispatch("updateFormMode", Enum.FormMode.DeleteMultiple);
 
     let data = [];
@@ -680,11 +692,6 @@ watch((refresh), () => {
     } catch (e) {
         console.log(e);
     }
-
-})
-
-watch((showPopup), () => {
-    store.dispatch('showOver');
 })
 
 onMounted(() => {
@@ -706,33 +713,16 @@ onMounted(() => {
      * CreatedBy VMHieu 28/03/2023
      */
     window.addEventListener('resize', function(event) {
-        onScroll(event)
+        onScroll(event);
     }, true);
-
-    /**
-     * Xác định tọa độ ban đầu của nút option khi chưa xảy ra scroll
-     * CreatedBy VMHieu 28/03/2023
-     */
-    // row.value.querySelectorAll('tr').forEach((element) => {
-    //     element.addEventListener('mouseover', function() {
-    //         // Độ rộng phần tử form-list
-    //         width = page.value.getBoundingClientRect().width;
-    //         // Tọa độ left của table
-    //         left = row.value.getBoundingClientRect().left;
-
-    //         // Nút option
-    //         let option = row.value.querySelector('.option');
-
-    //         option.style.left = `${width + 100 - left}px`;
-    //     })
-    // })
 
     // Độ rộng phần tử form-list
     width = page.value.getBoundingClientRect().width;
     // Tọa độ left của table
     left = row.value.getBoundingClientRect().left;
-    position = width + 100 - left;
-    console.log(position);
+
+    position.value = width + 105 - left;
+
 })
 
 
@@ -894,7 +884,7 @@ onMounted(() => {
 }
 
 .form-filter{
-    right: 0px;
+    right: 24px;
     width: 360px;
     margin-top: 12px;
     position: absolute;

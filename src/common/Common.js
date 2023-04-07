@@ -30,4 +30,30 @@ export function getValueEnumBack (data, resourceName)  {
     
     return data;
 }
+/**
+ * Hàm xử lý ngoại lệ nhận về từ server
+ * @param {*} context 
+ * @param {*} errorMsg 
+ * @param {*} code 
+ * CreatedBy VMHieu 07/04/2023
+ */
+export function handleError(context, errorMsg, code) {
+    let msg = "";
+    let arr = [];
+    switch(errorMsg.join('')) {
+        case Resource.ErrorMsg.ErrorDuplicateCode:
+            arr = Resource.PopupMessage.DuplicateCode.trim().split(" ");
+            for(let i = 0; i < arr.length; i++) {
+                if (arr[i] == Resource.PopupMessage.Breakpoint) {
+                    arr[i] = code;
+                }
+            }
+            msg = arr.join(" ");
+            break;
+        default:
+            msg = Resource.ErrorMsg.ErrorSystem;
+    }
+    context.commit('updatePopupMsg', msg);
+    context.commit('showPopup', true);
+}
 
