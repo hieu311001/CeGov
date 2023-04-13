@@ -58,10 +58,10 @@
                                 <input type="checkbox" value="2" id="object2" tabindex="4">
                                 <label for="object2" class="checkbox-label">Tập thể</label>
                             </div>
-                            <!-- <div>
-                                <input type="checkbox" value="4" id="object3" tabindex="5">
+                            <div>
+                                <input type="checkbox" value="3" id="object3" tabindex="5">
                                 <label for="object3" class="checkbox-label">Hộ gia đình</label>
-                            </div> -->
+                            </div>
                         </div>
                         <div class="label-error name-error">{{ Resource.ValidateError.ErrorObject }}</div>
                     </div>
@@ -77,7 +77,7 @@
                                 id="rewardlevel" 
                                 class="combobox" 
                                 placeholder="Chọn cấp khen thưởng"  
-                                :data=data
+                                :data=dataCombobox
                                 refInput="level"
                                 :errorMsg=Resource.ErrorCombobox.ErrorRewardLevel
                                 :tabidx="6"
@@ -113,6 +113,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-status" ref="status" v-show="showStatus">
+                    <div class="status-title">
+                        <label for="" class="note-text m-label">
+                            {{ Resource.LabelForm.Status }}
+                        </label>
+                        <div class="status-input flex">
+                            <div class="status-use flex">
+                                <input type="radio" class="use-status" name="status" value="1" checked>
+                                <label for="">Sử dụng</label>
+                            </div>
+                            <div class="status-unuse flex">
+                                <input type="radio" class="unuse-status" name="status" value="2">
+                                <label for="">Ngừng sử dụng</label>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="form-footer">
                 <div class="btn-close">
@@ -140,19 +157,20 @@ import * as Enum from '@/common/Enum/enum';
 import { getValueEnum, getValueEnumBack } from '@/common/common';
 const store = useStore();
 const form = ref(null); 
-var data = [];
+var dataCombobox = [];
 var dataPopup = [];
 const TitleForm = ref("");
+const showStatus = ref(false);
 
 const name = ref("name");
 const code = ref("code");
 const object = ref("object");
 const type = ref("type");
 const note = ref("note");
+const status = ref("status");
 
 const combobox = ref("combobox");
 const showForm = computed(() => store.state.emulation.showForm);
-const showPopup = computed(() => store.state.app.showPopup);
 const emulation = computed(() => store.state.emulation.emulation);
 const rewardlevels = computed(() => store.state.rewardlevel.rewardlevels);
 const formMode = computed(() => store.state.emulation.formMode);
@@ -239,34 +257,45 @@ const validateForm = () => {
  */
 const getFormData = () => {
     let emulation = {};
+
     emulation.EmulationName = name.value.value;
     emulation.EmulationCode = code.value.value;
+    emulation.RewardObject = '';
+    emulation.TypeMovement = '';
     emulation.Note = note.value.value;
-    emulation.Status = Enum.Status.Use;
     emulation.RewardLevelCode = getValueEnumBack(combobox.value.querySelector('input').value, "RewardLevel");
     
     let obj = object.value.querySelectorAll('input[type="checkbox"]');
-    if (obj[0].checked && obj[1].checked) {
-        emulation.RewardObject = Enum.RewardObject.PersonalGroup;
-    }
-    else {
-        obj.forEach((element) => {
-            if (element.checked) {
-                emulation.RewardObject = Number(element.getAttribute("value"));
+    let enumeration = Enum[Resource.PropName.RewardObject];
+
+    obj.forEach((element) => {
+        for (const prop in enumeration) {
+            if (element.checked && element.value == enumeration[prop] && enumeration[prop]) {
+                emulation.RewardObject += enumeration[prop]; 
             }
-        })
-    }
+        }
+    })
     let mov = type.value.querySelectorAll('input[type="checkbox"]');
-    if (mov[0].checked && mov[1].checked) {
-        emulation.TypeMovement = Enum.TypeMovement.UsuallyBatched;
-    }
-    else {
-        mov.forEach((element) => {
+    enumeration = Enum[Resource.PropName.TypeMovement];
+
+    mov.forEach((element) => {
+        for (const prop in enumeration) {
+            if (element.checked && element.value == enumeration[prop] && enumeration[prop]) {
+                emulation.TypeMovement += enumeration[prop]; 
+            }
+        }
+    })
+
+    if (formMode.value == Enum.FormMode.Edit) {
+        status.value.querySelectorAll('input[type="radio"]').forEach(element => {
             if (element.checked) {
-                emulation.TypeMovement = Number(element.getAttribute("value"));
+                emulation.Status = Number(element.value);
             }
         })
+    } else {
+        emulation.Status = Enum.Status.Use;
     }
+
     return emulation;
 }
     /**
@@ -274,18 +303,15 @@ const getFormData = () => {
  * CreatedBy VMHieu 21/03/2023
  */
 const handleSave = () => {
-    let data = getFormData();
+    let dataForm = getFormData();
+
     if (validateForm() == true) {
         if (formMode.value == Enum.FormMode.Add || formMode.value == Enum.FormMode.AddSave) {
-            store.dispatch('postEmulation', data);
+            store.dispatch('postEmulation', dataForm);
         } else if (formMode.value == Enum.FormMode.Edit) {
-            data.EmulationID = emulation.value.EmulationID;
-            store.dispatch('putEmulation', data);
+            dataForm.EmulationID = emulation.value.EmulationID;
+            store.dispatch('putEmulation', dataForm);
         }
-        // store.dispatch('showToast', true);
-        // setTimeout(() => {
-        //     store.dispatch('showToast', false);
-        // }, 2000);
     }
 }
 /**
@@ -293,13 +319,13 @@ const handleSave = () => {
  * CreatedBy VMHieu 21/03/2023
  */
  const handleSaveAdd = () => {
-    let data = getFormData();
+    let dataForm = getFormData();
     if (validateForm() == true) {
         if (formMode.value == Enum.FormMode.Add || formMode.value == Enum.FormMode.AddSave) {
-            store.dispatch('postEmulation', data);
+            store.dispatch('postEmulation', dataForm);
         } else if (formMode.value == Enum.FormMode.Edit) {
-            data.EmulationID = emulation.value.EmulationID;
-            store.dispatch('putEmulation', data);
+            dataForm.EmulationID = emulation.value.EmulationID;
+            store.dispatch('putEmulation', dataForm);
         }
         // Thực hiện xong thì chuyển mode về add
         store.dispatch('updateFormMode', Enum.FormMode.AddSave);
@@ -321,30 +347,23 @@ const bidingData = () => {
     note.value.value = emulation.value.Note;
     // biding các ô input checkbox
     object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (element.value == emulation.value.RewardObject && emulation.value.RewardObject != 3) {
+        if (emulation.value.RewardObject.includes(element.value)) {
             element.checked = true;
-        } else if (emulation.value.RewardObject == 3) {
-            if (element.value == 1 || element.value == 2) {
-                element.checked = true;
-            } else {
-                element.checked = false;
-            }
-        } 
-        else {
+        } else {
             element.checked = false;
         }
     })
     type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (element.value == emulation.value.TypeMovement) {
+        if (emulation.value.TypeMovement.includes(element.value)) {
             element.checked = true;
-        } else if (emulation.value.TypeMovement == 3) {
-            if (element.value == 1 || element.value == 2) {
-                element.checked = true;
-            } else {
-                element.checked = false;
-            }
+        } else {
+            element.checked = false;
         }
-        else {
+    })
+    status.value.querySelectorAll('input[type="radio"]').forEach(element => {
+        if (emulation.value.Status == Number(element.value)) {
+            element.checked = true;
+        } else {
             element.checked = false;
         }
     })
@@ -398,8 +417,10 @@ watch(
 watch((formMode), () => {
     if (formMode.value == Enum.FormMode.Edit) {
         TitleForm.value = Resource.LabelForm.TitleEdit;
+        showStatus.value = true;
     } else {
         TitleForm.value = Resource.LabelForm.TitleAdd;
+        showStatus.value = false;
     }
 })
 
@@ -428,7 +449,7 @@ onMounted(async () => {
     try {
         await store.dispatch('getAllRewardLevel');
         rewardlevels.value.forEach((element) => {
-            data.push(element.RewardLevelName);
+            dataCombobox.push(element.RewardLevelName);
         })
     } catch (e) {
         console.log(e);
@@ -588,5 +609,24 @@ onMounted(async () => {
     color: #ef5350;
     margin-top: 6px;
     display: none;
+}
+
+.status-input input{
+    margin: 0 4px 0 0;
+    cursor: pointer;
+    color: #0062cc;
+}
+
+.status-input label {
+    padding-left: 4px;
+    margin-bottom: 3px;
+    padding-bottom: 0;
+    display: inline-block;
+    color: #000;
+    font-weight: 400;
+}
+
+.status-use{
+    margin-right: 20px;
 }
 </style>

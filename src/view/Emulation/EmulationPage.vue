@@ -105,18 +105,31 @@
                         </div>
                     </div>
                     <div class="toolbar-right">
-                        <div class="nocheck" v-show="!showOperation">
+                        <div class="nocheck flex" v-show="!showOperation">
                             <BaseButton class="ms-button btn-blue" text="Thêm danh hiệu" @click="handleOpenForm">
                                 <div class="add-icon">
                                     <icon class="icon icon-add"></icon>
                                 </div>
                             </BaseButton>
+                            <BaseButton class="ms-button btn-white btn-option" @click="openExtract">
+                                <div class="bonus-icon">
+                                    <icon class="icon icon-bonus"></icon>
+                                </div>
+                            </BaseButton>
+                            <div class="toggle-extract" v-show="showExtract">
+                                <div class="extract-container">
+                                    <div class="extract-option import" @click="importExcel">Nhập khẩu</div>
+                                    <div class="extract-option export" @click="exportExcel">Xuất khẩu</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="check" v-show="showOperation">
                             <div class="check-number">Đã chọn <strong class="number-check">{{ sumCheckbox }}</strong> </div>
                             <div class="check-remove" @click="uncheckbox">Bỏ chọn</div>
-                            <BaseButton class="ms-button btn-whiteblue" text="Sử dụng"></BaseButton>
-                            <BaseButton class="ms-button " text="Ngừng sử dụng"></BaseButton>
+                            <BaseButton class="ms-button btn-whiteblue" text="Sử dụng" 
+                                @click="updateStatusMultiple(Enum.Status.Use)"></BaseButton>
+                            <BaseButton class="ms-button " text="Ngừng sử dụng" 
+                                @click="updateStatusMultiple(Enum.Status.StopUsing)"></BaseButton>
                             <BaseButton class="ms-button btn-whitered" text="Xóa" @click="handleDeleteMultiple"></BaseButton>
                         </div>
                     </div>
@@ -165,23 +178,25 @@
                                         </td>
                                         <td>{{ emp.EmulationName }}</td>
                                         <td>{{ emp.EmulationCode }}</td>
-                                        <td>{{ getValueEnum(emp.RewardObject, Resource.PropName.RewardObject) }}</td>
+                                        <td>{{ emp.RewardObject }}</td>
                                         <td>{{ emp.RewardLevelName }}</td>
-                                        <td>{{ getValueEnum(emp.TypeMovement, Resource.PropName.TypeMovement) }}</td>
-                                        <td>{{ getValueEnum(emp.Status, Resource.PropName.Status) }}</td>
+                                        <td>{{ emp.TypeMovement }}</td>
+                                        <td>{{ emp.Status }}</td>
                                         <div class="option" @dblclick.stop="" ref="option" @mouseleave="hoverOutside" :style="{left: `${position}px`}">
                                             <div class="option-edit" @click="handleEdit(emp.EmulationID)" title="Sửa">
                                                 <icon class="icon icon-edit"></icon>
                                             </div>
-                                            <div class="option-delete" title="Thêm nữa..." @click="handleOpenOption">
+                                            <div class="option-delete" title="Thêm nữa..." @click="handleOpenOption(emp.EmulationID)">
                                                 <icon class="icon icon-bonus"></icon>
                                             </div>
                                             <ul class="option-menu">
-                                                <li>
-                                                    <div class="option-item item-use">Sử dụng</div>
+                                                <li  @click="updateStatusUse(emp.EmulationID)">
+                                                    <div class="option-item item-use" 
+                                                       >Sử dụng</div>
                                                 </li>
-                                                <li>
-                                                    <div class="option-item item-stop">Ngừng sử dụng</div>
+                                                <li @click="updateStatusUnUse(emp.EmulationID)">
+                                                    <div class="option-item item-stop"
+                                                        >Ngừng sử dụng</div>
                                                 </li>
                                                 <li @click="handleDelete(emp.EmulationID, emp.EmulationCode)">
                                                     <div class="option-item item-delete" 
@@ -235,11 +250,13 @@
                 </div>
             </div>
         </div>
+        <div id="loading" v-show="showLoading"></div>
     </div>
     <FormEmulation />
     <ToastMessage />
     <PopupMessage :data="dataPopup"/>
     <div id="over" v-show="showOver"></div>
+    
 </div>
 </template>
 
@@ -251,7 +268,7 @@ import FormEmulation from '@/view/FormEmulation.vue';
 import ToastMessage from '@/view/ToastMessage';
 import PopupMessage from '@/view/PopupMessage';
 // import { getAllEmulation } from '@/common/API/emulationAPI';
-import { ref, onMounted,  computed, watch, reactive, onBeforeMount } from 'vue';
+import { ref, onMounted,  computed, watch, reactive, onBeforeMount, watchEffect } from 'vue';
 import { useStore } from 'vuex'
 import { getValueEnum, getValueEnumBack } from '@/common/common';
 import * as Resource from '@/common/Resource/resource';
@@ -262,6 +279,7 @@ var showFormFilter = ref(false);
 var UnFilter = ref(false);
 const showOperation = ref(false);
 const showPageSize = ref(false);
+const showExtract = ref(false);
 
 const sumCheckbox = ref(0);
 const filterData = reactive(
@@ -273,10 +291,13 @@ const filterData = reactive(
         RewardLevel: ""
     }
 );
+
+const dataStatus = reactive([]);
 var pagesize = ref(10);
 var pagenumber = ref(1);
-var numberOfPage = ref(0);
+
 var dataPopup = [];        // Mảng chứa thông tin của bản ghi cần xóa
+var emulationID = ref();
 
 var width, left;
 var position = ref(0);
@@ -290,10 +311,11 @@ const psize = ref('psize');
 const store = useStore();
 
 const emulations = computed(() => store.state.emulation.emulations)
+const emulation = computed(() => store.state.emulation.emulation)
 const showOver = computed(() => store.state.emulation.showOver)
-const showPopup = computed(() => store.state.app.showPopup)
 const refresh = computed(() => store.state.emulation.refresh);
-const errorMsg = computed(() => store.state.emulation.errorMsg)
+const showLoading = computed(() => store.state.emulation.showLoading);
+const numberOfPage = computed(() => store.state.emulation.numberOfPage);
 
 // Tổng số bản ghi
 const totalRecord = computed(() => store.state.emulation.totalRecord);
@@ -332,6 +354,13 @@ const handleOpenForm = () => {
     store.dispatch('updateFormMode', Enum.FormMode.Add);
     store.dispatch('showForm');
 }
+/**
+ * Toggle extract
+ * CreatedBy VMHieu 13/04/2023
+ */
+const openExtract = () => {
+    showExtract.value = !showExtract.value;
+}
 
 /**
  * Toggle form Filter
@@ -352,14 +381,13 @@ const handleCloseFilter = () => {
  * Call API lấy dữ liệu danh hiệu thi đua
  * CreatedBy VMHieu 28/03/2023
  */
-const getAll = async () => {
+const getAll = () => {
     try {
-        await store.dispatch('getPaging');
+        store.dispatch('getPaging');
+        store.dispatch('showLoading');
     } catch (ex) {
         console.log(ex);
     } 
-
-    numberOfPage.value = totalRecord.value/pagesize.value;
 }
 
 /**
@@ -403,12 +431,12 @@ const handleDelete = (id, code) => {
     store.dispatch('showOver');
     store.dispatch("updateFormMode", Enum.FormMode.DeleteMultiple);
 
-    let data = [];
+    let dataDelete = [];
     // Lấy id của các bản ghi được select
     row.value.querySelectorAll(".selected-row").forEach((select) => {
-        data.push(select.__vnode.key);
+        dataDelete.push(select.__vnode.key);
     })
-    dataPopup.ID = data.join("/");
+    dataPopup.ID = dataDelete.join("/");
 
     let arr = Resource.PopupMessage.DeleteMultiple.trim().split(" ");
     for(let i = 0; i < arr.length; i++) {
@@ -418,16 +446,31 @@ const handleDelete = (id, code) => {
     }
     dataPopup.Msg = arr.join(" ");
 } 
+
+const updateStatusMultiple = (status) => {
+    let dataUpdate = {
+        ids: [],
+        Status: status
+    };
+    // Lấy id của các bản ghi được select
+    row.value.querySelectorAll(".selected-row").forEach((select) => {
+        dataUpdate.ids.push(select.__vnode.key);
+    })
+    dataUpdate.ids = dataUpdate.ids.join("/");
+
+    store.dispatch("updateStatusMultiple", dataUpdate);
+}
+
 /**
  * Lấy giá trị của các trường cần lọc
  * CreatedBy VMHieu 04/04/2023
  */
 const getDataFilter = () => {
     filterData.keyword = filter.value.value;
-    filterData.RewardObject = getValueEnumBack(document.getElementById('rewardobject').value, "RewardObject");
-    filterData.TypeMovement = getValueEnumBack(document.getElementById('typemovement').value, "TypeMovement");
-    filterData.RewardLevel = getValueEnumBack(document.getElementById('rewardlevel').value, "RewardLevel");
-    filterData.Status = getValueEnumBack(document.getElementById('status').value, "Status");
+    filterData.RewardObject = getValueEnumBack(page.value.querySelector('#rewardobject').value, "RewardObject");
+    filterData.TypeMovement = getValueEnumBack(page.value.querySelector('#typemovement').value, "TypeMovement");
+    filterData.RewardLevel = getValueEnumBack(page.value.querySelector('#rewardlevel').value, "RewardLevel");
+    filterData.Status = getValueEnumBack(page.value.querySelector('#status').value, "Status");
 }
 /**
  * Thực hiện lọc 
@@ -453,14 +496,50 @@ const handleUnFilter = () => {
     filterData.RewardLevel = "";
     filterData.Status = "";
 
-    document.getElementById('rewardobject').value = "";
-    document.getElementById('rewardlevel').value = "";
-    document.getElementById('typemovement').value = "";
-    document.getElementById('status').value = "";
+    page.value.querySelector('#rewardobject').value = "";
+    page.value.querySelector('#rewardlevel').value = "";
+    page.value.querySelector('#typemovement').value = "";
+    page.value.querySelector('#status').value = "";
+
 
     UnFilter.value = false;
     getAll();
 }
+/**
+ * Xuất dữ liệu ra file excel
+ * CreatedBy VMHieu 13/04/2023
+ */
+const exportExcel = () => {
+    try {
+        store.dispatch("exportExcel");
+        showExtract.value = false;
+    } catch (e) {
+        console.log(e);
+    }
+}
+/**
+ * Thay đổi trạng thái thành sử dụng
+ * @param {*} id 
+ * CreatedBy VMHieu 12/04/2023
+ */
+const updateStatusUse = (id) => {
+    dataStatus.value = emulation.value;
+    dataStatus.value.Status = Enum.Status.Use;
+
+    store.dispatch('putEmulation', dataStatus.value);
+}
+/**
+ * Thay đổi trạng thái thành ngừng sử dụng
+ * @param {*} id 
+ * CreatedBy VMHieu 12/04/2023
+ */
+const updateStatusUnUse = (id) => {
+    dataStatus.value = emulation.value;
+    dataStatus.value.Status = Enum.Status.StopUsing;
+
+    store.dispatch('putEmulation', dataStatus.value);
+}
+
 /**
  * Event lùi trang
  * CreatedBy VMHieu 04/04/2023
@@ -469,14 +548,13 @@ const movePrev = (event) => {
     let btn = event.currentTarget;
     if (pagenumber.value == 1) {
         btn.style.opacity = "0.4";
-        event.preventDefault()
     } else {
         pagenumber.value--;
         btn.style.opacity = "1";
     }
 
     if (pagenumber.value < Math.round(numberOfPage.value)){
-        document.querySelector('.move-next').style.opacity = "1";
+        page.value.querySelector('.move-next').style.opacity = "1";
     }
 }
 /**
@@ -486,16 +564,16 @@ const movePrev = (event) => {
  */
 const moveNext = (event) => {
     let btn = event.currentTarget;
+
     if (pagenumber.value >= Math.round(numberOfPage.value)) {
         btn.style.opacity = "0.4";
-        event.preventDefault()
     } else {
         pagenumber.value++;
         btn.style.opacity = "1";
     }
 
     if (pagenumber.value != 1) {
-        document.querySelector('.move-prev').style.opacity = "1";
+        page.value.querySelector('.move-prev').style.opacity = "1";
     }
 }
 
@@ -613,7 +691,8 @@ const uncheckbox = (event) => {
  * Mở option menu
  * CreatedBy VMHieu 31/03/2023
  */
-const handleOpenOption = (event) => {
+const handleOpenOption = (id) => {
+    emulationID.value = id;
     let me = event.currentTarget.parentNode,
         item = me.querySelector('.option-menu');
 
@@ -636,7 +715,7 @@ const openPageSize = () => {
  * CreatedBy VMHIEU 04/04/2023
  */
 const handlePagingList = (event) => {
-    let menu = document.querySelectorAll(".paging-list__list"),
+    let menu = page.value.querySelectorAll(".paging-list__list"),
         item = event.currentTarget;
 
     if (menu) {
@@ -693,6 +772,13 @@ watch((refresh), () => {
         console.log(e);
     }
 })
+/**
+ * Theo dõi sự thay đổi ID để lấy dữ liệu danh hiệu được chọn
+ * CreatedBy VMHieu 12/04/2023
+ */
+watch((emulationID), () => {
+    store.dispatch('getByID', emulationID.value);
+})
 
 onMounted(() => {
     /**
@@ -731,6 +817,7 @@ onMounted(() => {
 
 <style scoped>
 .content{
+    position: relative;
     transition: padding .2s;
     height: calc(100vh - 56px);
     display: flex;
@@ -1001,7 +1088,7 @@ onMounted(() => {
     margin-right: 24px;
 }
 .nocheck{
-    
+    position: relative;
 }
 .check{
     display: flex;
@@ -1122,4 +1209,55 @@ onMounted(() => {
     height: 36px;
     cursor: pointer;
 }
+
+.btn-option{
+    width: 36px;
+    min-width: 40px;
+    height: 36px;
+    margin-left: 8px;
+}
+
+.bonus-icon{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-extract{
+    position: absolute;
+    top: 100%;
+    right: 5%;
+    background: #fff;
+    z-index: 10;
+    width: 200px;
+    height: 80px;
+    box-shadow: 0 0 16px rgba(23,27,42,.24);
+    border-radius: 4px;
+}
+.extract-option {
+    padding: 0 14px 0 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 13px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-family: GoogleSans;
+}
+
+.extract-option:hover{
+    background-color: #e0ebff !important;
+    color: #000 !important;
+}
+
+.extract-container .import {
+    margin-top: 4px;
+}
+
+.extract-container .export {
+    margin-bottom: 4px;
+}
+
 </style>

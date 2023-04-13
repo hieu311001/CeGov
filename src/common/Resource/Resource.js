@@ -10,8 +10,8 @@ export const RewardObject = {
     All: "Tất cả",
     Personal: "Cá nhân",        //cá nhân
     Group: "Tập thể",           //tập thể
-    PersonalGroup: "Cá nhân và tập thể",   // cá nhân và tập thể
-    Family: "Hộ gia đình"           //Hộ gia đình
+    Family: "Hộ gia đình",           //Hộ gia đình
+    Breakpoint: "; ",
 }
 /**
  * Giá trị của cấp khen thưởng
@@ -31,7 +31,7 @@ export const TypeMovement = {
     All: "Tất cả",
     Usually: "Thường xuyên",          // Thường xuyên
     Batched: "Theo đợt",           // Theo đợt
-    UsuallyBatched: "Thường xuyên; Theo đợt"
+    Breakpoint: "; ",
 }
 /**
  * Giá trị của trạng thái sử dụng
@@ -166,7 +166,8 @@ export const LabelForm = {
     RewardObject: "Đối tượng khen thưởng",
     RewardLevelName: "Cấp khen thưởng",
     TypeMovement: "Loại phong trào áp dụng",
-    Note: "Ghi chú"
+    Note: "Ghi chú",
+    Status: "Trạng thái",
 }
 /**
  * Các msg lỗi nhận được từ server

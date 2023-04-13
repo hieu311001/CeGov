@@ -18,10 +18,9 @@ export const FormMode = {
  */ 
 export const RewardObject = {
     All: "",
-    Personal: 1,        //cá nhân
-    Group: 2,           //tập thể
-    PersonalGroup: 3,   // cá nhân và tập thể
-    Family: 4           //Hộ gia đình
+    Personal: "1",        //cá nhân
+    Group: "2",           //tập thể
+    Family: "3"           //Hộ gia đình
 }
 /**
  * Giá trị của cấp khen thưởng
@@ -39,9 +38,8 @@ export const RewardLevel = {
  */ 
 export const TypeMovement = {
     All: "",
-    Usually: 1,          // Thường xuyên
-    Batched: 2,           // Theo đợt
-    UsuallyBatched: 3   // Thường xuyên; Theo đợt
+    Usually: "1",          // Thường xuyên
+    Batched: "2",           // Theo đợt
 }
 /**
  * Các giá trị của trạng thái sử dụng

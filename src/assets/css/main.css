@@ -52,6 +52,10 @@ textarea::placeholder{
     font-size: 14px;
 }
 
+input[type='radio'] {
+    accent-color: #2979ff;
+}
+
 strong{
     font-weight: 700;
     padding: 0 6px;
@@ -59,6 +63,11 @@ strong{
 
 .asterik{
     color: #e54848;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
 }
 
 #over {
@@ -72,6 +81,27 @@ strong{
     opacity: 0.4;
     z-index: 999;
     transition: all 0.3s;
+}
+
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+
+    background: url(../loading.svg) no-repeat;
+    width: 32px;
+    height: 32px;
+
+    -webkit-animation: spin 2s linear infinite;
+    /* Safari */
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 
