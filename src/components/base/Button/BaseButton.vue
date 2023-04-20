@@ -1,5 +1,5 @@
 <template>
-    <button :class="str">
+    <button :class="str" :disabled="disabled">
         <slot></slot>
         <div class="btn-text">
             {{ text }}
@@ -12,7 +12,11 @@ export default {
     name: 'BaseButton',
     props: {
         text: String,
-        str: String
+        str: String,
+        disabled: {
+            type: Boolean,
+            default: false
+        }
     }
 }
 </script>

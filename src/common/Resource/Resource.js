@@ -51,6 +51,7 @@ export const PropName = {
     RewardObject: "RewardObject",   // Đối tượng khen thưởng
     Status: "Status",               // Trạng thái sử dụng
     TypeMovement: "TypeMovement", // Loại phong trào
+    RewardLevel: "RewardLevel", // Cấp khen thưởng
 }
 /**
  * Giá trị của các error
@@ -99,50 +100,88 @@ export const PopupMessage = {
  * CreatedBy VMHieu 23/03/2023
  */
 export const DataRewardLevel = [
-    "Tất cả",
-    "Cấp Nhà nước",
-    "Cấp Tỉnh/Tương đương",
-    "Cấp Huyện/Tương đương",
-    "Cấp Xã/Tương đương"
+    {
+        Data: "Tất cả",
+        RewardLevel: ""
+    },
+    {
+        Data: "Cấp Nhà nước",
+        RewardLevel: "0001"
+    },
+    {
+        Data: "Cấp Tỉnh/tương đương",
+        RewardLevel: "0002"
+    },
+    {
+        Data: "Cấp Huyện/tương đương",
+        RewardLevel: "0003"
+    },
+    {
+        Data: "Cấp Xã/tương đương",
+        RewardLevel: "0004"
+    },
 ]
 /**
  * Data đối tượng khen thưởng
  * CreatedBy VMHieu 23/03/2023
  */
 export const DataRewardObject = [
-    "Tất cả",
-    "Hộ gia đình",
-    "Tập thể",
-    "Cá nhân",
-    "Cá nhân và tập thể"
+    {
+        Data: "Tất cả",
+        RewardObject: ""
+    },
+    {
+        Data: "Tập thể",
+        RewardObject: "2"
+    },
+    {
+        Data: "Gia đình",
+        RewardObject: "3"
+    },
+    {
+        Data: "Cá nhân",
+        RewardObject: "1"
+    },
+    {
+        Data: "Cá nhân và tập thể",
+        RewardObject: "12"
+    },
 ]
 /**
  * Data Loại phong trào
  * CreatedBy VMHieu 23/03/2023
  */
 export const DataTypeMovement = [
-    "Tất cả",
-    "Thường xuyên",
-    "Theo đợt"
+    {
+        Data: "Tất cả",
+        TypeMovement: ""
+    },
+    {
+        Data: "Thường xuyên",
+        TypeMovement: 1
+    },
+    {
+        Data: "Theo đợt",
+        TypeMovement: 2
+    },
 ]
 /**
  * Data trạng thái sử dụng
  * CreatedBy VMHieu 23/03/2023
  */
 export const DataStatus = [
-    "Tất cả",
-    "Đang sử dụng",
-    "Ngừng sử dụng"
-]
-/**
- * Data pagesize
- * CreatedBy VMHieu 23/03/2023
- */
-export const DataPageSize = [
-    10,
-    20,
-    50,
-    100
+    {
+        Data: "Tất cả",
+        Status: ""
+    },
+    {
+        Data: "Sử dụng",
+        Status: 1
+    },
+    {
+        Data: "Ngừng sử dụng",
+        Status: 2
+    },
 ]
 /**
  * các loại error validate combobox
@@ -177,5 +216,14 @@ export const ErrorMsg = {
     ErrorDuplicateCode: "Mã danh hiệu đã tồn tại trong hệ thống",
     ErrorSystem: "Đã có lỗi xảy ra. Vui lòng liên hệ MISA để được hỗ trợ",
 }
+
+/**
+ * Định dạng file import chấp nhận
+ * CreatedBy VMHieu 13/04/2023
+ */
+export const FileFormat = [
+    'xls',
+    'xlsx',
+]
 
 export default Resource;

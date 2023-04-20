@@ -78,9 +78,12 @@
                                 class="combobox" 
                                 placeholder="Chọn cấp khen thưởng"  
                                 :data=dataCombobox
+                                propText="Data"
+                                :propValue=Resource.PropName.RewardLevel
                                 refInput="level"
                                 :errorMsg=Resource.ErrorCombobox.ErrorRewardLevel
                                 :tabidx="6"
+                                @getValueCombobox="getValueCombobox"
                             />
                             <div class="label-error name-error">{{ Resource.ValidateError.ErrorRewardLevel }}</div>
                         </div>
@@ -169,6 +172,8 @@ const type = ref("type");
 const note = ref("note");
 const status = ref("status");
 
+const rewardLevelCode = ref("");
+
 const combobox = ref("combobox");
 const showForm = computed(() => store.state.emulation.showForm);
 const emulation = computed(() => store.state.emulation.emulation);
@@ -208,6 +213,14 @@ const resetForm = () => {
     form.value.querySelectorAll(".label-error").forEach(element => {
         element.style.display = "none";
     })
+}
+/**
+ * Lấy dữ liệu value từ combobox
+ * @param {} value 
+ * CreatedBy VMHieu 18/04/2023
+ */
+const getValueCombobox = (value) => {
+    rewardLevelCode.value = value.Code;
 }
 /**
  * 1. Validate dữ liệu trước khi gửi lên server
@@ -263,7 +276,8 @@ const getFormData = () => {
     emulation.RewardObject = '';
     emulation.TypeMovement = '';
     emulation.Note = note.value.value;
-    emulation.RewardLevelCode = getValueEnumBack(combobox.value.querySelector('input').value, "RewardLevel");
+    //emulation.RewardLevelCode = getValueEnumBack(combobox.value.querySelector('input').value, "RewardLevel");
+    emulation.RewardLevelCode = rewardLevelCode.value;
     
     let obj = object.value.querySelectorAll('input[type="checkbox"]');
     let enumeration = Enum[Resource.PropName.RewardObject];
@@ -383,7 +397,9 @@ const autoCode = (event) => {
     let str = "";
     if(value) {
         for (let i = 0; i < arr.length; i++) {
-            str = str + arr[i][0];
+            if (arr[i]) {
+                str = str + arr[i][0];
+            }
         }
         code.value.value = str.toUpperCase();
     } else {
@@ -449,7 +465,11 @@ onMounted(async () => {
     try {
         await store.dispatch('getAllRewardLevel');
         rewardlevels.value.forEach((element) => {
-            dataCombobox.push(element.RewardLevelName);
+            let obj = {
+                Data: element.RewardLevelName,
+                Code: element.RewardLevelCode
+            }
+            dataCombobox.push(obj);
         })
     } catch (e) {
         console.log(e);

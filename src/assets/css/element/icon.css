@@ -123,11 +123,10 @@
 }
 
 .icon-success{
-    background: url('../../icon/toast-success.svg') no-repeat;
+    background: transparent url('../../sprite_cegov.svg') no-repeat -335px -24px;
 }
-
 .icon-fail{
-    background: url('../../icon/check.png') no-repeat;
+    background: transparent url('../../sprite_cegov.svg') no-repeat -335px -48px;
 }
 
 .icon-arrow{
@@ -139,4 +138,16 @@
     height: 10px;
     min-width: 10px;
     min-height: 10px;
+}
+
+.icon-import{
+    background: url('../../icon/icon-import.svg') no-repeat;
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+}
+
+.icon-file{
+    background: transparent url('../../sprite_cegov.svg') no-repeat -311px -72px;
 }

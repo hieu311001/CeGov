@@ -47,8 +47,11 @@
                                                     id="rewardobject" 
                                                     class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
+                                                    :propValue=Resource.PropName.RewardObject
+                                                    propText="Data"
                                                     :data=Resource.DataRewardObject
                                                     :errorMsg=Resource.ErrorCombobox.ErrorRewardObject
+                                                    @getValueCombobox="getDataCombobox"
                                                 />
                                             </div>
                                         </div>
@@ -59,9 +62,12 @@
                                                     id="rewardlevel" 
                                                     class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
+                                                    :propValue=Resource.PropName.RewardLevel
+                                                    propText="Data"
                                                     :data=Resource.DataRewardLevel
                                                     refInput="level"
                                                     :errorMsg=Resource.ErrorCombobox.RewardLevel
+                                                    @getValueCombobox="getDataCombobox"
                                                 />
                                             </div>
                                         </div>
@@ -72,9 +78,12 @@
                                                     id="typemovement" 
                                                     class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
+                                                    :propValue=Resource.PropName.TypeMovement
+                                                    propText="Data"
                                                     :data=Resource.DataTypeMovement
                                                     refInput="level"
                                                     :errorMsg=Resource.ErrorCombobox.TypeMovement
+                                                    @getValueCombobox="getDataCombobox"
                                                 />
                                             </div>
                                         </div>
@@ -86,8 +95,11 @@
                                                     class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
                                                     :data=Resource.DataStatus
+                                                    :propValue=Resource.PropName.Status
+                                                    propText="Data"
                                                     refInput="level"
                                                     :errorMsg=Resource.ErrorCombobox.Status
+                                                    @getValueCombobox="getDataCombobox"
                                                 />
                                             </div>
                                         </div>
@@ -255,6 +267,7 @@
     <FormEmulation />
     <ToastMessage />
     <PopupMessage :data="dataPopup"/>
+    <FormExport />
     <div id="over" v-show="showOver"></div>
     
 </div>
@@ -267,6 +280,7 @@ import BaseCombobox from '@/components/base/Combobox/BaseCombobox.vue';
 import FormEmulation from '@/view/FormEmulation.vue';
 import ToastMessage from '@/view/ToastMessage';
 import PopupMessage from '@/view/PopupMessage';
+import FormExport from '../FormExport.vue';
 // import { getAllEmulation } from '@/common/API/emulationAPI';
 import { ref, onMounted,  computed, watch, reactive, onBeforeMount, watchEffect } from 'vue';
 import { useStore } from 'vuex'
@@ -360,6 +374,25 @@ const handleOpenForm = () => {
  */
 const openExtract = () => {
     showExtract.value = !showExtract.value;
+}
+/**
+ * Lấy dữ liệu combobox trước khi lọc
+ * @param {*} value 
+ * CreatedBy VMHieu 18/04/2023
+ */
+const getDataCombobox = (value) => {
+    if (value[Resource.PropName.Status]) {
+        filterData.Status = value[Resource.PropName.Status];
+    } 
+    else if (value[Resource.PropName.TypeMovement]) {
+        filterData.TypeMovement = value[Resource.PropName.TypeMovement];
+    } 
+    else if (value[Resource.PropName.RewardObject]) {
+        filterData.RewardObject = value[Resource.PropName.RewardObject]
+    } 
+    else if (value[Resource.PropName.RewardLevel]) {
+        filterData.RewardLevel = value[Resource.PropName.RewardLevel];
+    }
 }
 
 /**
@@ -462,24 +495,15 @@ const updateStatusMultiple = (status) => {
 }
 
 /**
- * Lấy giá trị của các trường cần lọc
- * CreatedBy VMHieu 04/04/2023
- */
-const getDataFilter = () => {
-    filterData.keyword = filter.value.value;
-    filterData.RewardObject = getValueEnumBack(page.value.querySelector('#rewardobject').value, "RewardObject");
-    filterData.TypeMovement = getValueEnumBack(page.value.querySelector('#typemovement').value, "TypeMovement");
-    filterData.RewardLevel = getValueEnumBack(page.value.querySelector('#rewardlevel').value, "RewardLevel");
-    filterData.Status = getValueEnumBack(page.value.querySelector('#status').value, "Status");
-}
-/**
  * Thực hiện lọc 
  * CreatedBy VMHieu 04/04/2023
  */
 const handleFilter = () => {
     showFormFilter.value = false;
     pagenumber.value = 1;
-    getDataFilter();
+    
+    filterData.keyword = filter.value.value;
+
     getAll();
 
     if (filterData.RewardLevel || filterData.RewardObject || filterData.TypeMovement || filterData.Status) {
@@ -516,6 +540,15 @@ const exportExcel = () => {
     } catch (e) {
         console.log(e);
     }
+}
+/**
+ * Mở form import excel
+ * CreatedBy VMHieu 14/04/2023
+ */
+const importExcel = () => {
+    store.dispatch('showImport');
+    store.dispatch('showOver');
+    showExtract.value = false;
 }
 /**
  * Thay đổi trạng thái thành sử dụng

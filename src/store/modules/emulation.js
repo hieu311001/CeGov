@@ -6,9 +6,10 @@ import { getValueEnum, getValueEnumText, handleError, handleShowToast } from "@/
  
 const state = {
     showOver: false, // Hiệu ứng over
+    showForm: false,    // Hiển thị form thêm sửa
+    showImport: false, // Hiển thị form xuất khẩu
     emulations: [],     // Tất cả bản ghi danh hiệu thi đua
     emulation: [],      // Bản ghi danh hiệu thi đua lấy theo id
-    showForm: false,    // Hiển thị form thêm sửa
     filterDatas: [],    // Mảng chứa dữ liệu lọc
     pageSize: 10,
     pageNumber: 1,
@@ -18,6 +19,11 @@ const state = {
     errorMsg: [],
     showLoading: false,
     numberOfPage: 0,
+    resultCheckFile: {
+        Total: 0,
+        TotalSuccess: 0,
+        TotalFail: 0
+    }
 }
 
 const mutations = {
@@ -127,6 +133,25 @@ const mutations = {
     },
 
     /**
+     * Thực hiện kiểm tra các bản ghi trong file  
+     * @param {*} context 
+     * @param {*} data 
+     *  CreatedBy VMHieu 20/04/2023
+     */
+    checkFile(state, payload) {
+        state.resultCheckFile = payload;
+    },
+    /**
+     * Đóng form sau khi import
+     * @param {*} state 
+     * CreatedBy VMHieu 20/04/2023
+     */
+    importExcel(state) {
+        state.showImport = false;
+        state.showOver = false;
+    },
+
+    /**
      * Cập nhật lại mảng dữ liệu lọc
      * @param {} context 
      * @param {*} filterData 
@@ -180,6 +205,13 @@ const mutations = {
         state.showForm = !state.showForm;
     },
 
+    /**
+     * Ẩn hiện form xuất khẩu
+     * CreatedBy VMHieu 14/04/2023
+     */
+    showImport(state) {
+        state.showImport = !state.showImport;
+    },
     /**
      * Ẩn hiện hiệu ứng xám màn hình
      * @param {*} context 
@@ -348,7 +380,46 @@ const actions = {
     async exportExcel(context) {
         await window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/` + 
             `export?keyword=${state.filterDatas.keyword}&RewardObject=${state.filterDatas.RewardObject}&TypeMovement=${state.filterDatas.TypeMovement}&` +
-            `Status=${state.filterDatas.Status}&RewardLevel=${state.filterDatas.RewardLevel}&pageSize=${state.pageSize}&pageNumber=${state.pageNumber}`, 'Download');
+            `Status=${state.filterDatas.Status}&RewardLevel=${state.filterDatas.RewardLevel}&pageSize=${state.totalRecord}&pageNumber=${state.pageNumber}`, 'Download');
+    },
+    /**
+     * Tải file excel mẫu
+     * @param {} context 
+     * CreatedBy VMHieu 20/04/2023
+     */
+    async downloadFileSample(context) {
+        await window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/sampleFile`, 'Download');
+    },
+    /**
+     * Thực hiện kiểm tra các bản ghi trong file  
+     * @param {*} context 
+     * @param {*} data 
+     *  CreatedBy VMHieu 20/04/2023
+     */
+    async checkFile(context, data) {
+        const res = await axios.post(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/fileCheck`, data, {
+                headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }
+        );
+        if (res) {
+            context.commit("checkFile", res.data);
+        }
+    },
+    /**
+     * Thực hiện import sau khi check
+     * @param {*} context 
+     * CreatedBy VMHieu 20/04/2023
+     */
+    async importExcel(context) {
+        const res = await axios.post(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/import`);
+        if (res) {
+            context.commit('importExcel');
+            context.commit('updateToastMsg', Resource.ToastSuccess.AddSuccess);
+
+            handleShowToast(context);
+        }
     },
     /**
      * Cập nhật lại mảng dữ liệu lọc
@@ -391,6 +462,13 @@ const actions = {
      */
     showForm(context) {
         context.commit("showForm");
+    },
+    /**
+     * Ẩn hiện form xuất khẩu
+     * CreatedBy VMHieu 14/04/2023
+     */
+    showImport(context) {
+        context.commit("showImport");
     },
     /**
      * Ẩn hiện hiệu ứng xám màn hình

@@ -38,16 +38,16 @@
             'combobox__item--focus': index == indexItemFocus,
             'combobox__item--selected': index == indexItemSelected,
           }"
-          :key="item"
+          :key="item[this.propValue]"
           :ref="'toFocus_' + index"
-          :value="item"
+          :value="item[this.propValue]"
           @click="itemOnSelect(item, index)"
           @focus="saveItemFocus(index)"
           @keydown="selecItemUpDown(index)"
           @keyup="selecItemUpDown(index)"
           tabindex="1"
         >
-          <span>{{ item }}</span>
+          <span>{{ item[this.propText] }}</span>
           <div class="check-selected">
             <icon class="icon icon-check"></icon>
           </div>
@@ -172,12 +172,14 @@
        * NVMANH (31/07/2022)
        */
       itemOnSelect(item, index) {
-        const text = item;
+        const text = item[this.propText];
         const value = item;
         this.textInput = text; // Hiển thị text lên input.
         this.indexItemSelected = index;
         this.isShowListData = false;
         this.showError = false;
+
+        this.$emit("getValueCombobox", value);
       },
       /**
        * Hàm check input để in ra lỗi
@@ -188,8 +190,8 @@
         let flag = 0;
         if (this.data && this.textInput && typeof(this.textInput) == "string") {
           for (const arr in arrs) {
-            let str1 = removeVietnameseTones(arrs[arr]).toLowerCase().replace(" ", "");
-            let str2 = removeVietnameseTones(this.textInput).toLowerCase().replace(" ", "");;
+            let str1 = removeVietnameseTones(arrs[arr][this.propText]).toLowerCase().replace(" ", "");
+            let str2 = removeVietnameseTones(this.textInput).toLowerCase().replace(" ", "");
             if (str1.includes(str2)){
               flag++;
             }
@@ -201,6 +203,8 @@
           } else {
             this.showError = false;
           }
+        } else {
+          this.showError = false;
         }
 
         if (this.textInput == "") {
@@ -221,7 +225,7 @@
             let text = removeVietnameseTones(me.textInput)
               .toLowerCase()
               .replace(" ", "");
-            let textOfItem = removeVietnameseTones(e)
+            let textOfItem = removeVietnameseTones(e[me.propText])
               .toLowerCase()
               .replace(" ", "");
             return textOfItem.includes(text);
