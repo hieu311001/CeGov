@@ -80,6 +80,10 @@ tr:nth-last-child(-n + 3) .option-menu{
     top: -115px;
 }
 
+tr:nth-child(-n + 3) .option-menu{
+    top: 40px;
+}
+
 .option{
     position: absolute;
     height: 40px;

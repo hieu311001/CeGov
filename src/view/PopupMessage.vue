@@ -27,10 +27,12 @@
 <script setup>
 import BasePopup from "@/components/base/Popup/BasePopup.vue";
 import BaseButton from "@/components/base/Button/BaseButton.vue";
-import { computed, defineProps, onMounted, ref, watch } from "vue";
+import { computed, defineProps, onMounted, ref, watch, defineEmits } from "vue";
 import { useStore } from "vuex";
 import * as Resource from '@/common/Resource/resource';
 import * as Enum from '@/common/Enum/enum';
+
+const emit = defineEmits(['deleteSuccess']);
 
 const props = defineProps({
     data: [],
@@ -54,6 +56,7 @@ const handleSaveDelete = () => {
     }
 
     store.dispatch('showPopup', false);
+    emit("deleteSuccess", props.data.ID);
 }
 /**
  * Đóng popup

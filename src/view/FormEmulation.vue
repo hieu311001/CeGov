@@ -6,10 +6,10 @@
                     {{ TitleForm }}
                 </div>
                 <div class="header-option">
-                    <div class="option-help" title="Trợ giúp">
+                    <div class="option-help" title="Trợ giúp" tabindex="16">
                         <icon class="icon icon-help"></icon>
                     </div>
-                    <div class="option-exit form-exit" @click="handleCloseForm" title="Đóng">
+                    <div class="option-exit form-exit" @click="handleCloseForm" title="Đóng" tabindex="15">
                         <icon class="icon icon-exit"></icon>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                             </div>
                             <div>
                                 <input type="checkbox" value="3" id="object3" tabindex="5">
-                                <label for="object3" class="checkbox-label">Hộ gia đình</label>
+                                <label for="object3" class="checkbox-label" id="label-long">Hộ gia đình</label>
                             </div>
                         </div>
                         <div class="label-error name-error">{{ Resource.ValidateError.ErrorObject }}</div>
@@ -116,18 +116,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-status" ref="status" v-show="showStatus">
+                <div class="form-status" ref="status" v-if="showStatus">
                     <div class="status-title">
                         <label for="" class="note-text m-label">
                             {{ Resource.LabelForm.Status }}
                         </label>
                         <div class="status-input flex">
                             <div class="status-use flex">
-                                <input type="radio" class="use-status" name="status" value="1" checked>
+                                <input type="radio" class="use-status" name="status" value="1" checked tabindex="10">
                                 <label for="">Sử dụng</label>
                             </div>
                             <div class="status-unuse flex">
-                                <input type="radio" class="unuse-status" name="status" value="2">
+                                <input type="radio" class="unuse-status" name="status" value="2" tabindex="11">
                                 <label for="">Ngừng sử dụng</label>
                             </div> 
                         </div>
@@ -136,13 +136,13 @@
             </div>
             <div class="form-footer">
                 <div class="btn-close">
-                    <BaseButton class="m-button btn-white" text="Hủy" tabindex="10" @click="handleCloseForm"></BaseButton>
+                    <BaseButton class="m-button btn-white" text="Hủy" tabindex="12" @click="handleCloseForm"></BaseButton>
                 </div>
                 <div class="btn-saveadd">
-                    <BaseButton class="m-button" text="Lưu & thêm mới" tabindex="11" @click="handleSaveAdd"></BaseButton>
+                    <BaseButton class="m-button" text="Lưu & thêm mới" tabindex="13" @click="handleSaveAdd"></BaseButton>
                 </div>
                 <div class="btn-save">
-                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave" tabindex="12"></BaseButton>
+                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave" tabindex="14"></BaseButton>
                 </div>
             </div>
         </div>
@@ -358,6 +358,7 @@ const bidingData = () => {
     name.value.value = emulation.value.EmulationName;
     code.value.value = emulation.value.EmulationCode;
     level.value = emulation.value.RewardLevelName;
+    rewardLevelCode.value = emulation.value.RewardLevelCode;
     note.value.value = emulation.value.Note;
     // biding các ô input checkbox
     object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
@@ -497,7 +498,7 @@ onMounted(async () => {
     left: 50%;
     transform: translateX(-50%);
     height: auto;
-    width: 600px;
+    width: 640px;
     resize: both;
     border-radius: 4px;
     transition: all 1s;
@@ -523,10 +524,10 @@ onMounted(async () => {
 }
 .option-help{
     cursor: pointer;
-    padding: 0 8px;
+    margin: 0 8px;
 }
 .option-exit{
-    padding: 0 0 0 8px;
+    margin: 0 0 0 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -567,10 +568,14 @@ onMounted(async () => {
     align-items: center;
     min-height: 36px;
 }
+
 .checkbox-input>div{
     flex: 1;
     display: flex;
     align-items: center;
+}
+#label-long{
+    width: max-content;
 }
 .checkbox-label{
     padding-left: 4px;

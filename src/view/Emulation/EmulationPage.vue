@@ -17,7 +17,7 @@
                                 ref="filter"
                                 @keyup.enter="handleFilter"
                             >
-                            <div class="input-search__icon" title="Tìm kiếm">
+                            <div class="input-search__icon" title="Tìm kiếm" @click="handleFilter">
                                 <icon class="icon icon-search"></icon>
                             </div>
                         </div>
@@ -35,7 +35,7 @@
                                         <div class="filter-header__text">
                                             Lọc danh hiệu
                                         </div>
-                                        <div class="filter-header__icon">
+                                        <div class="filter-header__icon" title="Xóa">
                                             <icon class="icon icon-exit" @click="handleCloseFilter"></icon>
                                         </div>
                                     </div>
@@ -266,7 +266,7 @@
     </div>
     <FormEmulation />
     <ToastMessage />
-    <PopupMessage :data="dataPopup"/>
+    <PopupMessage :data="dataPopup" @deleteSuccess="handleDeleteSuccess"/>
     <FormExport />
     <div id="over" v-show="showOver"></div>
     
@@ -282,7 +282,7 @@ import ToastMessage from '@/view/ToastMessage';
 import PopupMessage from '@/view/PopupMessage';
 import FormExport from '../FormExport.vue';
 // import { getAllEmulation } from '@/common/API/emulationAPI';
-import { ref, onMounted,  computed, watch, reactive, onBeforeMount, watchEffect } from 'vue';
+import { ref, onMounted, onUpdated,  computed, watch, reactive, onBeforeMount, watchEffect } from 'vue';
 import { useStore } from 'vuex'
 import { getValueEnum, getValueEnumBack } from '@/common/common';
 import * as Resource from '@/common/Resource/resource';
@@ -311,6 +311,7 @@ var pagesize = ref(10);
 var pagenumber = ref(1);
 
 var dataPopup = [];        // Mảng chứa thông tin của bản ghi cần xóa
+var deleteMultipleID = [];
 var emulationID = ref();
 
 var width, left;
@@ -415,12 +416,9 @@ const handleCloseFilter = () => {
  * CreatedBy VMHieu 28/03/2023
  */
 const getAll = () => {
-    try {
-        store.dispatch('getPaging');
-        store.dispatch('showLoading');
-    } catch (ex) {
-        console.log(ex);
-    } 
+    store.dispatch('getPaging');
+    store.dispatch('showLoading');
+
 }
 
 /**
@@ -464,11 +462,8 @@ const handleDelete = (id, code) => {
     store.dispatch('showOver');
     store.dispatch("updateFormMode", Enum.FormMode.DeleteMultiple);
 
-    let dataDelete = [];
+    let dataDelete = deleteMultipleID;
     // Lấy id của các bản ghi được select
-    row.value.querySelectorAll(".selected-row").forEach((select) => {
-        dataDelete.push(select.__vnode.key);
-    })
     dataPopup.ID = dataDelete.join("/");
 
     let arr = Resource.PopupMessage.DeleteMultiple.trim().split(" ");
@@ -479,7 +474,21 @@ const handleDelete = (id, code) => {
     }
     dataPopup.Msg = arr.join(" ");
 } 
-
+/**
+ * Bắt sự kiện xóa ở popup để xóa các id đã được chọn
+ * CreatedBy VMHieu 21/04/2023
+ */
+const handleDeleteSuccess = () => {
+    let dataDeleteID = dataPopup.ID.split("/");
+    for(let i = 0; i < dataDeleteID.length; i++) {
+        deleteMultipleID = deleteMultipleID.filter(item => item != dataDeleteID[i]);
+    }
+}
+/**
+ * Cập nhật trạng thái của nhiều bản ghi
+ * @param {*} status 
+ * CreatedBy VMHieu 15/04/2023
+ */
 const updateStatusMultiple = (status) => {
     let dataUpdate = {
         ids: [],
@@ -534,12 +543,8 @@ const handleUnFilter = () => {
  * CreatedBy VMHieu 13/04/2023
  */
 const exportExcel = () => {
-    try {
-        store.dispatch("exportExcel");
-        showExtract.value = false;
-    } catch (e) {
-        console.log(e);
-    }
+    store.dispatch("exportExcel");
+    showExtract.value = false;
 }
 /**
  * Mở form import excel
@@ -579,6 +584,7 @@ const updateStatusUnUse = (id) => {
  */
 const movePrev = (event) => {
     let btn = event.currentTarget;
+
     if (pagenumber.value == 1) {
         btn.style.opacity = "0.4";
     } else {
@@ -586,7 +592,7 @@ const movePrev = (event) => {
         btn.style.opacity = "1";
     }
 
-    if (pagenumber.value < Math.round(numberOfPage.value)){
+    if (pagenumber.value < (Math.round(numberOfPage.value)+1)){
         page.value.querySelector('.move-next').style.opacity = "1";
     }
 }
@@ -598,7 +604,7 @@ const movePrev = (event) => {
 const moveNext = (event) => {
     let btn = event.currentTarget;
 
-    if (pagenumber.value >= Math.round(numberOfPage.value)) {
+    if (pagenumber.value >= (Math.round(numberOfPage.value)+1)) {
         btn.style.opacity = "0.4";
     } else {
         pagenumber.value++;
@@ -609,6 +615,24 @@ const moveNext = (event) => {
         page.value.querySelector('.move-prev').style.opacity = "1";
     }
 }
+/**
+ * Check các ô đã check khi đổi trang
+ * CreatedBy VMHieu 21/04/2023
+ */
+const checkedCheckbox = () => {
+    let records = row.value.querySelectorAll("[name='selectedRecord']");
+    records.forEach(record => {
+        if (deleteMultipleID.includes(record.closest("tr").__vnode.key)){
+            record.checked = true;
+            record.closest("tr").classList.add("selected-row");
+        } else {
+            record.checked = false;
+            record.closest("tr").classList.remove("selected-row");
+        }
+    })
+
+    sumCheckbox.value = deleteMultipleID.length;
+}
 
 /**
  * Xử lý sự kiện checkboxAll
@@ -616,7 +640,6 @@ const moveNext = (event) => {
  * CreatedBy VMHieu 30/03/2023
  */
 const handleCheckboxAll = (event) => {
-    let sumFlag = 0;
     // Xét tbody của bảng:
     let tbody = event.target.closest("table").childNodes[1];
 
@@ -627,21 +650,31 @@ const handleCheckboxAll = (event) => {
     if (event.target.checked) {
         showOperation.value = true;
         records.forEach((record) => {
+            if (!deleteMultipleID.includes(record.closest("tr").__vnode.key)) {
+                deleteMultipleID.push(record.closest("tr").__vnode.key);
+            }
             record.checked = event.target.checked;
             record.closest("tr").classList.add("selected-row");
-            sumFlag++;
         })
     }
     // Bỏ chọn tất cả các bản ghi, ẩn nút xóa hàng loạt
     else {
-        showOperation.value = false;
+        if(deleteMultipleID.length != 0){
+            showOperation.value = true;
+        } else {
+            showOperation.value = false;
+        }
         records.forEach((record) => {
             record.checked = event.target.checked;
             record.closest("tr").classList.remove("selected-row");
+
+            if (deleteMultipleID.includes(record.closest("tr").__vnode.key)) {
+                deleteMultipleID = deleteMultipleID.filter(item => item != record.closest("tr").__vnode.key);
+            }
         })
     }
 
-    sumCheckbox.value = sumFlag;
+    sumCheckbox.value = deleteMultipleID.length;
 }
 /**
  * Xử lý sự kiện checkbox
@@ -652,6 +685,8 @@ const handleCheckbox = (event) => {
     // Ngăn sự kiện lan lên parent:
     event.stopPropagation();
 
+    let select = event.target.closest("tr");
+
     // Xét bảng hiện tại:
     let table = event.target.closest("table");
     let flag = 0;
@@ -660,9 +695,12 @@ const handleCheckbox = (event) => {
     let records = table.querySelectorAll("[name='selectedRecord']");
 
     if (event.target.checked) {
+        if (!deleteMultipleID.includes(select.__vnode.key)) {
+            deleteMultipleID.push(select.__vnode.key);
+        }
         showOperation.value = true;
         // Đánh dấu bản ghi:
-        event.target.closest("tr").classList.add("selected-row");
+        select.classList.add("selected-row");
 
         // Đặt checkAll bằng true:
         table.querySelector("#checkboxAll").checked = true;
@@ -675,8 +713,11 @@ const handleCheckbox = (event) => {
             }
         }
     } else {
+        if (deleteMultipleID.includes(select.__vnode.key)) {
+            deleteMultipleID = deleteMultipleID.filter(item => item != select.__vnode.key);
+        }
         // Bỏ đánh dấu bản ghi:
-        event.target.closest("tr").classList.remove("selected-row");
+        select.classList.remove("selected-row");
 
         // Đặt checkAll bằng false:
         table.querySelector("#checkboxAll").checked = false;
@@ -691,15 +732,14 @@ const handleCheckbox = (event) => {
         }
     }
 
-    // Biến đếm tổng checkbox
-    sumCheckbox.value = sumFlag;
-
     // Nếu có checkbox = true thì hiện nút xóa hàng loạt
     if (flag == 1) {
         showOperation.value = true;
     } else {
         showOperation.value = false;
     }
+
+    sumCheckbox.value = deleteMultipleID.length;
 }
 /**
  * Ấn nút bỏ chọn tất cả checkbox
@@ -711,6 +751,7 @@ const uncheckbox = (event) => {
     let checkboxAll = row.value.querySelector("#checkboxAll");
 
     checkboxAll.checked = false;
+    deleteMultipleID = [];
 
     // uncheck
     for (var record of records) {
@@ -790,6 +831,13 @@ watch([pagesize, pagenumber], () => {
     store.dispatch("updatePageNumber", pagenumber.value);
     numberOfPage.value = totalRecord.value/pagesize.value;
     getAll();
+
+    if (pagenumber.value == 1) {
+        page.value.querySelector(".move-prev").style.opacity = "0.4";
+    }
+    if (pagenumber.value == (Math.round(numberOfPage.value) + 1)) {
+        page.value.querySelector(".move-next").style.opacity = "0.4";
+    }
 })
 /**
  * Quan sát việc refresh để tải lại trang
@@ -797,13 +845,8 @@ watch([pagesize, pagenumber], () => {
  */
 watch((refresh), () => {
     sumCheckbox.value = 0;
-    uncheckbox();
     showOperation.value = false;
-    try {
-        getAll();
-    } catch (e) {
-        console.log(e);
-    }
+    getAll();
 })
 /**
  * Theo dõi sự thay đổi ID để lấy dữ liệu danh hiệu được chọn
@@ -818,14 +861,10 @@ onMounted(() => {
      * Thực hiện lấy dữ liệu
      * CreatedBy VMHieu 22/03/2023
      */
-    try{
-        store.dispatch("updateFilter", filterData);
-        store.dispatch("updatePageSize", pagesize.value);
-        store.dispatch("updatePageNumber", pagenumber.value);
-        getAll();
-    } catch(ex){
-        console.error(ex);
-    }
+    store.dispatch("updateFilter", filterData);
+    store.dispatch("updatePageSize", pagesize.value);
+    store.dispatch("updatePageNumber", pagenumber.value);
+    getAll();
 
     /**
      * Gán sự kiện resize màn hình để điều chỉnh nút option
@@ -842,6 +881,10 @@ onMounted(() => {
 
     position.value = width + 105 - left;
 
+})
+
+onUpdated(() => {
+    checkedCheckbox();
 })
 
 
@@ -904,7 +947,6 @@ onMounted(() => {
 
 .filter-input{
     width: 265px;
-    margin-right: 10px;
     border-radius: 3.5px;
     border: 1px solid #e0e0e0;
     background: #fff;
@@ -987,7 +1029,7 @@ onMounted(() => {
 }
 
 .filter button{
-    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .btn-unfilter{
@@ -1086,7 +1128,7 @@ onMounted(() => {
 }
 
 .filter-btn__close{
-    margin-right: 10px;
+    
 }
 
 .page-move{

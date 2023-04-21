@@ -21,7 +21,10 @@
                 </div>
             </div>
             <div class="content-box" v-show="!showFormCheck">
-                <div class="ip-import">
+                <div class="ip-import" 
+                    @dragover="dragover"
+                    @dragleave="dragleave"
+                    @drop="drop">
                     <div class="import-box">
                         <label for="upload-file" v-show="!showFile">
                             <div class="file-default" >
@@ -67,7 +70,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="file" id="upload-file" ref="upload" @input="handleUploadFile">
+                    <input type="file" id="upload-file" ref="upload" @input="handleUploadFile" accept=".xls, .xlsx">
                 </div>
                 <div class="import-option" v-show="showFile">
                     <div class="import-sheet">
@@ -152,6 +155,8 @@ const file = reactive({
     FileName: "",
 })
 
+const fileUpload = ref();
+
 const showImport = computed(() => store.state.emulation.showImport);
 const resultCheck = computed(() => store.state.emulation.resultCheckFile);
 /**
@@ -217,6 +222,7 @@ const openFormCheck = () => {
     formData.append("excelFile", fileExcel);
 
     store.dispatch("checkFile", formData);
+    store.dispatch("showLoading");
 }
 /**
  * Ấn nút quay lại form xem file
@@ -248,7 +254,23 @@ const handleImport = () => {
         console.log(e);
     }
 }
-
+/**
+ * Sự kiện drag file
+ * CreatedBy VMHieu 21/04/2023
+ */
+const dragover = (e) => {
+    e.preventDefault();
+}
+/**
+ * Sự kiện dropfile
+ * @param {*} e
+ * CreatedBy VMHieu 21/04/2023 
+ */
+const drop = (e) => {
+    e.preventDefault();
+    upload.value.files = e.dataTransfer.files;
+    handleUploadFile();
+}
 
 
 </script>
@@ -304,6 +326,10 @@ const handleImport = () => {
     height: 100%;
     margin: 24px 0;
     position: relative;
+}
+
+.ip-import:hover{
+    border: 1px dashed #2979ff;
 }
 
 .import-box{
@@ -419,6 +445,7 @@ const handleImport = () => {
 
 .btn-continue{
     opacity: 0.4;
+    cursor: none;
 }
 
 .check-form{

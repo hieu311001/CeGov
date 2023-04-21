@@ -56,6 +56,20 @@ input[type='radio'] {
     accent-color: #2979ff;
 }
 
+button:focus-visible{
+    border: 1px solid #e0e0e0;
+    outline: none;
+}
+
+input[type="checkbox"]:focus-visible{
+    outline: 1px solid #2979ff;
+}
+
+.disable-outline:focus-visible{
+    border: 1px solid #e0e0e0;
+    outline: none;
+}
+
 strong{
     font-weight: 700;
     padding: 0 6px;
@@ -103,6 +117,9 @@ strong{
     background: url(../loading.svg) no-repeat;
     width: 32px;
     height: 32px;
+
+    border: 1px solid #fff;
+    background-color: #fff;
 
     -webkit-animation: spin 2s linear infinite;
     /* Safari */
