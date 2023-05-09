@@ -49,6 +49,7 @@ input[type="radio"] {
 
 .input-error{
     border: 1px solid #ef5350 !important;
+    outline: none !important;
 }
 
 .input-error~button{

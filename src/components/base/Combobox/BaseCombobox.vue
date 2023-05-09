@@ -7,8 +7,8 @@
         class="input combobox__input"
         v-model="textInput"
         @input="inputOnChange"
-
         @keydown="selecItemUpDown"
+        @mouseover="handleMouse"
         :tabindex="tabidx"
         :placeholder="placeholder"
         :ref="refInput"
@@ -192,6 +192,19 @@ import emulation from '@/store/modules/emulation';
       saveItemFocus(index) {
         this.indexItemFocus = index;
       },
+      /**
+       * Sự kiện hover khi có lỗi
+       * CreatedBy VMHieu 09/05/2023
+       */
+      handleMouse() {
+        let input = this.$el.querySelector(".combobox__input");
+        let combobox = this.$el.querySelector(".combobox");
+        if (input.classList.contains("input-error")) {
+          combobox.classList.add("cbb-error");
+        } else {
+          combobox.classList.remove("cbb-error");
+        }
+      },
   
       /**
        * Ẩn danh sách item
@@ -352,9 +365,6 @@ import emulation from '@/store/modules/emulation';
     mounted() {
       this.dataFilter = this.data;
     },
-    updated() {
-      console.log(111);
-    },
     beforeDestroy() {
       this.textInput = "";
     },
@@ -423,6 +433,16 @@ import emulation from '@/store/modules/emulation';
 
   .combobox__error>input:focus{
      outline: 1px solid #ef5350;
+  }
+
+  .cbb-error:hover{
+    border: none;
+    outline: none;
+  }
+
+  .cbb-error:focus{
+    border: none;
+    outline: none;
   }
   
   .combobox__button {

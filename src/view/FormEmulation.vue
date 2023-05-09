@@ -24,7 +24,8 @@
                         <input 
                             type="text" 
                             class="m-input" 
-                            ref="name" 
+                            ref="name"
+                            v-model="dataForm.EmulationName" 
                             @keyup="autoCode"
                             name="reset" 
                             placeholder="Nhập tên danh hiệu thi đua" 
@@ -40,7 +41,14 @@
                             <span class="asterik">*</span>
                         </label>
                         <div class="form-input code-input" Required="true">
-                            <input type="text" class="m-input" ref="code" name="reset" placeholder="Nhập mã danh hiệu" tabindex="2">
+                            <input 
+                                type="text" 
+                                class="m-input" 
+                                ref="code" 
+                                v-model="dataForm.EmulationCode"
+                                name="reset" 
+                                placeholder="Nhập mã danh hiệu" 
+                                tabindex="2">
                             <div class="label-error name-error">{{ Resource.ValidateError.ErrorCode }}</div>
                         </div>
                     </div>
@@ -112,7 +120,7 @@
                             {{ Resource.LabelForm.Note }}
                         </label>
                         <div class="note-input">
-                            <textarea class="note-area" placeholder="Nhập ghi chú" ref="note" tabindex="9"></textarea>
+                            <textarea class="note-area" placeholder="Nhập ghi chú" ref="note" v-model="dataForm.Note" tabindex="9"></textarea>
                         </div>
                     </div>
                 </div>
@@ -174,6 +182,15 @@ const note = ref("note");
 const status = ref("status");
 
 const rewardLevelCode = ref("");
+let dataForm = reactive({
+    EmulationCode: "",
+    EmulationName: "",
+    RewardObject: "",
+    TypeMovement: "",
+    RewardLevelCode: "",
+    Note: "",
+    Status: ""
+})
 
 const combobox = ref("combobox");
 const showForm = computed(() => store.state.emulation.showForm);
@@ -200,9 +217,13 @@ const handleCloseForm = () => {
  */
 const resetForm = () => {
     // Xóa text input
-    form.value.querySelectorAll('input[name="reset"]').forEach(element => {
-        element.value = "";
-    })
+    dataForm.EmulationName = "";
+    dataForm.EmulationCode = "";
+    dataForm.RewardObject = "";
+    dataForm.TypeMovement = "";
+    dataForm.RewardLevelCode = "";
+    dataForm.Note = "";
+    dataForm.Status = "";
 
     form.value.querySelectorAll('[Required]').forEach(element => {
         let input = element.querySelector('input');
@@ -283,32 +304,27 @@ const validateForm = () => {
  * CreatedBy VMHieu 21/03/2023
  */
 const getFormData = () => {
-    let emulation = {};
-
-    emulation.EmulationName = name.value.value.trim();
-    emulation.EmulationCode = code.value.value.trim();
-    emulation.RewardObject = '';
-    emulation.TypeMovement = '';
-    emulation.Note = note.value.value.trim();
-    emulation.RewardLevelCode = rewardLevelCode.value.trim();
+    dataForm.RewardLevelCode = rewardLevelCode.value.trim();
     
     let obj = object.value.querySelectorAll('input[type="checkbox"]');
+    let dataObj = "";
     let enumeration = Enum[Resource.PropName.RewardObject];
 
     obj.forEach((element) => {
         for (const prop in enumeration) {
             if (element.checked && element.value == enumeration[prop] && enumeration[prop]) {
-                emulation.RewardObject += enumeration[prop]; 
+                dataObj += enumeration[prop]; 
             }
         }
     })
     let mov = type.value.querySelectorAll('input[type="checkbox"]');
+    let dataMov = "";
     enumeration = Enum[Resource.PropName.TypeMovement];
 
     mov.forEach((element) => {
         for (const prop in enumeration) {
             if (element.checked && element.value == enumeration[prop] && enumeration[prop]) {
-                emulation.TypeMovement += enumeration[prop]; 
+                dataMov += enumeration[prop]; 
             }
         }
     })
@@ -316,14 +332,17 @@ const getFormData = () => {
     if (formMode.value == Enum.FormMode.Edit) {
         status.value.querySelectorAll('input[type="radio"]').forEach(element => {
             if (element.checked) {
-                emulation.Status = Number(element.value);
+                dataForm.Status = Number(element.value);
             }
         })
     } else {
-        emulation.Status = Enum.Status.Use;
+        dataForm.Status = Enum.Status.Use;
     }
 
-    return emulation;
+    dataForm.RewardObject = dataObj;
+    dataForm.TypeMovement = dataMov;
+
+    return dataForm;
 }
     /**
  * 3.1 Lưu dữ liệu
@@ -368,11 +387,11 @@ const handleSave = () => {
 const bidingData = () => {
     let level = combobox.value.querySelector('input');
     // biding các ô input text
-    name.value.value = emulation.value.EmulationName;
-    code.value.value = emulation.value.EmulationCode;
+    dataForm.EmulationName = emulation.value.EmulationName;
+    dataForm.EmulationCode = emulation.value.EmulationCode;
     level.value = emulation.value.RewardLevelName;
     rewardLevelCode.value = emulation.value.RewardLevelCode;
-    note.value.value = emulation.value.Note;
+    dataForm.Note = emulation.value.Note;
     // biding các ô input checkbox
     object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
         if (emulation.value.RewardObject.includes(element.value)) {
@@ -415,9 +434,9 @@ const autoCode = (event) => {
                 str = str + arr[i][0];
             }
         }
-        code.value.value = str.toUpperCase();
+        dataForm.EmulationCode = str.toUpperCase();
     } else {
-        code.value.value = "";
+        dataForm.EmulationCode = "";
     }
 }
 /**
