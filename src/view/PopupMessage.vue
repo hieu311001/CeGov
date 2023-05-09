@@ -1,33 +1,35 @@
 <template>
-    <BasePopup v-if="popupStatus == 1 && showPopup">
-        <template v-slot:slotTitle>Xóa Danh hiệu thi đua</template>
-        <template v-slot:slotContent>
-            <div class="content">{{ data.Msg }}</div>
-        </template>
-        <template v-slot:slotButton>
-            <div class="btn btn-warning">
-                <BaseButton text="Không" class="ms-button" @click="handleClose"/>
-                <BaseButton text="Xóa danh hiệu" class="ms-button btn-red btn-right" @click="handleSaveDelete"/>
-            </div>
-        </template>
-    </BasePopup>
-    <BasePopup v-if="popupStatus == 2 && showPopup">
-        <template v-slot:slotTitle>MISA CeGov</template>
-        <template v-slot:slotContent>
-            <div class="content">{{ popupMsg }}</div>
-        </template>
-        <template v-slot:slotButton>
-            <div class="btn btn-warning">
-                <BaseButton text="Đóng" class="ms-button btn-red btn-right" @click="handleClose"/>
-            </div>
-        </template>
-    </BasePopup>
+    <div @keyup.esc="handleClose" ref="modal" tabindex="0">
+        <BasePopup v-if="popupStatus == 1 && showPopup">
+            <template v-slot:slotTitle>Xóa Danh hiệu thi đua</template>
+            <template v-slot:slotContent>
+                <div class="content">{{ data.Msg }}</div>
+            </template>
+            <template v-slot:slotButton>
+                <div class="btn btn-warning">
+                    <BaseButton text="Không" class="ms-button" @click="handleClose"/>
+                    <BaseButton text="Xóa danh hiệu" class="ms-button btn-red btn-right" @click="handleSaveDelete"/>
+                </div>
+            </template>
+        </BasePopup>
+        <BasePopup v-if="popupStatus == 2 && showPopup">
+            <template v-slot:slotTitle>MISA CeGov</template>
+            <template v-slot:slotContent>
+                <div class="content">{{ popupMsg }}</div>
+            </template>
+            <template v-slot:slotButton>
+                <div class="btn btn-warning">
+                    <BaseButton text="Đóng" class="ms-button btn-red btn-right" @click="handleClose"/>
+                </div>
+            </template>
+        </BasePopup>
+    </div>
 </template>
 
 <script setup>
 import BasePopup from "@/components/base/Popup/BasePopup.vue";
 import BaseButton from "@/components/base/Button/BaseButton.vue";
-import { computed, defineProps, onMounted, ref, watch, defineEmits } from "vue";
+import { computed, defineProps, onMounted, ref, watch, defineEmits, onUpdated } from "vue";
 import { useStore } from "vuex";
 import * as Resource from '@/common/Resource/resource';
 import * as Enum from '@/common/Enum/enum';
@@ -37,6 +39,8 @@ const emit = defineEmits(['deleteSuccess']);
 const props = defineProps({
     data: [],
 })
+
+const modal = ref("modal");
 
 const store = useStore();
 
@@ -68,6 +72,10 @@ const handleClose = () => {
         store.dispatch('showOver');
     }
 }
+
+onUpdated(() => {
+    modal.value.focus();
+})
 
 // watch((popupMsg), () => {
 //     props.data.Msg = popupMsg.value;

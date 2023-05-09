@@ -6,10 +6,10 @@
                     {{ TitleForm }}
                 </div>
                 <div class="header-option">
-                    <div class="option-help" title="Trợ giúp" tabindex="16">
+                    <div class="option-help" v-tooltip="'Trợ giúp'" tabindex="16">
                         <icon class="icon icon-help"></icon>
                     </div>
-                    <div class="option-exit form-exit" @click="handleCloseForm" title="Đóng" tabindex="15">
+                    <div class="option-exit form-exit" @click="handleCloseForm" v-tooltip="'Đóng'" tabindex="15">
                         <icon class="icon icon-exit"></icon>
                     </div>
                 </div>
@@ -75,7 +75,6 @@
                         <div class="form-input level-input" ref="combobox" Required="true">
                             <BaseCombobox 
                                 id="rewardlevel" 
-                                class="combobox" 
                                 placeholder="Chọn cấp khen thưởng"  
                                 :data=dataCombobox
                                 propText="Data"
@@ -83,6 +82,7 @@
                                 refInput="level"
                                 :errorMsg=Resource.ErrorCombobox.ErrorRewardLevel
                                 :tabidx="6"
+                                :resetValue="resetValue"
                                 @getValueCombobox="getValueCombobox"
                             />
                             <div class="label-error name-error">{{ Resource.ValidateError.ErrorRewardLevel }}</div>
@@ -136,13 +136,13 @@
             </div>
             <div class="form-footer">
                 <div class="btn-close">
-                    <BaseButton class="m-button btn-white" text="Hủy" tabindex="12" @click="handleCloseForm"></BaseButton>
+                    <BaseButton class="m-button btn-white" text="Hủy" tabindex="14" @click="handleCloseForm"></BaseButton>
                 </div>
                 <div class="btn-saveadd">
                     <BaseButton class="m-button" text="Lưu & thêm mới" tabindex="13" @click="handleSaveAdd"></BaseButton>
                 </div>
                 <div class="btn-save">
-                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave" tabindex="14"></BaseButton>
+                    <BaseButton class="m-button btn-blue" text="Lưu" @click="handleSave" tabindex="12"></BaseButton>
                 </div>
             </div>
         </div>
@@ -164,6 +164,7 @@ var dataCombobox = [];
 var dataPopup = [];
 const TitleForm = ref("");
 const showStatus = ref(false);
+const resetValue = ref(true);
 
 const name = ref("name");
 const code = ref("code");
@@ -179,6 +180,7 @@ const showForm = computed(() => store.state.emulation.showForm);
 const emulation = computed(() => store.state.emulation.emulation);
 const rewardlevels = computed(() => store.state.rewardlevel.rewardlevels);
 const formMode = computed(() => store.state.emulation.formMode);
+const formGet = computed(() => store.state.emulation.formGet);
 const errorMsg = computed(() => store.state.emulation.errorMsg);
 const refresh = computed(() => store.state.emulation.refresh);
 /**
@@ -189,6 +191,8 @@ const handleCloseForm = () => {
     store.dispatch('showForm');
     store.dispatch('showOver');
     resetForm();
+    resetValue.value = !resetValue.value;
+
 }
 /**
  * Thực hiện reset form sau khi đóng form
@@ -199,6 +203,11 @@ const resetForm = () => {
     form.value.querySelectorAll('input[name="reset"]').forEach(element => {
         element.value = "";
     })
+
+    form.value.querySelectorAll('[Required]').forEach(element => {
+        let input = element.querySelector('input');
+        input.classList.remove("input-error");
+    });
     // Đặt checkbox về mặc định
     form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
         if (element.value == 1) {
@@ -234,10 +243,15 @@ const validateForm = () => {
         let input = element.querySelector('input');
         let error = element.querySelector('.label-error');
         if (!input.value) {
+            if (isValid) {
+                input.focus();
+            }
             isValid = false;
             error.style.display = "block";
+            input.classList.add('input-error');
         } else {
             error.style.display = "none";
+            input.classList.remove('input-error');
         }
     });
     // Validate các ô input checkbox
@@ -271,13 +285,12 @@ const validateForm = () => {
 const getFormData = () => {
     let emulation = {};
 
-    emulation.EmulationName = name.value.value;
-    emulation.EmulationCode = code.value.value;
+    emulation.EmulationName = name.value.value.trim();
+    emulation.EmulationCode = code.value.value.trim();
     emulation.RewardObject = '';
     emulation.TypeMovement = '';
-    emulation.Note = note.value.value;
-    //emulation.RewardLevelCode = getValueEnumBack(combobox.value.querySelector('input').value, "RewardLevel");
-    emulation.RewardLevelCode = rewardLevelCode.value;
+    emulation.Note = note.value.value.trim();
+    emulation.RewardLevelCode = rewardLevelCode.value.trim();
     
     let obj = object.value.querySelectorAll('input[type="checkbox"]');
     let enumeration = Enum[Resource.PropName.RewardObject];
@@ -413,7 +426,9 @@ const autoCode = (event) => {
  */
 watch(
     emulation, () => {
-        bidingData();
+        if (formGet.value == Enum.GetEmulationForm.Edit) {
+            bidingData();
+        }
     }
 )
 /**
@@ -553,7 +568,7 @@ onMounted(async () => {
     border-radius: 3.5px;
 }
 .form-input>input:hover{
-    outline: 1px solid #1a73e8 ;
+    border: 1px solid #1a73e8 ;
 }
 .form-code, .form-level{
     display: flex;

@@ -4,7 +4,7 @@
             <div class="import-header__title">
                 Nhập khẩu
             </div>
-            <div class="import-header__close" title="Đóng" @click="handleCloseImport">
+            <div class="import-header__close" v-tooltip="'Đóng'" @click="handleCloseImport">
                 <icon class="icon icon-exit"></icon>
             </div>
         </div>
@@ -16,7 +16,7 @@
                 </div>
                 <div class="status-mid">-----------------------</div>
                 <div class="status-end flex status-notprocess">
-                    <input type="radio" checked="true">
+                    <input type="radio" checked="true" ref="rcheck">
                     <label class="">Nhập khẩu</label>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                     </div>
                     <input type="file" id="upload-file" ref="upload" @input="handleUploadFile" accept=".xls, .xlsx">
                 </div>
-                <div class="import-option" v-show="showFile">
+                <div class="import-option" v-if="showFile">
                     <div class="import-sheet">
                         <label for="" class="name-text m-label">
                             Sheet nhập khẩu
@@ -93,14 +93,14 @@
                     </div>
                 </div>
             </div>
-            <div class="check-form" v-show="showFormCheck">
+            <div class="check-form" v-if="showFormCheck">
                 <div class="check-container">
                     <div class="check-result  result-total">
                         <div class="result-text center">
                             Số bản ghi
                         </div>
                         <div class="result-number center">
-                            {{ resultCheck.Total || 0 }}
+                            {{ resultCheckFile.Total || 0 }}
                         </div>
                     </div>
                     <div class="check-result result-success">
@@ -108,7 +108,7 @@
                             Hợp lệ
                         </div>
                         <div class="result-number center">
-                            {{ resultCheck.TotalSuccess || 0 }}
+                            {{ resultCheckFile.TotalSuccess || 0 }}
                         </div>
                     </div>
                     <div class="check-result result-fail">
@@ -116,7 +116,7 @@
                             Không hợp lệ
                         </div>
                         <div class="result-number center">
-                            {{ resultCheck.TotalFail || 0}}
+                            {{ resultCheckFile.TotalFail || 0}}
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,9 @@
         </div>
         <div class="import-footer flex">
             <div class="footer-left">
-                <BaseButton text="Tải tệp mẫu" class="m-button btn-whiteblue" @click="downloadFileSample"></BaseButton>
+                <BaseButton text="Tải tệp mẫu" class="m-button btn-whiteblue" @click="downloadFileSample" v-show="!showFormCheck"></BaseButton>
+                <BaseButton text="Tải tệp đầy đủ" class="m-button btn-whiteblue" @click="downloadFileCheck(true)" v-show="showFormCheck"></BaseButton>
+                <BaseButton text="Tải tệp lỗi" class="m-button btn-whiteblue" @click="downloadFileCheck(false)" v-show="showFormCheck"></BaseButton>
             </div>
             <div class="footer-right">
                 <BaseButton text="Hủy" class="m-button btn-white btn-left" @click="handleCloseImport"></BaseButton>
@@ -133,20 +135,24 @@
                 <BaseButton text="Nhập khẩu" class="m-button btn-blue" v-show="showFormCheck" @click="handleImport"></BaseButton>
             </div>
         </div>
+        <div id="loading" v-show="excelLoading"></div>
+        <div id="over" v-show="excelOver"></div>
     </div>
 </template>
 
 <script setup>
 import BaseButton from '@/components/base/Button/BaseButton.vue';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch, defineEmits } from 'vue';
 import { useStore } from 'vuex';
 import * as Enum from '@/common/Enum/enum';
 import * as Resource from '@/common/Resource/resource';
 
 const store = useStore();
+const emit = defineEmits(['deleteSuccess']);
 
 const ipexcel = ref("ipexcel");
 const upload = ref("upload");
+const rcheck = ref("rcheck");
 const showFile = ref(false);
 const fileSuccess = ref(false);
 const showFormCheck = ref(false);
@@ -155,10 +161,13 @@ const file = reactive({
     FileName: "",
 })
 
+const excelLoading = ref(false);
+const excelOver = ref(false);
+
 const fileUpload = ref();
 
 const showImport = computed(() => store.state.emulation.showImport);
-const resultCheck = computed(() => store.state.emulation.resultCheckFile);
+const resultCheckFile = computed(() => store.state.emulation.resultCheckFile);
 /**
  * Thực hiện upload File
  * CreatedBy VMHieu 14/04/2023
@@ -212,17 +221,14 @@ const handleCloseImport = () => {
  */
 const openFormCheck = () => {
     let me = ipexcel.value
-    showFormCheck.value = true;
-
-    me.querySelector('.status-end>input').style.opacity = '1';
-    me.querySelector('.status-end>label').style.color = '#2979ff';
-
     const fileExcel = upload.value.files[0];
     var formData = new FormData();
     formData.append("excelFile", fileExcel);
 
     store.dispatch("checkFile", formData);
-    store.dispatch("showLoading");
+    //showFormCheck.value = true;
+    excelOver.value = true;
+    excelLoading.value = true;
 }
 /**
  * Ấn nút quay lại form xem file
@@ -237,10 +243,24 @@ const backPrev = () => {
  * CreatedBy VMHieu 20/04/2023
  */
 const downloadFileSample = () => {
-    try {
-        store.dispatch("downloadFileSample");
-    } catch (e) {
-        console.log(e);
+    store.dispatch("downloadFileSample");
+}
+/**
+ * Thực hiện tải file mẫu check
+ * Value: true - file đầy đủ, false - file lỗi
+ * CreatedBy VMHieu 28/04/2023
+ */
+const downloadFileCheck = (value) => {
+    if (value) {
+        store.dispatch("downloadFileCheck", true);
+    } else {
+        if (resultCheckFile.value.TotalFail !== 0) {
+            store.dispatch("downloadFileCheck", false);
+        } else {
+            store.dispatch("showPopup", true);
+            store.dispatch("updatePopupStatus", Enum.PopupStatus.Error);
+            store.dispatch("updatePopupMsg", Resource.PopupMessage.NotValidFileFali);
+        }
     }
 }
 /**
@@ -248,10 +268,16 @@ const downloadFileSample = () => {
  * CreatedBy VMHieu 20/04/2023
  */
 const handleImport = () => {
-    try {
+    if (resultCheckFile.value.TotalSuccess > 0){
         store.dispatch("importExcel");
-    } catch (e) {
-        console.log(e);
+        // import thành công thì tắt form và reset form 
+        showFile.value = false;
+        showFormCheck.value = false;
+        upload.value.files = null;
+    } else {
+        store.dispatch("showPopup", true);
+        store.dispatch("updatePopupStatus", Enum.PopupStatus.Error);
+        store.dispatch("updatePopupMsg", Resource.PopupMessage.NotValidFileSuccess);
     }
 }
 /**
@@ -271,6 +297,29 @@ const drop = (e) => {
     upload.value.files = e.dataTransfer.files;
     handleUploadFile();
 }
+/**
+ * Xem sự thay đổi của kết quả check file để hiển thị
+ * CreatedBy VMHieu 25/04/2023
+ */
+watch((resultCheckFile), () => {
+    showFormCheck.value = true;
+    excelOver.value = false;
+    excelLoading.value = false;
+})
+/**
+ * Xem sự thay đổi của form check để disabled nút input radio nhập khẩu
+ * CreatedBy VMHieu 28/04/2023
+ */
+watch((showFormCheck), () => {
+    if (showFormCheck.value) {
+        rcheck.value.style.cursor = "pointer";
+        rcheck.value.style.opacity = '1';
+        rcheck.value.style.color = '#2979ff';
+    } else {
+        rcheck.value.style.cursor = "not-allowed";
+        rcheck.value.style.opacity = '0.4';
+    }
+})
 
 
 </script>
@@ -318,6 +367,9 @@ const drop = (e) => {
     margin: 0 4px 0 0;
 }
 
+.status-end>input{
+    cursor: not-allowed;
+}
 .ip-import{
     border: 1px dashed #000;
     box-sizing: border-box;
@@ -519,5 +571,9 @@ const drop = (e) => {
     color: #ef5350;
     font-size: 40px;
     font-weight: 1000;
+}
+
+.footer-left button{
+    margin-right: 8px;
 }
 </style>

@@ -15,6 +15,7 @@ const state = {
     pageNumber: 1,
     totalRecord: 0,
     formMode: 0,
+    formGet: 0,
     refresh: false,
     errorMsg: [],
     showLoading: false,
@@ -62,7 +63,7 @@ const mutations = {
 
         state.totalRecord = payload.TotalCount;
         state.showLoading = false;
-        state.showOver = false;
+        //state.showOver = false;
         state.numberOfPage = state.totalRecord / state.pageSize;
     },
 
@@ -92,7 +93,7 @@ const mutations = {
      */
     putEmulation(state) {
         state.refresh = !state.refresh;
-
+        
         if (state.formMode == Enum.FormMode.AddSave) {
             state.showForm = true;
             state.showOver = true;
@@ -141,7 +142,6 @@ const mutations = {
      */
     checkFile(state, payload) {
         state.resultCheckFile = payload;
-        state.showLoading = false;
     },
     /**
      * Đóng form sau khi import
@@ -171,6 +171,15 @@ const mutations = {
      */
     updateFormMode(state, payload) {
         state.formMode = payload;
+    },
+    /**
+     * Cập nhật formGet
+     * @param {*} context 
+     * @param {*} formModel 
+     * CreatedBy VMHieu 25/04/2023
+     */
+    updateFormGet(state, payload) {
+        state.formGet = payload;
     },
     /**
      * Cập nhật giá trị của errorMsg
@@ -245,9 +254,17 @@ const actions = {
             const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulations`)
             if(res.data) {
                 context.commit("getAll", res.data)
+            } else {
+                // Hiện toast thất bại
+                context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+
+                handleShowToast(context);
             }
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.LoadFail);
+
+            handleShowToast(context);
         }
         
     },
@@ -262,9 +279,17 @@ const actions = {
             const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/${id}`)
             if (res.data) {
                 context.commit("getByID", res.data)
+            }  else {
+                // Hiện toast thất bại
+                context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+
+                handleShowToast(context);
             }
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.LoadFail);
+
+            handleShowToast(context);
         }
     },
     /**
@@ -279,9 +304,17 @@ const actions = {
                 `Status=${state.filterDatas.Status}&RewardLevel=${state.filterDatas.RewardLevel}&pageSize=${state.pageSize}&pageNumber=${state.pageNumber}`);
             if (res.data) {
                 context.commit("getPaging", res.data);
+            }  else {
+                // Hiện toast thất bại
+                context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+
+                handleShowToast(context);
             }
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.LoadFail);
+
+            handleShowToast(context);
         }
     },
     /**
@@ -300,7 +333,8 @@ const actions = {
             handleShowToast(context);
         } catch (error) {
             // hiện toast thất bại
-            context.commit('updateToastMsg', Resource.ToastFail.AddFail);
+            handleError(context, error.response.data.errorMsg, data.EmulationCode);
+            context.commit('updatePopupStatus', Enum.PopupStatus.Error);
         }
 
     },
@@ -333,7 +367,7 @@ const actions = {
      */
     async updateStatusMultiple(context, data) {
         try {
-            const res = await axios.put(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/multipleStatus`, data)
+            const res = await axios.put(`${constants.API_URL}/api/${constants.API_VESION}/emulations/multipleStatus`, data)
             context.commit('updateStatusMultiple');
             // Hiện toast thành công
             context.commit('updateToastMsg', Resource.ToastSuccess.EditSuccess);
@@ -390,13 +424,16 @@ const actions = {
      * Xuất file Excel
      * CreatedBy VMHieu 13/04/2023
      */
-    async exportExcel(context) {
+     exportExcel(context) {
         try {
-            await window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/` + 
+             window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/` + 
                 `export?keyword=${state.filterDatas.keyword}&RewardObject=${state.filterDatas.RewardObject}&TypeMovement=${state.filterDatas.TypeMovement}&` +
                 `Status=${state.filterDatas.Status}&RewardLevel=${state.filterDatas.RewardLevel}&pageSize=${state.totalRecord}&pageNumber=${state.pageNumber}`, 'Download');     
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.ExportFail);
+
+            handleShowToast(context);
         }
     },
     /**
@@ -404,11 +441,29 @@ const actions = {
      * @param {} context 
      * CreatedBy VMHieu 20/04/2023
      */
-    async downloadFileSample(context) {
+    downloadFileSample(context) {
         try {
-            await window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/sampleFile`, 'Download');   
+            window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/sampleFile`, 'Download');   
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.DownloadFileFail);
+
+            handleShowToast(context);
+        }
+    },
+    /**
+     * Tải file excel sau khi check
+     * @param {} context 
+     * CreatedBy VMHieu 28/04/2023
+     */
+    downloadFileCheck(context, data) {
+        try {
+            window.open(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/fileCheckResult?statusCheck=${data}`, 'Download');   
+        } catch (error) {
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.DownloadFileFail);
+
+            handleShowToast(context);
         }
     },
     /**
@@ -427,9 +482,17 @@ const actions = {
             );
             if (res) {
                 context.commit("checkFile", res.data);
+            }  else {
+                // Hiện toast thất bại
+                context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+
+                handleShowToast(context);
             }
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.CheckFail);
+
+            handleShowToast(context);
         }
     },
     /**
@@ -445,9 +508,17 @@ const actions = {
                 context.commit('updateToastMsg', Resource.ToastSuccess.AddSuccess);
     
                 handleShowToast(context);
-            }         
+            }  else {
+                // Hiện toast thất bại
+                context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+
+                handleShowToast(context);
+            }     
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.ImportFail);
+
+            handleShowToast(context);
         }
     },
     /**
@@ -483,6 +554,15 @@ const actions = {
      */
     updateFormMode(context, formMode) {
         context.commit("updateFormMode", formMode);
+    },
+    /**
+     * Cập nhật formGet
+     * @param {*} context 
+     * @param {*} formGet 
+     * CreatedBy VMHieu 25/04/2023
+     */
+    updateFormGet(context, formGet) {
+        context.commit("updateFormGet", formGet);
     },
     /**
      * Ẩn hiện form thêm sửa

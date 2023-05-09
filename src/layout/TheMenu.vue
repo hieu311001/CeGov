@@ -11,69 +11,81 @@
                             <div class="menu-item__text">Tổng quan</div>
                         </div>
                     </router-link>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-td"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Thi đua</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    <router-link to="/td" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-td"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Thi đua</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-kt"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Khen thưởng</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    </router-link>
+                    <router-link to="/kt" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-kt"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Khen thưởng</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-qd"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Quyết định</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    </router-link>
+                    <router-link to="/qd" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-qd"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Quyết định</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-hs"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Hồ sơ</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    </router-link>
+                    <router-link to="/hs" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-hs"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Hồ sơ</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-tc"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Tra cứu</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    </router-link>
+                    <router-link to="/tc" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-tc"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Tra cứu</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-bc"></icon>
+                    </router-link>
+                    <router-link to="/bc" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-bc"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Báo cáo</div>
+                            </div>
                         </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Báo cáo</div>
-                        </div>
-                    </div>
+                    </router-link>
                     <div class="menu-line"></div>
                     <router-link to="/emulation" class="menu-focus" active-class="active">
                         <div class="menu-item">
@@ -88,30 +100,33 @@
                             </div>
                         </div>
                     </router-link>
-                    
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-tl"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Thiết lập</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    <router-link to="/tl" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-tl"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Thiết lập</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </router-link>
                     <div class="menu-line"></div>
-                    <div class="menu-item">
-                        <div class="menu-item__icon">
-                            <icon class="icon icon-hd"></icon>
-                        </div>
-                        <div class="menu-item__text">
-                            <div class="item-text">Hướng dẫn</div>
-                            <div class="item-arrow">
-                                <icon class="icon icon-arrowRight"></icon>
+                    <router-link to="/hd" class="menu-focus" active-class="active">
+                        <div class="menu-item">
+                            <div class="menu-item__icon">
+                                <icon class="icon icon-hd"></icon>
+                            </div>
+                            <div class="menu-item__text">
+                                <div class="item-text">Hướng dẫn</div>
+                                <div class="item-arrow">
+                                    <icon class="icon icon-arrowRight"></icon>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </router-link>
                 </div>
             </div>
             <div class="toggle_btn">

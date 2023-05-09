@@ -25,7 +25,7 @@ const toastStatus = ref(1);
  * Kiểm tra toastMsg để hiển thị icon phù hợp
  * CreatedBy VMHieu 05/03/2023
  */
-watchEffect((showToast), () => {
+watch((showToast), () => {
     if (Object.values(Resource.ToastSuccess).includes(toastMsg.value)) {
         toastStatus.value = 1;
     } else {

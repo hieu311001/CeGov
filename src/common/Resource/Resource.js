@@ -82,7 +82,12 @@ export const ToastFail = {
     AddFail: "Thêm thất bại",
     EditFail: "Sửa thất bại",
     DeleteFail: "Xóa thất bại",
-    LoadFail: "Tải dữ liệu thất bại"
+    LoadFail: "Tải dữ liệu thất bại",
+    ExportFail: "Xuất khẩu thất bại",
+    ImportFail: "Nhập khẩu thất bại",
+    CheckFail: "Check file thất bại",
+    DownloadFileFail: "Tải file thất bại",
+    InvalidDataResponse: "Không nhận được dữ liệu trả về"
 }
 /**
  * Nội dung xóa danh hiệu thi đua
@@ -92,6 +97,9 @@ export const PopupMessage = {
     Delete: "Bạn có chắc chắn muốn xóa Danh hiệu thi đua * đã chọn không?",
     DeleteMultiple: "Xóa * danh hiệu đã chọn?",
     DuplicateCode: "Mã danh hiệu * đã tồn tại trong hệ thống. Xin vui lòng kiểm tra lại.",
+    ErrorFilter: "Dữ liệu lọc không hợp lệ. Vui lòng chọn dữ liệu lọc trong danh sách.",
+    NotValidFileSuccess: "Không có bản ghi nào hợp lệ để nhập khẩu.",
+    NotValidFileFali: "Không có bản ghi lỗi nào để tải về.",
     Breakpoint: "*", // Kí tự ngắt dòng để thay thế 
 }
 

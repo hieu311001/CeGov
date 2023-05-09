@@ -58,5 +58,13 @@ export const PopupStatus = {
     Delete: 1,   // Cảnh báo trước khi xóa
     Error: 2, // Cảnh báo lỗi
 }
+/**
+ * Các giá trị của mode khi lấy thông tin emulation
+ * CreatedBy VMHieu 25/04/2023
+ */
+export const GetEmulationForm = {
+    Edit: 0,
+    NotEdit: 1,
+}
 
 export default Enumeration;

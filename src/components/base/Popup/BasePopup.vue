@@ -6,7 +6,7 @@
                     <div class="popup-text" >
                         <slot name="slotTitle"></slot>
                     </div>
-                    <div class="popup-icon" @click="handleClosePopup" title="Đóng">
+                    <div class="popup-icon" @click="handleClosePopup" v-tooltip="'Đóng'">
                         <icon class="icon icon-exit"></icon>
                     </div>
                 </div>

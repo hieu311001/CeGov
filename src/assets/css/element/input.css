@@ -18,7 +18,7 @@
 } */
 
 .m-input:focus-within{
-    outline: 1px solid #1a73e8;
+    border: 1px solid #1a73e8;
 }
 
 input[type="checkbox"] {
@@ -45,6 +45,23 @@ input[type="radio"] {
 
 .m-input__error:focus{
     border: 1px solid red !important;
+}
+
+.input-error{
+    border: 1px solid #ef5350 !important;
+}
+
+.input-error~button{
+    border: 1px solid #ef5350 !important;
+    border-left: none !important;
+}
+
+.input-error:hover{
+    border: 1px solid #ef5350 !important;
+}
+
+.input-error:focus{
+    border: 1px solid #ef5350 !important;
 }
 
 

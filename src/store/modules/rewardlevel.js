@@ -1,5 +1,7 @@
 import axios from "axios";
 import { constants } from "@/config";
+import * as Resource from '@/common/Resource/resource';
+import { handleShowToast } from "@/common/common";
 
 const state = {
     rewardlevels: [], // tất cả bản ghi cấp khen thưởng
@@ -27,9 +29,17 @@ const actions = {
             const res = await axios.get(`${constants.API_URL}/api/${constants.API_VERSION}/rewardlevels`)
             if (res.data) {
                 context.commit('getAllRewardLevel', res.data);
-            }          
+            }  else {
+                // Hiện toast thất bại
+                context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+
+                handleShowToast(context);
+            }         
         } catch (error) {
-            console.log(error);
+            // Hiện toast thất bại
+            context.commit('updateToastMsg', Resource.ToastFail.LoadFail);
+
+            handleShowToast(context);
         }
     }
 }

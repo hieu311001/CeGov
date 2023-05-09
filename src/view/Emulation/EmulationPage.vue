@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div class="content">
+    <div class="content" >
         <div class="content-container">
             <div class="form-list" ref="page">
                 <div class="form-title">
@@ -14,10 +14,10 @@
                                 type="text" 
                                 placeholder="Nhập mã hoặc tên danh hiệu..." 
                                 class="input-search"
-                                ref="filter"
-                                @keyup.enter="handleFilter"
+                                v-model="filter"
+                                @keyup.enter="handleSearch"
                             >
-                            <div class="input-search__icon" title="Tìm kiếm" @click="handleFilter">
+                            <div class="input-search__icon" v-tooltip="'Tìm kiếm'" @click="handleSearch">
                                 <icon class="icon icon-search"></icon>
                             </div>
                         </div>
@@ -35,7 +35,7 @@
                                         <div class="filter-header__text">
                                             Lọc danh hiệu
                                         </div>
-                                        <div class="filter-header__icon" title="Xóa">
+                                        <div class="filter-header__icon" v-tooltip="'Đóng'">
                                             <icon class="icon icon-exit" @click="handleCloseFilter"></icon>
                                         </div>
                                     </div>
@@ -45,13 +45,13 @@
                                             <div class="filter-object__input">
                                                 <BaseCombobox 
                                                     id="rewardobject" 
-                                                    class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
                                                     :propValue=Resource.PropName.RewardObject
                                                     propText="Data"
                                                     :data=Resource.DataRewardObject
                                                     :errorMsg=Resource.ErrorCombobox.ErrorRewardObject
                                                     @getValueCombobox="getDataCombobox"
+                                                    :resetValue="resetValue"
                                                 />
                                             </div>
                                         </div>
@@ -60,14 +60,14 @@
                                             <div class="filter-level__input">
                                                 <BaseCombobox 
                                                     id="rewardlevel" 
-                                                    class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
                                                     :propValue=Resource.PropName.RewardLevel
                                                     propText="Data"
                                                     :data=Resource.DataRewardLevel
                                                     refInput="level"
-                                                    :errorMsg=Resource.ErrorCombobox.RewardLevel
+                                                    :errorMsg=Resource.ErrorCombobox.ErrorRewardLevel
                                                     @getValueCombobox="getDataCombobox"
+                                                    :resetValue="resetValue"
                                                 />
                                             </div>
                                         </div>
@@ -75,15 +75,15 @@
                                             <label class="m-label">Loại phong trào</label>
                                             <div class="filter-type__input">
                                                 <BaseCombobox 
-                                                    id="typemovement" 
-                                                    class="combobox" 
+                                                    id="typemovement"  
                                                     placeholder="Chọn hiện vật khen thưởng"  
                                                     :propValue=Resource.PropName.TypeMovement
                                                     propText="Data"
                                                     :data=Resource.DataTypeMovement
                                                     refInput="level"
-                                                    :errorMsg=Resource.ErrorCombobox.TypeMovement
+                                                    :errorMsg=Resource.ErrorCombobox.ErrorTypeMovement
                                                     @getValueCombobox="getDataCombobox"
+                                                    :resetValue="resetValue"
                                                 />
                                             </div>
                                         </div>
@@ -92,14 +92,14 @@
                                             <div class="filter-status__input">
                                                 <BaseCombobox 
                                                     id="status" 
-                                                    class="combobox" 
                                                     placeholder="Chọn hiện vật khen thưởng"  
                                                     :data=Resource.DataStatus
                                                     :propValue=Resource.PropName.Status
                                                     propText="Data"
                                                     refInput="level"
-                                                    :errorMsg=Resource.ErrorCombobox.Status
+                                                    :errorMsg=Resource.ErrorCombobox.ErrorStatus
                                                     @getValueCombobox="getDataCombobox"
+                                                    :resetValue="resetValue"
                                                 />
                                             </div>
                                         </div>
@@ -116,22 +116,31 @@
                             </div>
                         </div>
                     </div>
-                    <div class="toolbar-right">
+                    <div class="toolbar-right" v-tooltip="{
+                        theme: {
+                            placement: 'top',
+                        },
+                    }"
+                        
+                    >
                         <div class="nocheck flex" v-show="!showOperation">
                             <BaseButton class="ms-button btn-blue" text="Thêm danh hiệu" @click="handleOpenForm">
                                 <div class="add-icon">
                                     <icon class="icon icon-add"></icon>
                                 </div>
                             </BaseButton>
-                            <BaseButton class="ms-button btn-white btn-option" @click="openExtract">
-                                <div class="bonus-icon">
-                                    <icon class="icon icon-bonus"></icon>
-                                </div>
-                            </BaseButton>
-                            <div class="toggle-extract" v-show="showExtract">
-                                <div class="extract-container">
-                                    <div class="extract-option import" @click="importExcel">Nhập khẩu</div>
-                                    <div class="extract-option export" @click="exportExcel">Xuất khẩu</div>
+                            <div v-clickOutside="handleCloseExtract">
+                                <BaseButton class="ms-button btn-white btn-option" @click="openExtract" 
+                                    v-tooltip="'Option'">
+                                    <div class="bonus-icon">
+                                        <icon class="icon icon-bonus"></icon>
+                                    </div>
+                                </BaseButton>
+                                <div class="toggle-extract" v-show="showExtract">
+                                    <div class="extract-container">
+                                        <div class="extract-option import" @click="importExcel">Nhập khẩu</div>
+                                        <div class="extract-option export" @click="exportExcel">Xuất khẩu</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -195,13 +204,13 @@
                                         <td>{{ emp.TypeMovement }}</td>
                                         <td>{{ emp.Status }}</td>
                                         <div class="option" @dblclick.stop="" ref="option" @mouseleave="hoverOutside" :style="{left: `${position}px`}">
-                                            <div class="option-edit" @click="handleEdit(emp.EmulationID)" title="Sửa">
+                                            <div class="option-edit" @click="handleEdit(emp.EmulationID)" v-tooltip="'Sửa'">
                                                 <icon class="icon icon-edit"></icon>
                                             </div>
-                                            <div class="option-delete" title="Thêm nữa..." @click="handleOpenOption(emp.EmulationID)">
+                                            <div class="option-delete" v-tooltip="'Thêm nữa...'" @click="handleOpenOption(emp.EmulationID)">
                                                 <icon class="icon icon-bonus"></icon>
                                             </div>
-                                            <ul class="option-menu">
+                                            <ul class="option-menu" ref="opmenu">
                                                 <li  @click="updateStatusUse(emp.EmulationID)">
                                                     <div class="option-item item-use" 
                                                        >Sử dụng</div>
@@ -230,12 +239,12 @@
                         </div>
                         <div class="page-right">
                             <span>Số bản ghi/trang:</span>
-                            <div class="page-size">
-                                <div class="combobox-pagesize">
+                            <div class="page-size" v-clickOutside="handleClosePageSize">
+                                <div class="combobox-pagesize" @click="openPageSize">
                                     <div>
                                         <input type="text" class="m-input" ref="psize" disabled defaultValue="10">
                                     </div>
-                                    <div class="icon-pagesize" @click="openPageSize">
+                                    <div class="icon-pagesize">
                                         <icon class="icon icon-arrow"></icon>
                                     </div>
                                 </div>
@@ -250,10 +259,10 @@
                                 <strong>{{ pageFrom }}</strong> - <strong>{{ pageTo }}</strong> bản ghi
                             </div>
                             <div class="page-move">
-                                <div class="move-prev" @click="movePrev">
-                                    <icon class="icon icon-prev"></icon>
+                                <div class="move-prev not-allowed" @click="movePrev" ref="prev" v-tooltip="'Trang trước'">
+                                    <icon class="icon icon-prev not-allowed"></icon>
                                 </div>
-                                <div class="move-next" @click="moveNext">
+                                <div class="move-next" @click="moveNext" ref="next" v-tooltip="'Trang kế'">
                                     <icon class="icon icon-next"></icon>
                                 </div>
                             </div>
@@ -284,7 +293,7 @@ import FormExport from '../FormExport.vue';
 // import { getAllEmulation } from '@/common/API/emulationAPI';
 import { ref, onMounted, onUpdated,  computed, watch, reactive, onBeforeMount, watchEffect } from 'vue';
 import { useStore } from 'vuex'
-import { getValueEnum, getValueEnumBack } from '@/common/common';
+import { addCommas, getValueEnum, getValueEnumBack } from '@/common/common';
 import * as Resource from '@/common/Resource/resource';
 import * as Enum from '@/common/Enum/enum';
 
@@ -294,6 +303,8 @@ var UnFilter = ref(false);
 const showOperation = ref(false);
 const showPageSize = ref(false);
 const showExtract = ref(false);
+const resetSearch = ref(false);
+const resetValue = ref(true);
 
 const sumCheckbox = ref(0);
 const filterData = reactive(
@@ -320,8 +331,11 @@ var position = ref(0);
 const row = ref('row');  // Đại diện cho table
 const page = ref('page'); // Đại diện cho class form-list
 const option = ref('option'); // Đại diện cho ô option ở cuối row table
-const filter = ref('filter');
+const filter = ref('');
 const psize = ref('psize');
+const prev = ref('prev');
+const next = ref('next');
+const opmenu = ref('opmenu');
 
 const store = useStore();
 
@@ -333,16 +347,35 @@ const showLoading = computed(() => store.state.emulation.showLoading);
 const numberOfPage = computed(() => store.state.emulation.numberOfPage);
 
 // Tổng số bản ghi
-const totalRecord = computed(() => store.state.emulation.totalRecord);
+const totalRecord = computed(() => addCommas(store.state.emulation.totalRecord));
 // Từ bản ghi thứ 
 const pageFrom = computed(() => {
     return (store.state.emulation.pageNumber-1)*store.state.emulation.pageSize + 1;
 })
 // Đến bản ghi thứ
 const pageTo = computed(() => {
-    return store.state.emulation.pageNumber*store.state.emulation.pageSize;
+    let result = store.state.emulation.pageNumber*store.state.emulation.pageSize;
+    if (result > totalRecord.value) {
+        result = totalRecord.value;
+    }
+    return result;
 })
 
+/**
+ * Đóng form extract hiện lên khi click outside
+ * CreatedBy VMHieu 07/05/2023
+ */
+const handleCloseExtract = () => {
+    showExtract.value = false;
+}
+
+/**
+ * Đóng form pagesize hiện lên khi click outside
+ * CreatedBy VMHieu 07/05/2023
+ */
+ const handleClosePageSize = () => {
+    showPageSize.value = false;
+}
 
 /**
  * Gán sự kiện scroll table để điều chỉnh nút option
@@ -418,7 +451,6 @@ const handleCloseFilter = () => {
 const getAll = () => {
     store.dispatch('getPaging');
     store.dispatch('showLoading');
-
 }
 
 /**
@@ -428,6 +460,7 @@ const getAll = () => {
 const handleEdit =  (id) => {
     store.dispatch('showOver');
     store.dispatch('updateFormMode', Enum.FormMode.Edit);
+    store.dispatch('updateFormGet', Enum.GetEmulationForm.Edit);
     store.dispatch('showForm');
     store.dispatch('getByID', id);
 }
@@ -494,29 +527,82 @@ const updateStatusMultiple = (status) => {
         ids: [],
         Status: status
     };
+
+    let dataStatus = deleteMultipleID;
     // Lấy id của các bản ghi được select
-    row.value.querySelectorAll(".selected-row").forEach((select) => {
-        dataUpdate.ids.push(select.__vnode.key);
-    })
-    dataUpdate.ids = dataUpdate.ids.join("/");
+    dataUpdate.ids = dataStatus.join("/");
 
     store.dispatch("updateStatusMultiple", dataUpdate);
 }
+/**
+ * Validate các giá trị trong bảng filter
+ * CreatedBy VMHieu 26/04/2023
+ */
+const validateFilter = () => {
+    let err = [];
+    let isValid = true;
+    page.value.querySelectorAll(".combobox-error").forEach((element) => {
+        if (element.style.display != "none") {
+            err.push(element);
+        } else {
+            err = err.filter(el => el != element);
+        }
+    })
+
+    if (err.length > 0) {
+        isValid = false;
+    }
+
+    return isValid;
+}
+/**
+ * Thực hiện tìm kiếm
+ * CreatedBy VMHieu 04/05/2023
+ */
+const handleSearch = () => {
+    if (resetSearch.value) {
+        if (validateFilter()) {
+            filterData.keyword = filter.value;
+            store.dispatch("updateFilter", filterData);
+        } else {
+            let filterDataFake = {
+                keyword: filter.value,
+                RewardObject: "",
+                TypeMovement: "",
+                Status: "",
+                RewardLevel: ""
+            }
+            store.dispatch("updateFilter", filterDataFake);
+        }
+        showFormFilter.value = false;
+        pagenumber.value = 1;
+        
+        getAll();
+        resetSearch.value = false;
+    }
+}
+
 
 /**
  * Thực hiện lọc 
  * CreatedBy VMHieu 04/04/2023
  */
 const handleFilter = () => {
-    showFormFilter.value = false;
-    pagenumber.value = 1;
-    
-    filterData.keyword = filter.value.value;
+    if (validateFilter()){
+        showFormFilter.value = false;
+        pagenumber.value = 1;
+        
+        filterData.keyword = filter.value;
+        getAll();
 
-    getAll();
-
-    if (filterData.RewardLevel || filterData.RewardObject || filterData.TypeMovement || filterData.Status) {
-        UnFilter.value = true;
+        if (filterData.RewardLevel || filterData.RewardObject || filterData.TypeMovement || filterData.Status) {
+            UnFilter.value = true;
+        }
+    }
+    else {
+        store.dispatch("updatePopupMsg", Resource.PopupMessage.ErrorFilter);
+        store.dispatch("updatePopupStatus", Enum.PopupStatus.Error);
+        store.dispatch("showPopup", true);
     }
 }
 /**
@@ -537,6 +623,7 @@ const handleUnFilter = () => {
 
     UnFilter.value = false;
     getAll();
+    resetValue.value = !resetValue.value;
 }
 /**
  * Xuất dữ liệu ra file excel
@@ -561,6 +648,8 @@ const importExcel = () => {
  * CreatedBy VMHieu 12/04/2023
  */
 const updateStatusUse = (id) => {
+    let me = event.target.closest(".option-menu");
+    me.classList.remove("toggle-option");
     dataStatus.value = emulation.value;
     dataStatus.value.Status = Enum.Status.Use;
 
@@ -572,6 +661,8 @@ const updateStatusUse = (id) => {
  * CreatedBy VMHieu 12/04/2023
  */
 const updateStatusUnUse = (id) => {
+    let me = event.target.closest(".option-menu");
+    me.classList.remove("toggle-option");
     dataStatus.value = emulation.value;
     dataStatus.value.Status = Enum.Status.StopUsing;
 
@@ -583,17 +674,12 @@ const updateStatusUnUse = (id) => {
  * CreatedBy VMHieu 04/04/2023
  */
 const movePrev = (event) => {
-    let btn = event.currentTarget;
-
-    if (pagenumber.value == 1) {
-        btn.style.opacity = "0.4";
-    } else {
+    if (pagenumber.value != 1) {
         pagenumber.value--;
-        btn.style.opacity = "1";
-    }
+    } 
 
-    if (pagenumber.value < (Math.round(numberOfPage.value)+1)){
-        page.value.querySelector('.move-next').style.opacity = "1";
+    if (pagenumber.value < (Math.round(numberOfPage.value))){
+        next.value.style.opacity = "1";
     }
 }
 /**
@@ -602,17 +688,12 @@ const movePrev = (event) => {
  * CreatedBy VMHieu 04/04/2023
  */
 const moveNext = (event) => {
-    let btn = event.currentTarget;
-
-    if (pagenumber.value >= (Math.round(numberOfPage.value)+1)) {
-        btn.style.opacity = "0.4";
-    } else {
+    if (pagenumber.value < numberOfPage.value) {
         pagenumber.value++;
-        btn.style.opacity = "1";
-    }
+    } 
 
     if (pagenumber.value != 1) {
-        page.value.querySelector('.move-prev').style.opacity = "1";
+        prev.value.style.opacity = "1";
     }
 }
 /**
@@ -723,16 +804,14 @@ const handleCheckbox = (event) => {
         table.querySelector("#checkboxAll").checked = false;
     }
 
-    let sumFlag = 0;
     // Duyệt tất cả checkbox để kiểm tra có checkbox nào đang được tick hay không
     for (var idx of records) {
         if (idx.checked) {
             flag = 1;
-            sumFlag++;
         }
     }
 
-    // Nếu có checkbox = true thì hiện nút xóa hàng loạt
+    //Nếu có checkbox = true thì hiện nút xóa hàng loạt
     if (flag == 1) {
         showOperation.value = true;
     } else {
@@ -762,6 +841,28 @@ const uncheckbox = (event) => {
     showOperation.value = false;
 }
 /**
+ * Kiểm tra các ô checkbox để đánh checkbox all
+ * CreatedBy VMHieu 02/05/2023
+ */
+const scanCheckbox = () => {
+    let isChecked = true;
+    let records = row.value.querySelectorAll("[name='selectedRecord']");
+
+    // Bỏ checkAll nếu có một checkbox chưa check:
+    for (var record of records) {
+        if (!record.checked) {
+            row.value.querySelector("#checkboxAll").checked = false;
+            isChecked = false;
+            break;
+        }
+    }
+
+    if (isChecked && records.length > 0) {
+        row.value.querySelector("#checkboxAll").checked = true;
+    }
+}
+
+/**
  * Mở option menu
  * CreatedBy VMHieu 31/03/2023
  */
@@ -775,6 +876,7 @@ const handleOpenOption = (id) => {
     })
 
     item.classList.toggle('toggle-option');
+    store.dispatch("updateFormGet", Enum.GetEmulationForm.NotEdit);
 }
 /**
  * Ẩn hiện combobox chọn page number
@@ -817,6 +919,39 @@ const hoverOutside = () => {
     })
 }
 /**
+ * disabled nút chuyển trang next
+ * @param {*} value 
+ * CreatedBy VMHieu 05/02/2023
+ */
+const disabledBtnNext = (value) => {
+    if (value) {
+        next.value.classList.add("not-allowed");
+        next.value.querySelector("icon").classList.add("not-allowed");
+        next.value.disabled = true;
+    } else {
+        next.value.classList.remove("not-allowed");
+        next.value.querySelector("icon").classList.remove("not-allowed");
+        next.value.disabled = false;
+    }
+}
+/**
+ * disabled nút chuyển trang prev
+ * @param {*} value 
+ * CreatedBy VMHieu 05/02/2023
+ */
+const disabledBtnPrev = (value) => {
+    if (value) {
+        prev.value.classList.add("not-allowed");
+        prev.value.querySelector("icon").classList.add("not-allowed");
+        prev.value.disabled = true;
+    } else {
+        prev.value.classList.remove("not-allowed");
+        prev.value.querySelector("icon").classList.remove("not-allowed");
+        prev.value.disabled = false;
+    }
+}
+
+/**
  * Kiểm tra sự thay đổi của data lọc để cập nhật state
  * CreatedBy VMHieu 03/04/2023
  */
@@ -826,19 +961,38 @@ watch((filterData), () => {
 /**
  * Kiểm tra sự thay đổi của 2 tham số để cập nhật lại danh sách
  */
-watch([pagesize, pagenumber], () => {
+watch(pagenumber, () => {
     store.dispatch("updatePageSize", pagesize.value);
     store.dispatch("updatePageNumber", pagenumber.value);
-    numberOfPage.value = totalRecord.value/pagesize.value;
     getAll();
+})
+/**
+ * Kiểm tra sự thay đổi của 2 tham số để cập nhật lại danh sách
+ */
+ watch(pagesize, () => {
+    pagenumber.value = 1;
+    store.dispatch("updatePageSize", pagesize.value);
+    store.dispatch("updatePageNumber", pagenumber.value);
 
+    getAll();
+})
+/**
+ * Check tổng các bản ghi có lớn hơn pagesize hay không để disabled nút next
+ * CreatedBy VMHieu 02/05/2023
+ */
+watch((emulations), () => {
     if (pagenumber.value == 1) {
-        page.value.querySelector(".move-prev").style.opacity = "0.4";
+        disabledBtnPrev(true);
+    } else {
+        disabledBtnPrev(false);
     }
-    if (pagenumber.value == (Math.round(numberOfPage.value) + 1)) {
-        page.value.querySelector(".move-next").style.opacity = "0.4";
+    if (pagenumber.value >= numberOfPage.value) {
+        disabledBtnNext(true);
+    } else {
+        disabledBtnNext(false);
     }
 })
+
 /**
  * Quan sát việc refresh để tải lại trang
  * CreatedBy VMHieu 06/04/2023
@@ -846,7 +1000,21 @@ watch([pagesize, pagenumber], () => {
 watch((refresh), () => {
     sumCheckbox.value = 0;
     showOperation.value = false;
+    deleteMultipleID = [];
+
+    filterData.keyword = "";
+    filter.value = "";
+    pagenumber.value = 1;
+    handleUnFilter();
     getAll();
+    uncheckbox();
+})
+/**
+ * Xem sự thay đổi của tổng các checkbox table để ẩn hiện operation
+ * CreatedBy VMHieu 02/05/2023
+ */
+watch((sumCheckbox), () => {
+    showOperation.value = sumCheckbox.value != 0;
 })
 /**
  * Theo dõi sự thay đổi ID để lấy dữ liệu danh hiệu được chọn
@@ -854,6 +1022,25 @@ watch((refresh), () => {
  */
 watch((emulationID), () => {
     store.dispatch('getByID', emulationID.value);
+})
+/**
+ * Theo dõi việc đóng mở pagenumber để thay đổi border input
+ * CreatedBy VMHieu 26.04.2023
+ */
+watch((showPageSize), () => {
+    if (showPageSize.value) {
+        psize.value.classList.add("combobox-hover");
+    } else {
+        psize.value.classList.remove("combobox-hover");
+    }
+})
+
+/**
+ * Xem sự thay đổi của input search để thực hiện search
+ * CreatedBy VMHieu 04/05/2023
+ */
+watch((filter), () => {
+    resetSearch.value = true;
 })
 
 onMounted(() => {
@@ -885,6 +1072,7 @@ onMounted(() => {
 
 onUpdated(() => {
     checkedCheckbox();
+    scanCheckbox();
 })
 
 
@@ -963,7 +1151,7 @@ onUpdated(() => {
 .form-content{
     background-color: #fff;
     border-radius: 4px;
-    /* box-shadow: 0 0 11px rgba(0,0,0,.08); */
+    box-shadow: 0 0 11px rgba(0,0,0,.08);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -1036,9 +1224,8 @@ onUpdated(() => {
     border: none;
     background: none;
     color: #2979ff;
-    padding: 0;
-    margin: 0 4px;
-    min-width: none;
+    padding: 0 4px;
+    min-width: 0px ;
 }
 
 .btn-unfilter:hover{
@@ -1139,8 +1326,11 @@ onUpdated(() => {
 
 .move-prev{
     opacity: 0.4;
+    margin-left: 8px;
+}
+
+.move-prev icon{
     transform: rotate(-180deg);
-    padding-left: 8px;
 }
 
 .move-prev, .move-next{
@@ -1247,9 +1437,20 @@ onUpdated(() => {
     background-color: #fff;
     z-index: 1000;
     width: inherit;
+    box-shadow: 0 0 16px rgba(23,27,42,.24);
+    border-radius: 4px;
+}
+
+.combobox-pagesize:hover input{
+    border: 1px solid #2979ff;
+}
+
+.combobox-hover{
+    border: 1px solid #2979ff;
 }
 
 .paging-list__list {
+    border-radius: 4px;
     flex: 1;
     padding: 0 14px 0 10px;
     white-space: nowrap;
@@ -1260,6 +1461,7 @@ onUpdated(() => {
     display: flex;
     align-items: center;
     cursor: pointer;
+    margin: 2px;
 }
 
 .paging-list__list:hover {

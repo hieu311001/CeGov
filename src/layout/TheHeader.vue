@@ -12,18 +12,18 @@
                     <div class="nav-content">MISA CeGov</div>
                 </div>
             </div>
-            <div class="nav-right">
-                <div class="nav-right__icon" title="Thông báo">
+            <div class="nav-right" v-tooltip="{theme: {placement: 'bottom'}}">
+                <div class="nav-right__icon" v-tooltip="'Thông báo'">
                     <icon class="icon icon-notify"></icon>
                 </div>
-                <div class="nav-right__icon" title="Trợ giúp">
+                <div class="nav-right__icon" v-tooltip="'Trợ giúp'">
                     <icon class="icon icon-help"></icon>
                 </div>
-                <div class="nav-right__icon" title="Tài liệu">
+                <div class="nav-right__icon" v-tooltip="'Tài liệu'">
                     <icon class="icon icon-document"></icon>
                 </div>
                 <div class="nav-right__icon">
-                    <icon class="icon icon-settings" title="Cài đặt"></icon>
+                    <icon class="icon icon-settings" v-tooltip="'Cài đặt'"></icon>
                 </div>
                 <div class="nav-right__avatar">
                     <div class="nav-right__image">
