@@ -42,6 +42,36 @@ export function getValueEnumBack (data, resourceName)  {
     return data;
 }
 /**
+ * Chuyển mảng thành chuỗi theo thứ tự sắp xếp ASC
+ * @param {} array 
+ * @returns 
+ * CreatedBy VMHieu 10/05/2023
+ */
+export function arrayBiding(array) {
+    array = array.sort(function(a, b) {
+        if (a > b) return 1;
+        if (a < b) return -1;
+        return 0;
+    });
+
+    return array.join("");
+}
+/**
+ * Chuyển chuỗi thành mảng theo thứ tự ASC
+ * @param {} str 
+ * @returns 
+ * CreatedBy VMHieu 10/05/2023
+ */
+export function bidingArray(str) {
+    let arr = str.split('').sort(function(a, b) {
+        if (a > b) return 1;
+        if (a < b) return -1;
+        return 0;
+    });
+    return arr;
+}
+
+/**
  * Show toast thông báo mỗi khi thực hiện xong thao tác
  * CreatedBy VMHieu 07/04/2023
  */
@@ -96,22 +126,7 @@ export function addCommas(value) {
  * CreatedBy VMHieu 07/04/2023
  */
 export function handleError(context, errorMsg, code) {
-    let msg = "";
-    let arr = [];
-    switch(errorMsg.join('')) {
-        case Resource.ErrorMsg.ErrorDuplicateCode:
-            arr = Resource.PopupMessage.DuplicateCode.trim().split(" ");
-            for(let i = 0; i < arr.length; i++) {
-                if (arr[i] == Resource.PopupMessage.Breakpoint) {
-                    arr[i] = code;
-                }
-            }
-            msg = arr.join(" ");
-            break;
-        default:
-            msg = Resource.ErrorMsg.ErrorSystem;
-    }
-    context.commit('updatePopupMsg', msg);
+    context.commit('updatePopupMsg', errorMsg);
     context.commit('showPopup', true);
 }
 

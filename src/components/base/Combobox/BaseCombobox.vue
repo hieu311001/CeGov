@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="combobox" v-clickOutside="hideListData">
+    <div class="combobox" v-clickOutside="hideListData" ref="combobox">
       <input
         :id="id"
         type="text"
         class="input combobox__input"
+        ref="input"
         v-model="textInput"
         @input="inputOnChange"
         @keydown="selecItemUpDown"
         @mouseover="handleMouse"
         :tabindex="tabidx"
         :placeholder="placeholder"
-        :ref="refInput"
         :resetValue="resetValue"
         :bidingValue="bidingValue"
         autocomplete="off"
@@ -176,11 +176,11 @@ import emulation from '@/store/modules/emulation';
       },
       showError: function() {
         if (this.showError) {
-          this.$el.querySelector(".combobox").classList.add("combobox__error");
+          this.$refs.combobox.classList.add("combobox__error");
           this.indexItemSelected = null;
           this.indexItemFocus = null;
         } else {
-          this.$el.querySelector(".combobox").classList.remove("combobox__error");
+          this.$refs.combobox.classList.remove("combobox__error");
         }
       }
     },
@@ -197,8 +197,8 @@ import emulation from '@/store/modules/emulation';
        * CreatedBy VMHieu 09/05/2023
        */
       handleMouse() {
-        let input = this.$el.querySelector(".combobox__input");
-        let combobox = this.$el.querySelector(".combobox");
+        let input = this.$refs.input;
+        let combobox = this.$refs.combobox;
         if (input.classList.contains("input-error")) {
           combobox.classList.add("cbb-error");
         } else {

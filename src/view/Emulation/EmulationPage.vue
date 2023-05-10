@@ -166,7 +166,7 @@
                                                 <input 
                                                     type="checkbox" 
                                                     class="input__checkbox" 
-                                                    id="checkboxAll" 
+                                                    ref="checkall" 
                                                     @click="handleCheckboxAll"
                                                 >
                                             </div>
@@ -179,7 +179,7 @@
                                         <th>Trạng thái</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody v-show="validData">
                                     <tr 
                                         v-for="emp in emulations" 
                                         :key="emp.EmulationID" 
@@ -227,6 +227,7 @@
                                         </div>
                                     </tr>
                                 </tbody>
+                                <div v-show="!validData" class="invalid-data"> Không có dữ liệu </div>
                             </table>
                         </div>
                     </div>
@@ -260,10 +261,10 @@
                             </div>
                             <div class="page-move">
                                 <div class="move-prev not-allowed" @click="movePrev" ref="prev" v-tooltip="'Trang trước'">
-                                    <icon class="icon icon-prev not-allowed"></icon>
+                                    <icon class="icon icon-prev not-allowed" ref="iconprev"></icon>
                                 </div>
                                 <div class="move-next" @click="moveNext" ref="next" v-tooltip="'Trang kế'">
-                                    <icon class="icon icon-next"></icon>
+                                    <icon class="icon icon-next" ref="iconnext"></icon>
                                 </div>
                             </div>
                         </div>
@@ -305,6 +306,7 @@ const showPageSize = ref(false);
 const showExtract = ref(false);
 const resetSearch = ref(false);
 const resetValue = ref(true);
+const validData = ref(true);
 
 const sumCheckbox = ref(0);
 const filterData = reactive(
@@ -321,6 +323,13 @@ const dataStatus = reactive([]);
 var pagesize = ref(10);
 var pagenumber = ref(1);
 
+// var checkboxes = [];
+// this.checkboxes.map(el => {
+//     if(el.checkbox-property) {
+//         return <Checkbox/>
+//     }
+// })
+
 var dataPopup = [];        // Mảng chứa thông tin của bản ghi cần xóa
 var deleteMultipleID = [];
 var emulationID = ref();
@@ -336,6 +345,9 @@ const psize = ref('psize');
 const prev = ref('prev');
 const next = ref('next');
 const opmenu = ref('opmenu');
+const checkall = ref('checkall');
+const iconnext = ref('iconnext');
+const iconprev = ref('iconprev');
 
 const store = useStore();
 
@@ -350,6 +362,9 @@ const numberOfPage = computed(() => store.state.emulation.numberOfPage);
 const totalRecord = computed(() => addCommas(store.state.emulation.totalRecord));
 // Từ bản ghi thứ 
 const pageFrom = computed(() => {
+    if (emulations.value.length == 0) {
+        return 0;
+    }
     return (store.state.emulation.pageNumber-1)*store.state.emulation.pageSize + 1;
 })
 // Đến bản ghi thứ
@@ -387,8 +402,6 @@ const onScroll = () => {
     // Tọa độ left của table
     left = row.value.getBoundingClientRect().left;
 
-    // // Nút option
-    // let option = row.value.querySelector('.option');
 
     // option.style.left = `${width + 100 - left}px`;
     position.value = width + 105 - left;
@@ -784,12 +797,12 @@ const handleCheckbox = (event) => {
         select.classList.add("selected-row");
 
         // Đặt checkAll bằng true:
-        table.querySelector("#checkboxAll").checked = true;
+        checkall.value.checked = true;
 
         // Bỏ checkAll nếu có một checkbox chưa check:
         for (var record of records) {
             if (!record.checked) {
-                table.querySelector("#checkboxAll").checked = false;
+                checkall.value.checked = false;
                 break;
             }
         }
@@ -801,7 +814,7 @@ const handleCheckbox = (event) => {
         select.classList.remove("selected-row");
 
         // Đặt checkAll bằng false:
-        table.querySelector("#checkboxAll").checked = false;
+        checkall.value.checked = false;
     }
 
     // Duyệt tất cả checkbox để kiểm tra có checkbox nào đang được tick hay không
@@ -827,7 +840,7 @@ const handleCheckbox = (event) => {
 const uncheckbox = (event) => {
     // Xét tất cả các checkbox:
     let records = row.value.querySelectorAll("[name='selectedRecord']");
-    let checkboxAll = row.value.querySelector("#checkboxAll");
+    let checkboxAll = checkall.value;
 
     checkboxAll.checked = false;
     deleteMultipleID = [];
@@ -851,14 +864,14 @@ const scanCheckbox = () => {
     // Bỏ checkAll nếu có một checkbox chưa check:
     for (var record of records) {
         if (!record.checked) {
-            row.value.querySelector("#checkboxAll").checked = false;
+            checkall.value.checked = false;
             isChecked = false;
             break;
         }
     }
 
     if (isChecked && records.length > 0) {
-        row.value.querySelector("#checkboxAll").checked = true;
+        checkall.value.checked = true;
     }
 }
 
@@ -926,11 +939,11 @@ const hoverOutside = () => {
 const disabledBtnNext = (value) => {
     if (value) {
         next.value.classList.add("not-allowed");
-        next.value.querySelector("icon").classList.add("not-allowed");
+        iconnext.value.classList.add("not-allowed");
         next.value.disabled = true;
     } else {
         next.value.classList.remove("not-allowed");
-        next.value.querySelector("icon").classList.remove("not-allowed");
+        iconnext.value.classList.remove("not-allowed");
         next.value.disabled = false;
     }
 }
@@ -942,11 +955,11 @@ const disabledBtnNext = (value) => {
 const disabledBtnPrev = (value) => {
     if (value) {
         prev.value.classList.add("not-allowed");
-        prev.value.querySelector("icon").classList.add("not-allowed");
+        iconprev.value.classList.add("not-allowed");
         prev.value.disabled = true;
     } else {
         prev.value.classList.remove("not-allowed");
-        prev.value.querySelector("icon").classList.remove("not-allowed");
+        iconprev.value.classList.remove("not-allowed");
         prev.value.disabled = false;
     }
 }
@@ -981,6 +994,8 @@ watch(pagenumber, () => {
  * CreatedBy VMHieu 02/05/2023
  */
 watch((emulations), () => {
+    validData.value = emulations.value.length > 0;
+
     if (pagenumber.value == 1) {
         disabledBtnPrev(true);
     } else {
@@ -1535,6 +1550,17 @@ onUpdated(() => {
 
 .extract-container .export {
     margin-bottom: 4px;
+}
+
+.invalid-data{
+    color: #9e9fab;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 40px;
+    position: absolute;
+    width: 150px;
+    white-space: nowrap;
 }
 
 </style>

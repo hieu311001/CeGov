@@ -11,15 +11,16 @@ const state = {
     emulations: [],     // Tất cả bản ghi danh hiệu thi đua
     emulation: [],      // Bản ghi danh hiệu thi đua lấy theo id
     filterDatas: [],    // Mảng chứa dữ liệu lọc
-    pageSize: 10,
-    pageNumber: 1,
-    totalRecord: 0,
-    formMode: 0,
-    formGet: 0,
-    refresh: false,
-    errorMsg: [],
-    showLoading: false,
+    pageSize: 10,       // Số bản ghi / trang
+    pageNumber: 1,      // Trang thứ
+    totalRecord: 0,     // Tổng số bản ghi lấy được
+    formMode: 0,        // mode của form
+    formGet: 0,         // 
+    refresh: false,     // refresh lại trang
+    errorMsg: [],       // Mảng lỗi trả về từ BE
+    showLoading: false, // ẩn hiện loading
     numberOfPage: 0,
+    loadFail: false,
     resultCheckFile: {
         Total: 0,
         TotalSuccess: 0,
@@ -240,6 +241,16 @@ const mutations = {
      */
     showLoading(state) {
         state.showLoading = !state.showLoading;
+    },
+
+    /**
+     * Thay đổi state loadfail
+     * @param {*} state 
+     * @param {*} payload 
+     * CreatedBy VMHieu 10/05/2023
+     */
+    updateLoadFail(state) {
+        state.loadFail = !state.loadFail;
     }
 }
 
@@ -313,6 +324,7 @@ const actions = {
         } catch (error) {
             // Hiện toast thất bại
             context.commit('updateToastMsg', Resource.ToastFail.LoadFail);
+            context.commit('showLoading');
 
             handleShowToast(context);
         }
@@ -485,12 +497,14 @@ const actions = {
             }  else {
                 // Hiện toast thất bại
                 context.commit('updateToastMsg', Resource.ToastFail.InvalidDataResponse);
+                context.commit('updateLoadFail');
 
                 handleShowToast(context);
             }
         } catch (error) {
             // Hiện toast thất bại
             context.commit('updateToastMsg', Resource.ToastFail.CheckFail);
+            context.commit('updateLoadFail');
 
             handleShowToast(context);
         }

@@ -15,7 +15,9 @@
         <BasePopup v-if="popupStatus == 2 && showPopup">
             <template v-slot:slotTitle>MISA CeGov</template>
             <template v-slot:slotContent>
-                <div class="content">{{ popupMsg }}</div>
+                <div v-for="msg in popupMsg" :key="msg">
+                    <div class="content"> - {{ msg }}</div>
+                </div>
             </template>
             <template v-slot:slotButton>
                 <div class="btn btn-warning">

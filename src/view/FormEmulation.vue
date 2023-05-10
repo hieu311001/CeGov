@@ -30,7 +30,7 @@
                             name="reset" 
                             placeholder="Nhập tên danh hiệu thi đua" 
                             tabindex="1">
-                        <div class="label-error name-error">{{ Resource.ValidateError.ErrorName }}</div>
+                        <div class="label-error name-error" ref="lberror">{{ Resource.ValidateError.ErrorName }}</div>
                     </div>
                     
                 </div>
@@ -49,7 +49,7 @@
                                 name="reset" 
                                 placeholder="Nhập mã danh hiệu" 
                                 tabindex="2">
-                            <div class="label-error name-error">{{ Resource.ValidateError.ErrorCode }}</div>
+                            <div class="label-error name-error" >{{ Resource.ValidateError.ErrorCode }}</div>
                         </div>
                     </div>
                     <div class="code-object" RequiredCheckbox="true">
@@ -131,11 +131,11 @@
                         </label>
                         <div class="status-input flex">
                             <div class="status-use flex">
-                                <input type="radio" class="use-status" name="status" value="1" checked tabindex="10">
+                                <input type="radio" class="use-status" name="status" value="1" v-model="dataForm.Status" checked tabindex="10">
                                 <label for="">Sử dụng</label>
                             </div>
                             <div class="status-unuse flex">
-                                <input type="radio" class="unuse-status" name="status" value="2" tabindex="11">
+                                <input type="radio" class="unuse-status" name="status" value="2" v-model="dataForm.Status" tabindex="11">
                                 <label for="">Ngừng sử dụng</label>
                             </div> 
                         </div>
@@ -180,16 +180,11 @@ const object = ref("object");
 const type = ref("type");
 const note = ref("note");
 const status = ref("status");
+const lberror = ref("lberror");
 
 const rewardLevelCode = ref("");
 let dataForm = reactive({
-    EmulationCode: "",
-    EmulationName: "",
-    RewardObject: "",
-    TypeMovement: "",
-    RewardLevelCode: "",
-    Note: "",
-    Status: ""
+    
 })
 
 const combobox = ref("combobox");
@@ -217,13 +212,9 @@ const handleCloseForm = () => {
  */
 const resetForm = () => {
     // Xóa text input
-    dataForm.EmulationName = "";
-    dataForm.EmulationCode = "";
-    dataForm.RewardObject = "";
-    dataForm.TypeMovement = "";
-    dataForm.RewardLevelCode = "";
-    dataForm.Note = "";
-    dataForm.Status = "";
+    for(let prop in dataForm) {
+        dataForm[prop] = "";
+    }
 
     form.value.querySelectorAll('[Required]').forEach(element => {
         let input = element.querySelector('input');
@@ -238,7 +229,7 @@ const resetForm = () => {
         }
     })
     // Xóa text area
-    form.value.querySelector('textarea').value = "";
+    note.value.value = "";
     // Xóa thông báo lỗi
     form.value.querySelectorAll(".label-error").forEach(element => {
         element.style.display = "none";
@@ -330,11 +321,7 @@ const getFormData = () => {
     })
 
     if (formMode.value == Enum.FormMode.Edit) {
-        status.value.querySelectorAll('input[type="radio"]').forEach(element => {
-            if (element.checked) {
-                dataForm.Status = Number(element.value);
-            }
-        })
+        dataForm.Status = Number(dataForm.Status);
     } else {
         dataForm.Status = Enum.Status.Use;
     }
@@ -392,6 +379,7 @@ const bidingData = () => {
     level.value = emulation.value.RewardLevelName;
     rewardLevelCode.value = emulation.value.RewardLevelCode;
     dataForm.Note = emulation.value.Note;
+    dataForm.Status = emulation.value.Status;
     // biding các ô input checkbox
     object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
         if (emulation.value.RewardObject.includes(element.value)) {
@@ -407,13 +395,7 @@ const bidingData = () => {
             element.checked = false;
         }
     })
-    status.value.querySelectorAll('input[type="radio"]').forEach(element => {
-        if (emulation.value.Status == Number(element.value)) {
-            element.checked = true;
-        } else {
-            element.checked = false;
-        }
-    })
+    
 }
 /**
  * Tự động sinh mã danh hiệu thi đua
@@ -491,24 +473,27 @@ watch((errorMsg), () => {
 watch((refresh), () => {
     resetForm();
 })
+/**
+ * Lấy dữ liệu của rewardlevel biding ra combobox
+ * CreatedBy VMHieu 10/05/2023
+ */
+watch((rewardlevels), () => {
+    rewardlevels.value.forEach((element) => {
+        let obj = {
+            Data: element.RewardLevelName,
+            Code: element.RewardLevelCode
+        }
+        dataCombobox.push(obj);
+    }) 
+})
 
-onMounted(async () => {
+onMounted(() => {
     /**
      * Lấy dữ liệu các cấp khen thưởng và biding ra combobox
      * CreatedBy VMHieu 29/03/2023
      */
-    try {
-        await store.dispatch('getAllRewardLevel');
-        rewardlevels.value.forEach((element) => {
-            let obj = {
-                Data: element.RewardLevelName,
-                Code: element.RewardLevelCode
-            }
-            dataCombobox.push(obj);
-        })
-    } catch (e) {
-        console.log(e);
-    }    
+    store.dispatch('getAllRewardLevel');
+
     /**
      * Gán sự kiện ấn enter để chọn checkbox
      * CreatedBy VMHieu 30/03/2023

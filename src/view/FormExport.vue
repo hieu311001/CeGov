@@ -168,6 +168,7 @@ const fileUpload = ref();
 
 const showImport = computed(() => store.state.emulation.showImport);
 const resultCheckFile = computed(() => store.state.emulation.resultCheckFile);
+const loadFail = computed(() => store.state.emulation.loadFail);
 /**
  * Thực hiện upload File
  * CreatedBy VMHieu 14/04/2023
@@ -306,6 +307,12 @@ watch((resultCheckFile), () => {
     excelOver.value = false;
     excelLoading.value = false;
 })
+
+watch((loadFail), () => {
+    excelOver.value = false;
+    excelLoading.value = false;
+})
+
 /**
  * Xem sự thay đổi của form check để disabled nút input radio nhập khẩu
  * CreatedBy VMHieu 28/04/2023
