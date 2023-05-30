@@ -24,7 +24,9 @@
                 <div class="ip-import" 
                     @dragover="dragover"
                     @dragleave="dragleave"
-                    @drop="drop">
+                    @drop="drop"
+                    ref="imp"
+                    >
                     <div class="import-box">
                         <label for="upload-file" v-show="!showFile">
                             <div class="file-default" >
@@ -153,6 +155,7 @@ const emit = defineEmits(['deleteSuccess']);
 const ipexcel = ref("ipexcel");
 const upload = ref("upload");
 const rcheck = ref("rcheck");
+const imp = ref("imp");
 const showFile = ref(false);
 const fileSuccess = ref(false);
 const showFormCheck = ref(false);
@@ -176,7 +179,7 @@ const loadFail = computed(() => store.state.emulation.loadFail);
 const handleUploadFile = () => {
     const files = upload.value.files[0];
     const btnContinue = ipexcel.value.querySelector(".btn-continue");
-    const ipImport = ipexcel.value.querySelector('.ip-import');
+    const ipImport = imp.value;
 
     if (files) {
         showFile.value = true;

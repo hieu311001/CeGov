@@ -1,5 +1,5 @@
 <template>
-    <button :class="str" :disabled="disabled">
+    <button :class="str" :disabled="disabled" ref="btn">
         <slot></slot>
         <div class="btn-text">
             {{ text }}
@@ -16,6 +16,11 @@ export default {
         disabled: {
             type: Boolean,
             default: false
+        }
+    }, 
+    method: {
+        getRef() {
+            console.log(111);
         }
     }
 }

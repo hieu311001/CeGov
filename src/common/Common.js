@@ -126,7 +126,8 @@ export function addCommas(value) {
  * CreatedBy VMHieu 07/04/2023
  */
 export function handleError(context, errorMsg, code) {
-    context.commit('updatePopupMsg', errorMsg);
+    context.commit('updatePopupStatus', Enumeration.PopupStatus.ErrorServer);
     context.commit('showPopup', true);
+    context.commit('updatePopupMsg', errorMsg);
 }
 

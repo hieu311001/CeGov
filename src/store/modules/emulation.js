@@ -346,7 +346,6 @@ const actions = {
         } catch (error) {
             // hiện toast thất bại
             handleError(context, error.response.data.errorMsg, data.EmulationCode);
-            context.commit('updatePopupStatus', Enum.PopupStatus.Error);
         }
 
     },
@@ -368,7 +367,6 @@ const actions = {
             // // hiện toast thất bại
             // context.commit('updateToastMsg', Resource.ToastFail.EditFail);
             handleError(context, error.response.data.errorMsg, data.EmulationCode);
-            context.commit('updatePopupStatus', Enum.PopupStatus.Error);
         }
     },
     /**
@@ -379,7 +377,7 @@ const actions = {
      */
     async updateStatusMultiple(context, data) {
         try {
-            const res = await axios.put(`${constants.API_URL}/api/${constants.API_VESION}/emulations/multipleStatus`, data)
+            const res = await axios.put(`${constants.API_URL}/api/${constants.API_VERSION}/emulations/multipleStatus`, data)
             context.commit('updateStatusMultiple');
             // Hiện toast thành công
             context.commit('updateToastMsg', Resource.ToastSuccess.EditSuccess);

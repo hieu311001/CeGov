@@ -131,7 +131,7 @@
                             </BaseButton>
                             <div v-clickOutside="handleCloseExtract">
                                 <BaseButton class="ms-button btn-white btn-option" @click="openExtract" 
-                                    v-tooltip="'Option'">
+                                    v-tooltip="'Thêm...'">
                                     <div class="bonus-icon">
                                         <icon class="icon icon-bonus"></icon>
                                     </div>
@@ -277,7 +277,7 @@
     <FormEmulation />
     <ToastMessage />
     <PopupMessage :data="dataPopup" @deleteSuccess="handleDeleteSuccess"/>
-    <FormExport />
+    <FormImport />
     <div id="over" v-show="showOver"></div>
     
 </div>
@@ -287,10 +287,10 @@
 
 import BaseButton from '@/components/base/Button/BaseButton.vue';
 import BaseCombobox from '@/components/base/Combobox/BaseCombobox.vue';
-import FormEmulation from '@/view/FormEmulation.vue';
-import ToastMessage from '@/view/ToastMessage';
-import PopupMessage from '@/view/PopupMessage';
-import FormExport from '../FormExport.vue';
+import FormEmulation from '@/components/view/FormEmulation.vue';
+import ToastMessage from '@/components/view/ToastMessage';
+import PopupMessage from '@/components/view/PopupMessage';
+import FormImport from '../FormImport.vue';
 // import { getAllEmulation } from '@/common/API/emulationAPI';
 import { ref, onMounted, onUpdated,  computed, watch, reactive, onBeforeMount, watchEffect } from 'vue';
 import { useStore } from 'vuex'
@@ -322,13 +322,6 @@ const filterData = reactive(
 const dataStatus = reactive([]);
 var pagesize = ref(10);
 var pagenumber = ref(1);
-
-// var checkboxes = [];
-// this.checkboxes.map(el => {
-//     if(el.checkbox-property) {
-//         return <Checkbox/>
-//     }
-// })
 
 var dataPopup = [];        // Mảng chứa thông tin của bản ghi cần xóa
 var deleteMultipleID = [];
@@ -428,17 +421,19 @@ const openExtract = () => {
  * CreatedBy VMHieu 18/04/2023
  */
 const getDataCombobox = (value) => {
-    if (value[Resource.PropName.Status]) {
+    if (value) {
+        if (value[Resource.PropName.Status]) {
         filterData.Status = value[Resource.PropName.Status];
-    } 
-    else if (value[Resource.PropName.TypeMovement]) {
-        filterData.TypeMovement = value[Resource.PropName.TypeMovement];
-    } 
-    else if (value[Resource.PropName.RewardObject]) {
-        filterData.RewardObject = value[Resource.PropName.RewardObject]
-    } 
-    else if (value[Resource.PropName.RewardLevel]) {
-        filterData.RewardLevel = value[Resource.PropName.RewardLevel];
+        } 
+        else if (value[Resource.PropName.TypeMovement]) {
+            filterData.TypeMovement = value[Resource.PropName.TypeMovement];
+        } 
+        else if (value[Resource.PropName.RewardObject]) {
+            filterData.RewardObject = value[Resource.PropName.RewardObject]
+        } 
+        else if (value[Resource.PropName.RewardLevel]) {
+            filterData.RewardLevel = value[Resource.PropName.RewardLevel];
+        }
     }
 }
 
@@ -623,10 +618,11 @@ const handleFilter = () => {
  * CreatedBy VMHieu 04/04/2023
  */
 const handleUnFilter = () => {
-    filterData.RewardObject = "";
-    filterData.TypeMovement = "";
-    filterData.RewardLevel = "";
-    filterData.Status = "";
+    for(let prop in filterData) {
+        filterData[prop] = "";
+    }
+
+    filterData.keyword = filter.value;
 
     page.value.querySelector('#rewardobject').value = "";
     page.value.querySelector('#rewardlevel').value = "";

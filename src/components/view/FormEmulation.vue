@@ -57,21 +57,13 @@
                             {{ Resource.LabelForm.RewardObject }}
                             <span class="asterik">*</span>
                         </label>
-                        <div class="checkbox-input" ref="object">
-                            <div>
-                                <input type="checkbox" checked="true" value="1" id="object1" tabindex="3">
-                                <label for="object1" class="checkbox-label">Cá nhân</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" value="2" id="object2" tabindex="4">
-                                <label for="object2" class="checkbox-label">Tập thể</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" value="3" id="object3" tabindex="5">
-                                <label for="object3" class="checkbox-label" id="label-long">Hộ gia đình</label>
-                            </div>
-                        </div>
-                        <div class="label-error name-error">{{ Resource.ValidateError.ErrorObject }}</div>
+                        <BaseCheckbox 
+                            :dataCheckbox=Resource.DataCheckBox.RewardObject
+                            :valueCheckbox=dataForm.RewardObject
+                            :parentGetValue=getValueCheckbox
+                            v-model="dataForm.RewardObject"
+                            :tabindex="3"
+                        />
                     </div>
                 </div>
                 <div class="form-level">
@@ -101,17 +93,13 @@
                             {{ Resource.LabelForm.TypeMovement }}
                             <span class="asterik">*</span>
                         </label>
-                        <div class="checkbox-input" ref="type">
-                            <div>
-                                <input type="checkbox" checked="true" value="1" id="type1" tabindex="7">
-                                <label for="type1" class="checkbox-label">Thường xuyên</label>
-                            </div>
-                            <div>
-                                <input type="checkbox" value="2" id="type2" tabindex="8">
-                                <label for="type2" class="checkbox-label">Theo đợt</label>
-                            </div>
-                        </div>
-                        <div class="label-error name-error">{{ Resource.ValidateError.ErrorTypeMovement }}</div>
+                        <BaseCheckbox 
+                            :dataCheckbox=Resource.DataCheckBox.TypeMovement
+                            :valueCheckbox=dataForm.TypeMovement
+                            :parentGetValue=getValueCheckbox
+                            v-model="dataForm.TypeMovement"
+                            :tabindex="7"
+                        />
                     </div>
                 </div>
                 <div class="form-note">
@@ -160,6 +148,7 @@
 <script setup>
 import BaseButton from '@//components/base/Button/BaseButton.vue';
 import BaseCombobox from '@//components/base/Combobox/BaseCombobox';
+import BaseCheckbox from '@//components/base/ListCheckBox/BaseCheckBox';
 import PopupMessage from './PopupMessage.vue';
 import { ref, inject, onMounted, computed, watch, reactive, watchEffect } from 'vue';
 import { useStore } from 'vuex';
@@ -173,6 +162,7 @@ var dataPopup = [];
 const TitleForm = ref("");
 const showStatus = ref(false);
 const resetValue = ref(true);
+const getValueCheckbox = ref(false);
 
 const name = ref("name");
 const code = ref("code");
@@ -181,10 +171,16 @@ const type = ref("type");
 const note = ref("note");
 const status = ref("status");
 const lberror = ref("lberror");
+const inp = ref("input");
 
-const rewardLevelCode = ref("");
 let dataForm = reactive({
-    
+    EmulationName: "",
+    EmulationCode: "",
+    RewardObject: "",
+    TypeMovement: "",
+    RewardLevelCode: "",
+    Note: "",
+    Status: 1,
 })
 
 const combobox = ref("combobox");
@@ -195,14 +191,11 @@ const formMode = computed(() => store.state.emulation.formMode);
 const formGet = computed(() => store.state.emulation.formGet);
 const errorMsg = computed(() => store.state.emulation.errorMsg);
 const refresh = computed(() => store.state.emulation.refresh);
-/**
- * Đóng form thêm mới danh hiệu
- * CreatedBy: VMHieu 21/03/2023
- */
+
 const handleCloseForm = () => {
+    resetForm();
     store.dispatch('showForm');
     store.dispatch('showOver');
-    resetForm();
     resetValue.value = !resetValue.value;
 
 }
@@ -220,14 +213,8 @@ const resetForm = () => {
         let input = element.querySelector('input');
         input.classList.remove("input-error");
     });
-    // Đặt checkbox về mặc định
-    form.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (element.value == 1) {
-            element.checked = true;
-        } else {
-            element.checked = false;
-        }
-    })
+    dataForm.RewardObject = [Resource.DataCheckBox.RewardObject.Data[0].Value];
+    dataForm.TypeMovement = [Resource.DataCheckBox.TypeMovement.Data[0].Value];
     // Xóa text area
     note.value.value = "";
     // Xóa thông báo lỗi
@@ -241,7 +228,9 @@ const resetForm = () => {
  * CreatedBy VMHieu 18/04/2023
  */
 const getValueCombobox = (value) => {
-    rewardLevelCode.value = value.Code;
+    if (value) {
+        dataForm.RewardLevelCode = value.Code.trim();
+    }
 }
 /**
  * 1. Validate dữ liệu trước khi gửi lên server
@@ -266,68 +255,23 @@ const validateForm = () => {
             input.classList.remove('input-error');
         }
     });
-    // Validate các ô input checkbox
-    form.value.querySelectorAll('[RequiredCheckbox]').forEach(element => {
-        let input = element.querySelectorAll('input[type="checkbox"]');
-        let error = element.querySelector('.label-error');
-        let len = input.length;
-        let k = 0;
-        for (let i = 0; i < len; i++) {
-            if (!input[i].checked){
-                k++;
-            }
-        }
-        if (k == len) {
-            isValid = false;
-            error.style.display = "block";
-        } else {
-            error.style.display = "none";
-        }
-    })
-    let err = form.value.querySelector(".combobox-error").style.display == 'none';
-    if (!err) {
+
+    if (dataForm.RewardObject == "" || dataForm.TypeMovement == "") {
         isValid = false;
     }
+
     return isValid;
 }
 /**
  * 2. Lấy dữ liệu của emudation đã nhập từ form
  * CreatedBy VMHieu 21/03/2023
  */
-const getFormData = () => {
-    dataForm.RewardLevelCode = rewardLevelCode.value.trim();
-    
-    let obj = object.value.querySelectorAll('input[type="checkbox"]');
-    let dataObj = "";
-    let enumeration = Enum[Resource.PropName.RewardObject];
-
-    obj.forEach((element) => {
-        for (const prop in enumeration) {
-            if (element.checked && element.value == enumeration[prop] && enumeration[prop]) {
-                dataObj += enumeration[prop]; 
-            }
-        }
-    })
-    let mov = type.value.querySelectorAll('input[type="checkbox"]');
-    let dataMov = "";
-    enumeration = Enum[Resource.PropName.TypeMovement];
-
-    mov.forEach((element) => {
-        for (const prop in enumeration) {
-            if (element.checked && element.value == enumeration[prop] && enumeration[prop]) {
-                dataMov += enumeration[prop]; 
-            }
-        }
-    })
-
+const getFormData = () => {    
     if (formMode.value == Enum.FormMode.Edit) {
         dataForm.Status = Number(dataForm.Status);
     } else {
         dataForm.Status = Enum.Status.Use;
     }
-
-    dataForm.RewardObject = dataObj;
-    dataForm.TypeMovement = dataMov;
 
     return dataForm;
 }
@@ -336,10 +280,13 @@ const getFormData = () => {
  * CreatedBy VMHieu 21/03/2023
  */
 const handleSave = () => {
+    getValueCheckbox.value = !getValueCheckbox.value;
     let dataForm = getFormData();
 
     if (validateForm() == true) {
         if (formMode.value == Enum.FormMode.Add || formMode.value == Enum.FormMode.AddSave) {
+            store.dispatch('updateFormMode', Enum.FormMode.Add);
+            dataForm.EmulationID = emulation.value.EmulationID;
             store.dispatch('postEmulation', dataForm);
         } else if (formMode.value == Enum.FormMode.Edit) {
             dataForm.EmulationID = emulation.value.EmulationID;
@@ -355,6 +302,7 @@ const handleSave = () => {
     let dataForm = getFormData();
     if (validateForm() == true) {
         if (formMode.value == Enum.FormMode.Add || formMode.value == Enum.FormMode.AddSave) {
+            dataForm.EmulationID = emulation.value.EmulationID;
             store.dispatch('postEmulation', dataForm);
         } else if (formMode.value == Enum.FormMode.Edit) {
             dataForm.EmulationID = emulation.value.EmulationID;
@@ -362,6 +310,8 @@ const handleSave = () => {
         }
         // Thực hiện xong thì chuyển mode về add
         store.dispatch('updateFormMode', Enum.FormMode.AddSave);
+
+        resetValue.value = !resetValue.value;
 
         name.value.focus();
     }
@@ -377,25 +327,12 @@ const bidingData = () => {
     dataForm.EmulationName = emulation.value.EmulationName;
     dataForm.EmulationCode = emulation.value.EmulationCode;
     level.value = emulation.value.RewardLevelName;
-    rewardLevelCode.value = emulation.value.RewardLevelCode;
+    dataForm.RewardLevelCode = emulation.value.RewardLevelCode;
     dataForm.Note = emulation.value.Note;
     dataForm.Status = emulation.value.Status;
-    // biding các ô input checkbox
-    object.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (emulation.value.RewardObject.includes(element.value)) {
-            element.checked = true;
-        } else {
-            element.checked = false;
-        }
-    })
-    type.value.querySelectorAll('input[type="checkbox"]').forEach(element => {
-        if (emulation.value.TypeMovement.includes(element.value)) {
-            element.checked = true;
-        } else {
-            element.checked = false;
-        }
-    })
-    
+
+    dataForm.RewardObject = emulation.value.RewardObject.split("");
+    dataForm.TypeMovement = emulation.value.TypeMovement.split("");
 }
 /**
  * Tự động sinh mã danh hiệu thi đua

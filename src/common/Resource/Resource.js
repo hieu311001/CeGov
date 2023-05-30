@@ -69,9 +69,9 @@ export const ValidateError = {
  * CreatedBy VMHieu 05/04/2023
  */
 export const ToastSuccess = {
-    AddSuccess: "Thêm thành công",
-    EditSuccess: "Sửa thành công",
-    DeleteSuccess: "Xóa thành công",
+    AddSuccess: "Thêm dữ liệu thành công",
+    EditSuccess: "Cập nhật dữ liệu thành công",
+    DeleteSuccess: "Xóa dữ liệu thành công",
     LoadSuccess: "Tải dữ liệu thành công",
 }
 /**
@@ -85,7 +85,7 @@ export const ToastFail = {
     LoadFail: "Tải dữ liệu thất bại",
     ExportFail: "Xuất khẩu thất bại",
     ImportFail: "Nhập khẩu thất bại",
-    CheckFail: "Check file thất bại",
+    CheckFail: "Kiểm tra dữ liệu file thất bại",
     DownloadFileFail: "Tải file thất bại",
     InvalidDataResponse: "Không nhận được dữ liệu trả về"
 }
@@ -233,5 +233,38 @@ export const FileFormat = [
     'xls',
     'xlsx',
 ]
+
+export const DataCheckBox = {
+    RewardObject: {
+        Data: [
+            {
+                Value: 1,
+                Text: "Cá nhân"
+            },
+            {
+                Value: 2,
+                Text: "Tập thể"
+            },
+            {
+                Value: 3,
+                Text: "Hộ gia đình"
+            },
+        ],
+        ErrorMsg: "Đối tượng khen thưởng không được để trống."
+    },
+    TypeMovement: {
+        Data: [
+            {
+                Value: 1,
+                Text: "Thường xuyên"
+            },
+            {
+                Value: 2,
+                Text: "Theo đợt"
+            },
+        ],
+        ErrorMsg: "Loại khen thưởng không được để trống."
+    },
+}
 
 export default Resource;

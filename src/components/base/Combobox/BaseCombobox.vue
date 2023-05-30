@@ -179,6 +179,7 @@ import emulation from '@/store/modules/emulation';
           this.$refs.combobox.classList.add("combobox__error");
           this.indexItemSelected = null;
           this.indexItemFocus = null;
+          this.$emit("getValueCombobox");
         } else {
           this.$refs.combobox.classList.remove("combobox__error");
         }
@@ -235,6 +236,7 @@ import emulation from '@/store/modules/emulation';
         this.indexItemFocus = index;
         this.isShowListData = false;
         this.showError = false;
+        this.$refs.combobox.classList.remove("combobox__error");
 
         this.$emit("getValueCombobox", value);
       },

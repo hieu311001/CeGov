@@ -57,6 +57,7 @@ export const Status = {
 export const PopupStatus = {
     Delete: 1,   // Cảnh báo trước khi xóa
     Error: 2, // Cảnh báo lỗi
+    ErrorServer: 3, // Lỗi server
 }
 /**
  * Các giá trị của mode khi lấy thông tin emulation
